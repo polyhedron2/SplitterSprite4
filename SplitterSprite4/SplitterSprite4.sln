@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForConsole", "ForConsole\Fo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForWPF", "ForWPF\ForWPF.csproj", "{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForCocoa", "ForCocoa\ForCocoa.csproj", "{D687E616-B44D-45F8-922E-103F75574183}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D687E616-B44D-45F8-922E-103F75574183}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D687E616-B44D-45F8-922E-103F75574183}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D687E616-B44D-45F8-922E-103F75574183}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D687E616-B44D-45F8-922E-103F75574183}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
