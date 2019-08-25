@@ -6,7 +6,7 @@
 //
 using Foundation;
 
-namespace ForCocoa
+namespace MagicKitchen.SplitterSprite4.ForCocoa
 {
     [Register("ViewController")]
     partial class ViewController

@@ -1,6 +1,6 @@
 ﻿using AppKit;
 
-namespace ForCocoa
+namespace MagicKitchen.SplitterSprite4.ForCocoa
 {
     static class MainClass
     {

@@ -95,9 +95,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
+    <ProjectReference Include="..\Common\MagicKitchen.SplitterSprite4.Common.csproj">
       <Project>{60644c35-ff3b-4e94-8e05-530226865749}</Project>
-      <Name>Common</Name>
+      <Name>MagicKitchen.SplitterSprite4.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

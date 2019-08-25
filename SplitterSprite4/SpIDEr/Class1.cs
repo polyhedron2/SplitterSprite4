@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpIDEr
+namespace MagicKithen.SpIDEr
 {
     public class Class1
     {

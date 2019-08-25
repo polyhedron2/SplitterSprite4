@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Common\MagicKitchen.SplitterSprite4.Common.csproj" />
   </ItemGroup>
 
 </Project>

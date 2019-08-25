@@ -3,7 +3,7 @@
 using AppKit;
 using Foundation;
 
-namespace ForCocoa
+namespace MagicKitchen.SplitterSprite4.ForCocoa
 {
     public partial class ViewController : NSViewController
     {

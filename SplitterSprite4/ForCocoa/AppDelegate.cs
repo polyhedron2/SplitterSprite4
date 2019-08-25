@@ -1,7 +1,7 @@
 ﻿using AppKit;
 using Foundation;
 
-namespace ForCocoa
+namespace MagicKitchen.SplitterSprite4.ForCocoa
 {
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate

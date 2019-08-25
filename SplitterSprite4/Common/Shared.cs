@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Common
+namespace MagicKitchen.SplitterSprite4.Common
 {
     public class Shared
     {

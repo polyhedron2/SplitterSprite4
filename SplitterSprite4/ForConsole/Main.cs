@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ForConsole
+namespace MagicKitchen.SplitterSprite4.ForConsole
 {
     class EntryPoint
     {

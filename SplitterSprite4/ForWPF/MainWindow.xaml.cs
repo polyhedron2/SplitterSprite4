@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ForWPF
+namespace MagicKitchen.SplitterSprite4.ForWPF
 {
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
@@ -32,7 +32,7 @@ namespace ForWPF
             textBlock = new TextBlock();
 
             //textBlock.Text = "hoge";
-            string sample = Vanilla.Shared.Text();
+            string sample = Common.Shared.Text();
             textBlock.Text = sample;
 
             textBlock.FontSize = 40;
