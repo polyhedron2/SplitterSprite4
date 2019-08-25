@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vanilla
+namespace Common
 {
     public class Shared
     {

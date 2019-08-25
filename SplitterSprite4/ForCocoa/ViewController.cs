@@ -34,7 +34,7 @@ namespace ForCocoa
         public override void ViewWillAppear()
         {
             base.ViewWillAppear();
-            string sample = Vanilla.Shared.Text();
+            string sample = Common.Shared.Text();
             this.View.Window.Title = sample;
         }
     }

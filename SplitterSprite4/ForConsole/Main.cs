@@ -6,7 +6,7 @@ namespace ForConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(Vanilla.Shared.Text());
+            Console.WriteLine(Common.Shared.Text());
             Console.ReadKey();
         }
     }
