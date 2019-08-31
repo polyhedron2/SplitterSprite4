@@ -31,8 +31,7 @@ namespace MagicKitchen.SplitterSprite4.ForWPF
             Canvas.SetTop(content, 100);
             textBlock = new TextBlock();
 
-            //textBlock.Text = "hoge";
-            string sample = Common.Shared.Text();
+            string sample = Common.Launcher.Sample();
             textBlock.Text = sample;
 
             textBlock.FontSize = 40;

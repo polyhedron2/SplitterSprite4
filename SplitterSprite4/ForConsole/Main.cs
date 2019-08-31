@@ -6,7 +6,7 @@ namespace MagicKitchen.SplitterSprite4.ForConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(Common.Shared.Text());
+            Console.WriteLine("sample");
             Console.ReadKey();
         }
     }
