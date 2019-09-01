@@ -14,7 +14,7 @@ namespace MagicKitchen.SplitterSprite4.Common
 
         public static string Sample()
         {
-            var yaml = new RootYAML("launcher.meta");
+            var yaml = new YAML.RootYAML("launcher.meta");
             return yaml.ToString();
         }
     }
