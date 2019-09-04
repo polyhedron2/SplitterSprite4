@@ -28,6 +28,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 
         public List<YAML> Children { get; set; }
 
+        public void Add(YAML child) => Children.Add(child);
+
         protected override bool Contains(int key) =>
             0 <= key && key < Children.Count;
         protected override Value InnerGetter<Value>(int key)
