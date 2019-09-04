@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Text;
 using YamlDotNet.RepresentationModel;
 
@@ -9,26 +6,21 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
     class RootYAML : MappingYAML
     {
-        public RootYAML(string pathFromEntryAssembly) :
-            base(ReadFile(pathFromEntryAssembly))
+        public RootYAML(string path) : base(ReadFile(path))
         {
-            AccessPath = pathFromEntryAssembly;
+            AccessPath = path;
         }
 
         public void Reload() => Initialize(ReadFile(AccessPath));
 
-        static YamlMappingNode ReadFile(string pathFromEntryAssembly)
+        static YamlMappingNode ReadFile(string path)
         {
-            var rootPath =
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            var fullPath = Path.Combine(rootPath, pathFromEntryAssembly);
-
-            using (var reader = new StreamReader(fullPath, Encoding.UTF8))
+            return OutSideProxy.FileIO.WithReader(path, (reader) =>
             {
                 var yamlStream = new YamlStream();
                 yamlStream.Load(reader);
                 return (YamlMappingNode)yamlStream.Documents[0].RootNode;
-            }
+            });
         }
     }
 }
