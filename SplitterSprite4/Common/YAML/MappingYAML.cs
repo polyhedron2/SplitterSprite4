@@ -27,9 +27,9 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             Body = new Dictionary<string, YAML>();
             foreach (var entry in mapping.Children)
             {
-                var childAccessPath = $"{AccessPath}[{entry.Key}]";
-                var child = translate(entry.Value, childAccessPath);
-                child.AccessPath = childAccessPath;
+                var childID = $"{ID}[{entry.Key}]";
+                var child = translate(entry.Value, childID);
+                child.ID = childID;
                 Body[((YamlScalarNode)entry.Key).Value] = child;
             }
         }
@@ -45,13 +45,13 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             else
             {
                 throw new YAMLTypeSlipException<Value>(
-                    AccessPath, key.ToString(), value);
+                    ID, key.ToString(), value);
             }
         }
         protected override void InnerSetter<Value>(string key, Value value)
         {
-            var childAccessPath = $"{AccessPath}[{key}]";
-            value.AccessPath = childAccessPath;
+            var childID = $"{ID}[{key}]";
+            value.ID = childID;
             Body[key] = value;
         }
 

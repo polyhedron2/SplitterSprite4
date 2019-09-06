@@ -7,7 +7,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
     abstract class YAML
     {
-        public string AccessPath { get; set; }
+        public string ID { get; set; }
 
         public static YAML translate(YamlNode yamlNode, string accessPath)
         {
@@ -33,36 +33,36 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 
         protected virtual bool Contains(string key)
         {
-            throw new YAMLTypeSlipException<MappingYAML>(AccessPath, this);
+            throw new YAMLTypeSlipException<MappingYAML>(ID, this);
         }
 
         protected virtual bool Contains(int key)
         {
-            throw new YAMLTypeSlipException<SequenceYAML>(AccessPath, this);
+            throw new YAMLTypeSlipException<SequenceYAML>(ID, this);
         }
 
         protected virtual Value InnerGetter<Value>(string key)
             where Value : YAML
         {
-            throw new YAMLTypeSlipException<MappingYAML>(AccessPath, this);
+            throw new YAMLTypeSlipException<MappingYAML>(ID, this);
         }
 
         protected virtual Value InnerGetter<Value>(int key)
             where Value : YAML
         {
-            throw new YAMLTypeSlipException<SequenceYAML>(AccessPath, this);
+            throw new YAMLTypeSlipException<SequenceYAML>(ID, this);
         }
 
         protected virtual void InnerSetter<Value>(string key, Value value)
             where Value : YAML
         {
-            throw new YAMLTypeSlipException<MappingYAML>(AccessPath, this);
+            throw new YAMLTypeSlipException<MappingYAML>(ID, this);
         }
 
         protected virtual void InnerSetter<Value>(int key, Value value)
             where Value : YAML
         {
-            throw new YAMLTypeSlipException<SequenceYAML>(AccessPath, this);
+            throw new YAMLTypeSlipException<SequenceYAML>(ID, this);
         }
 
         protected Value InnerDefaultGetter<Value>(string key, Value defaultVal)
@@ -132,7 +132,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 get => parent.Contains(key) ?
                     parent.InnerGetter<CHILD>(key) :
                     throw new YamlKeyUndefinedException(
-                        parent.AccessPath, key.ToString());
+                        parent.ID, key.ToString());
                 set => parent.InnerSetter<CHILD>(key, value);
             }
 
@@ -141,7 +141,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 get => parent.Contains(key) ?
                     parent.InnerGetter<CHILD>(key) :
                     throw new YamlKeyUndefinedException(
-                        parent.AccessPath, key.ToString());
+                        parent.ID, key.ToString());
                 set => parent.InnerSetter<CHILD>(key, value);
             }
 

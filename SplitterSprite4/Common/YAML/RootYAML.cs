@@ -6,14 +6,17 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
     class RootYAML : MappingYAML
     {
-        public RootYAML(string path) : base(ReadFile(path))
+        public RootYAML(AgnosticPath path) : base(ReadFile(path))
         {
             AccessPath = path;
+            ID = path.ToAgnosticPathString();
         }
+
+        AgnosticPath AccessPath { get; set; }
 
         public void Reload() => Initialize(ReadFile(AccessPath));
 
-        static YamlMappingNode ReadFile(string path)
+        static YamlMappingNode ReadFile(AgnosticPath path)
         {
             return OutSideProxy.FileIO.WithReader(path, (reader) =>
             {

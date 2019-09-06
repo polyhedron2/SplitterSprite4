@@ -20,7 +20,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             var i = 0;
             foreach (var child in sequence)
             {
-                var translatedChild = translate(child, $"{AccessPath}[{i}]");
+                var translatedChild = translate(child, $"{ID}[{i}]");
                 Children.Add(translatedChild);
                 i++;
             }
@@ -42,13 +42,13 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             else
             {
                 throw new YAMLTypeSlipException<Value>(
-                    AccessPath, key.ToString(), value);
+                    ID, key.ToString(), value);
             }
         }
         protected override void InnerSetter<Value>(int key, Value value)
         {
-            var childAccessPath = $"{AccessPath}[{key}]";
-            value.AccessPath = childAccessPath;
+            var childID = $"{ID}[{key}]";
+            value.ID = childID;
             Children[key] = value;
         }
 
