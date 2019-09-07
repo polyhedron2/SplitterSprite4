@@ -7,54 +7,65 @@ using System.Text;
 
 namespace MagicKitchen.SplitterSprite4.Common
 {
-    class AgnosticPath
+    // ゲームの実行ファイルのあるディレクトリを起点とした相対パスを
+    // OS非依存(OS-Agnostic)に実現するクラス
+    public class AgnosticPath
     {
+        // ゲームの実行ファイルのあるディレクトリパス
+        static string RootPath { get; } =
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+        // 各種OSでファイル名・ディレクトリ名に使用してはいけない禁止文字の集合
         static char[] ProhibitedChars { get; } =
         {
             // for Windows
             '\\', '*', '?', '"', '<', '>', '|', ':', 
-            // for Windows, Mac, and Linux
-            '/',
             // for Linux
             '\0',
+            // for Windows, Mac, and Linux
+            '/',
         };
 
-        static char InternalSeparatorChar { get; } = '/';
+        // OS毎に異なるファイル区切り文字を置き換えるための文字
+        // '/'を用いるので、実態はLinuxスタイルのファイルパスに一致する。
+        public static char InternalSeparatorChar { get; } = '/';
 
-        private AgnosticPath(string agnosticPath)
+        private AgnosticPath(string path, char separatorChar)
         {
-            this.InternalPath = agnosticPath;
-        }
-
-        string RootPath { get; } =
-            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-        string InternalPath { get; set; }
-
-        private static AgnosticPath FromPathString(string path, char separatorChar)
-        {
-            foreach(var c in ProhibitedChars)
+            // 禁止文字チェックと区切り文字置換処理
+            foreach (var c in ProhibitedChars)
             {
-                if(c != separatorChar && path.Contains(c))
+                // 禁止文字がファイル区切り文字以外として入っていれば例外
+                if (c != separatorChar && path.Contains(c))
                 {
                     throw new ProhibitedCharacterContainedException(path, c);
                 }
             }
 
-            return new AgnosticPath(
-                path.Replace(separatorChar, InternalSeparatorChar));
+            // OS毎に異なるファイル区切り文字を置換
+            InternalPath = path.Replace(separatorChar, InternalSeparatorChar);
         }
 
+        string InternalPath { get; set; }
+
+        // OS非依存化された文字列からのオブジェクト生成
         public static AgnosticPath FromAgnosticPathString(
             string agnosticPath) =>
-            FromPathString(agnosticPath, InternalSeparatorChar);
+            new AgnosticPath(agnosticPath, InternalSeparatorChar);
 
-        public static AgnosticPath FromOSPathString(string agnosticPath) =>
-            FromPathString(agnosticPath, Path.DirectorySeparatorChar);
+        // OS依存な文字列からのオブジェクト生成
+        public static AgnosticPath FromOSPathString(
+            string agnosticPath) =>
+            new AgnosticPath(agnosticPath, Path.DirectorySeparatorChar);
 
+        // OS非依存化された文字列として出力
         public string ToAgnosticPathString() => InternalPath;
+
+        // OS依存なファイルパスとして出力
         public string ToOSPathString() => InternalPath.Replace(
             InternalSeparatorChar, Path.DirectorySeparatorChar);
+
+        // OS依存なフルパスとして出力
         public string ToOSFullPathString() =>
             Path.Combine(RootPath, ToOSPathString());
 
@@ -65,7 +76,12 @@ namespace MagicKitchen.SplitterSprite4.Common
                     $"ファイルパス\"{path}\"に" +
                     $"禁止文字'{containedChar}'が含まれています。")
             {
+                Path = path;
+                ContainedChar = containedChar;
             }
+
+            public string Path { get; private set;}
+            public char ContainedChar { get; private set; }
         }
     }
 }

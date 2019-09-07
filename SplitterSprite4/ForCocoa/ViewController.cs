@@ -34,7 +34,7 @@ namespace MagicKitchen.SplitterSprite4.ForCocoa
         public override void ViewWillAppear()
         {
             base.ViewWillAppear();
-            string sample = Common.Shared.Text();
+            string sample = "hoge";
             this.View.Window.Title = sample;
         }
     }
