@@ -6,6 +6,16 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
     class RootYAML : MappingYAML
     {
+        static YamlMappingNode ReadFile(AgnosticPath path)
+        {
+            return Proxy.OutSideProxy.FileIO.WithTextReader(path, (reader) =>
+            {
+                var yamlStream = new YamlStream();
+                yamlStream.Load(reader);
+                return (YamlMappingNode)yamlStream.Documents[0].RootNode;
+            });
+        }
+
         public RootYAML(AgnosticPath path) : base(ReadFile(path))
         {
             AccessPath = path;
@@ -16,13 +26,11 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 
         public void Reload() => Initialize(ReadFile(AccessPath));
 
-        static YamlMappingNode ReadFile(AgnosticPath path)
+        public void Save()
         {
-            return OutSideProxy.FileIO.WithReader(path, (reader) =>
+            Proxy.OutSideProxy.FileIO.WithTextWriter(AccessPath, (writer) =>
             {
-                var yamlStream = new YamlStream();
-                yamlStream.Load(reader);
-                return (YamlMappingNode)yamlStream.Documents[0].RootNode;
+                writer.Write(ToString());
             });
         }
     }

@@ -26,6 +26,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // フルパスを生成
             var fullPathStr =
                 rootPath + Path.DirectorySeparatorChar + osPathStr;
+            // フルパス上のディレクトリ名を生成
+            var fullDirPathStr =
+                Path.GetDirectoryName(fullPathStr);
 
             // act
             // OS非依存パスと依存パスからAgnosticPathを生成
@@ -39,6 +42,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(agnosticPathStr, path.ToAgnosticPathString());
                 Assert.Equal(osPathStr, path.ToOSPathString());
                 Assert.Equal(fullPathStr, path.ToOSFullPathString());
+                Assert.Equal(fullDirPathStr, path.ToOSFullDirPathString());
             }
         }
 

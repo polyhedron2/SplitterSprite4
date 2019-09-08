@@ -69,6 +69,10 @@ namespace MagicKitchen.SplitterSprite4.Common
         public string ToOSFullPathString() =>
             Path.Combine(RootPath, ToOSPathString());
 
+        // OS依存なフルパスのディレクトリ名として出力
+        public string ToOSFullDirPathString() =>
+            Path.GetDirectoryName(ToOSFullPathString());
+
         public class ProhibitedCharacterContainedException : Exception
         {
             public ProhibitedCharacterContainedException(
