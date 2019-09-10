@@ -1,25 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace MagicKitchen.SplitterSprite4.Common.Proxy
 {
+    // ゲームの設定ファイル、メディアファイル、プログラムファイルへのアクセスを
+    // 一括管理するプロキシクラス
     public abstract class FileIOProxy
     {
         protected abstract TextReader FetchTextReader(AgnosticPath path);
         protected abstract TextWriter FetchTextWriter(
             AgnosticPath path, bool append);
-        protected abstract void CreateDirectory(AgnosticPath path);
+        public abstract void CreateDirectory(AgnosticPath path);
 
-        public Result WithTextReader<Result>(
-            AgnosticPath path, Func<TextReader, Result> func)
+        // ゲームの実行ファイルのあるディレクトリパス
+        protected static string RootPath { get; private set; } =
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+        // テスト実行中はRootPathをシステムのTEMPファイル領域に切り替える
+        public void WithTestMode(Action testAction)
         {
-            using (var reader = FetchTextReader(path))
+            var prevRootPath = RootPath;
+            try
             {
-                return func(reader);
+                // TEMP領域にテスト用フォルダを作成
+                RootPath = Path.Combine(
+                    Path.GetTempPath(), Path.GetRandomFileName());
+                Directory.CreateDirectory(RootPath);
+                try
+                {
+                    // テスト実行
+                    testAction();
+                }
+                finally
+                {
+                    // 例外が発生してもテスト用フォルダは削除する
+                    Directory.Delete(RootPath, true);
+                }
+            }
+            finally
+            {
+                // 例外が発生してもRootPathは元に戻す
+                RootPath = prevRootPath;
             }
         }
+
+        // OS依存なフルパスとして出力
+        public string OSFullPath(AgnosticPath path) =>
+            Path.Combine(RootPath, path.ToOSPathString());
+
+        // OS依存なフルパスのディレクトリ名を出力
+        public string OSFullDirPath(AgnosticPath path) =>
+            Path.GetDirectoryName(OSFullPath(path));
 
         public void WithTextReader(
             AgnosticPath path, Action<TextReader> action)
@@ -30,12 +64,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
             }
         }
 
-        public Result WithTextWriter<Result>(
-            AgnosticPath path, bool append, Func<TextWriter, Result> func)
+        public Result WithTextReader<Result>(
+            AgnosticPath path, Func<TextReader, Result> func)
         {
-            using (var writer = FetchTextWriter(path, append))
+            using (var reader = FetchTextReader(path))
             {
-                return func(writer);
+                return func(reader);
             }
         }
 
@@ -49,11 +83,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         }
 
         public Result WithTextWriter<Result>(
-            AgnosticPath path, Func<TextWriter, Result> func) =>
-            WithTextWriter(path, false, func);
-
-        public void WithTextWriter(
-            AgnosticPath path, Action<TextWriter> action) =>
-            WithTextWriter(path, false, action);
+            AgnosticPath path, bool append, Func<TextWriter, Result> func)
+        {
+            using (var writer = FetchTextWriter(path, append))
+            {
+                return func(writer);
+            }
+        }
     }
 }

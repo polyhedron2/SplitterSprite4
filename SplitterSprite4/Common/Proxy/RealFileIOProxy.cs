@@ -9,30 +9,28 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
     {
         protected override TextReader FetchTextReader(AgnosticPath path)
         {
-            if (!File.Exists(path.ToOSFullPathString()))
+            if (!File.Exists(OSFullPath(path)))
             {
-                throw new FileNotFoundException(path);
+                throw new AgnosticPathNotFoundException(path);
             }
 
-            return new StreamReader(
-                path.ToOSFullPathString(), Encoding.UTF8);
+            return new StreamReader(OSFullPath(path), Encoding.UTF8);
         }
 
         protected override TextWriter FetchTextWriter(
             AgnosticPath path, bool append)
         {
-            if (!File.Exists(path.ToOSFullDirPathString()))
+            if (!Directory.Exists(OSFullDirPath(path)))
             {
-                throw new FileNotFoundException(path);
+                throw new AgnosticPathNotFoundException(path);
             }
 
-            return new StreamWriter(
-                path.ToOSFullPathString(), append, Encoding.UTF8);
+            return new StreamWriter(OSFullPath(path), append, Encoding.UTF8);
         }
 
-        protected override void CreateDirectory(AgnosticPath path)
+        public override void CreateDirectory(AgnosticPath path)
         {
-            Directory.CreateDirectory(path.ToOSFullDirPathString());
+            Directory.CreateDirectory(OSFullDirPath(path));
         }
     }
 }

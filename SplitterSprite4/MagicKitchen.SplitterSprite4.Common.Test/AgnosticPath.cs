@@ -1,4 +1,3 @@
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,8 +40,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // ê∂ê¨Ç≥ÇÍÇΩAgnosticPathÇÕÇ«ÇøÇÁÇ‡ìØÇ∂ì‡óeÇï\åªÇ∑ÇÈ
                 Assert.Equal(agnosticPathStr, path.ToAgnosticPathString());
                 Assert.Equal(osPathStr, path.ToOSPathString());
-                Assert.Equal(fullPathStr, path.ToOSFullPathString());
-                Assert.Equal(fullDirPathStr, path.ToOSFullDirPathString());
             }
         }
 

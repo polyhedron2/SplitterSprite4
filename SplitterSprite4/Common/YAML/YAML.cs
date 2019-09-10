@@ -190,6 +190,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
-        public override string ToString() => string.Join("\r\n", ToStringLines());
+        public override string ToString() =>
+            string.Join(Environment.NewLine, ToStringLines());
     }
 }

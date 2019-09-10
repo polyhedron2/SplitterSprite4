@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace MagicKitchen.SplitterSprite4.Common
@@ -11,10 +10,6 @@ namespace MagicKitchen.SplitterSprite4.Common
     // OS非依存(OS-Agnostic)に実現するクラス
     public class AgnosticPath
     {
-        // ゲームの実行ファイルのあるディレクトリパス
-        static string RootPath { get; } =
-            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
         // 各種OSでファイル名・ディレクトリ名に使用してはいけない禁止文字の集合
         static char[] ProhibitedChars { get; } =
         {
@@ -64,14 +59,6 @@ namespace MagicKitchen.SplitterSprite4.Common
         // OS依存なファイルパスとして出力
         public string ToOSPathString() => InternalPath.Replace(
             InternalSeparatorChar, Path.DirectorySeparatorChar);
-
-        // OS依存なフルパスとして出力
-        public string ToOSFullPathString() =>
-            Path.Combine(RootPath, ToOSPathString());
-
-        // OS依存なフルパスのディレクトリ名として出力
-        public string ToOSFullDirPathString() =>
-            Path.GetDirectoryName(ToOSFullPathString());
 
         public class ProhibitedCharacterContainedException : Exception
         {

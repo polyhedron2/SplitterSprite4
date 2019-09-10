@@ -28,7 +28,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 
         public void Save()
         {
-            Proxy.OutSideProxy.FileIO.WithTextWriter(AccessPath, (writer) =>
+            Proxy.OutSideProxy.FileIO.WithTextWriter(
+                AccessPath, false, (writer) =>
             {
                 writer.Write(ToString());
             });
