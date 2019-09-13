@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
-    class YAMLTypeSlipException<ExpectedValue> : Exception
+    public class YAMLTypeSlipException<ExpectedValue> : Exception
         where ExpectedValue : YAML
     {
         public YAMLTypeSlipException(
@@ -19,15 +19,15 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         { }
     }
 
-    class InvalidYAMLStyleException : Exception
+    public class InvalidYAMLStyleException : Exception
     {
         public InvalidYAMLStyleException(string path)
             : base($"YAML\"{path}\"上の形式は想定される形式ではありません。") { }
     }
 
-    class YamlKeyUndefinedException : Exception
+    public class YAMLKeyUndefinedException : Exception
     {
-        public YamlKeyUndefinedException(string path, string key)
+        public YAMLKeyUndefinedException(string path, string key)
             : base($"YAML\"{path}\"上のキー\"{key}\"は未定義です。") { }
     }
 }

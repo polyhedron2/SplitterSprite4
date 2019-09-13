@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,34 +7,50 @@ using YamlDotNet.RepresentationModel;
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
-    class MappingYAML : YAML
+    // YAML上の辞書を表現するオブジェクト
+    public class MappingYAML : YAML, IEnumerable<KeyValuePair<string, YAML>>
     {
         public MappingYAML()
         {
             Body = new Dictionary<string, YAML>();
+            KeyOrder = new List<string>();
         }
 
-        public MappingYAML(YamlMappingNode mapping)
+        public MappingYAML(string id, YamlMappingNode mapping) : this()
         {
-            Initialize(mapping);
-        }
-
-        Dictionary<string, YAML> Body { get; set; }
-
-        public void Add(string key, YAML value) => Body.Add(key, value);
-
-        protected void Initialize(YamlMappingNode mapping)
-        {
-            Body = new Dictionary<string, YAML>();
+            ID = id;
             foreach (var entry in mapping.Children)
             {
                 var childID = $"{ID}[{entry.Key}]";
-                var child = translate(entry.Value, childID);
-                child.ID = childID;
-                Body[((YamlScalarNode)entry.Key).Value] = child;
+                var child = translate(childID, entry.Value);
+                Add(((YamlScalarNode)entry.Key).Value, child);
             }
         }
 
+        Dictionary<string, YAML> Body { get; set; }
+        // Dictionaryはキーの順序保存を保証しないので順序管理用リストを持つ
+        List<string> KeyOrder { get; set; }
+
+        public IEnumerator<KeyValuePair<string, YAML>> GetEnumerator()
+        {
+            foreach (var key in KeyOrder)
+            {
+                yield return new KeyValuePair<string, YAML>(key, Body[key]);
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Add(string key, YAML value)
+        {
+            if (!Body.ContainsKey(key))
+            {
+                KeyOrder.Add(key);
+            }
+            Body[key] = value;
+        }
         protected override bool Contains(string key) => Body.ContainsKey(key);
         protected override Value InnerGetter<Value>(string key)
         {
@@ -52,32 +69,63 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         {
             var childID = $"{ID}[{key}]";
             value.ID = childID;
-            Body[key] = value;
+            Add(key, value);
         }
 
         public override IEnumerable<string> ToStringLines()
         {
-            IEnumerable<string> translateCollectionLines(KeyValuePair<string, YAML> entry)
+            IEnumerable<string> translateCollectionLines(string key)
             {
                 // entry.ValueのStringLinesが０行であれば、何も出力しない。
                 var i = 0;
-                foreach (var line in entry.Value.ToStringLines())
+                foreach (var line in Body[key].ToStringLines())
                 {
                     // entry.ValueのStringLinesが１行以上であれば、
                     // keyを出力してから内容をインデント出力。
                     if (i == 0)
                     {
-                        yield return $"{entry.Key}:";
+                        yield return $"{key}:";
                     }
                     yield return $"  {line}";
                     i++;
                 }
             }
 
-            return Body.SelectMany(
-                entry => (entry.Value is ScalarYAML) ?
-                    // Scalarであれば$"{key}: {value}"の形
-                    entry.Value.ToStringLines().Select(_ => $"{entry.Key}: {_}") :
+            IEnumerable<string> translateScalar(string key)
+            {
+                var scalar = Body[key] as ScalarYAML;
+                if (scalar.IsMultiLine)
+                {
+                    // 複数行であれば、"|+"から始める
+                    yield return $"{key}: |+";
+                    foreach (var line in scalar.ToStringLines())
+                    {
+                        yield return $"  {line}";
+                    }
+                }
+                else
+                {
+                    foreach (var line in Body[key].ToStringLines())
+                    {
+                        yield return $"{key}: {line}";
+                    }
+                }
+            }
+
+            return KeyOrder.SelectMany(
+                key =>
+                    (Body[key] is ScalarYAML) ?
+                    // Scalarであれば
+                    // 単一行なら
+                    // key: value
+                    // 複数行なら
+                    // key: |+
+                    //   line0
+                    //   line1
+                    //     :
+                    //   lineN
+                    // の形
+                    translateScalar(key) :
                     // Sequence, Mappingであれば、
                     // key: 
                     //   value0
@@ -85,8 +133,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //     :
                     //   valueN
                     // の形
-                    translateCollectionLines(entry)
-            );
+                    translateCollectionLines(key));
         }
     }
 }

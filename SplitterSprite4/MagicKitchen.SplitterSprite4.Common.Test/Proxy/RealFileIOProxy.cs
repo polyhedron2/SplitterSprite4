@@ -37,24 +37,27 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         [InlineData("dir1/dir2/baz.meta")]
         public void FullPathTest(string path)
         {
-            // arrange
-            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            // フルパスとしてはゲーム実行ファイルのあるフォルダにagnosticPathを
-            // つなげたものを期待する
-            var expectedFullPath = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                agnosticPath.ToOSPathString());
-            var expectedFullDirPath =
-                Path.GetDirectoryName(expectedFullPath);
+            OutSideProxy.WithTestMode(() =>
+            {
+                // arrange
+                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+                // フルパスとしてはゲーム実行ファイルのあるフォルダにagnosticPathを
+                // つなげたものを期待する
+                var expectedFullPath = Path.Combine(
+                    OutSideProxy.FileIO.RootPath,
+                    agnosticPath.ToOSPathString());
+                var expectedFullDirPath =
+                    Path.GetDirectoryName(expectedFullPath);
 
-            // act
-            var actualFullPath = OutSideProxy.FileIO.OSFullPath(agnosticPath);
-            var actualFullDirPath =
-                OutSideProxy.FileIO.OSFullDirPath(agnosticPath);
+                // act
+                var actualFullPath = OutSideProxy.FileIO.OSFullPath(agnosticPath);
+                var actualFullDirPath =
+                    OutSideProxy.FileIO.OSFullDirPath(agnosticPath);
 
-            // assert
-            Assert.Equal(expectedFullPath, actualFullPath);
-            Assert.Equal(expectedFullDirPath, actualFullDirPath);
+                // assert
+                Assert.Equal(expectedFullPath, actualFullPath);
+                Assert.Equal(expectedFullDirPath, actualFullDirPath);
+            });
         }
 
         [Theory]

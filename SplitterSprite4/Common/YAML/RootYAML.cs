@@ -4,35 +4,38 @@ using YamlDotNet.RepresentationModel;
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
-    class RootYAML : MappingYAML
+    // YAMLファイル実体に対応するオブジェクト
+    public class RootYAML : MappingYAML
     {
+        // YAMLファイルからMappingを取得
         static YamlMappingNode ReadFile(AgnosticPath path)
         {
-            return Proxy.OutSideProxy.FileIO.WithTextReader(path, (reader) =>
+            var yamlStream = new YamlStream();
+            Proxy.OutSideProxy.FileIO.WithTextReader(path, (reader) =>
             {
-                var yamlStream = new YamlStream();
                 yamlStream.Load(reader);
-                return (YamlMappingNode)yamlStream.Documents[0].RootNode;
             });
+            return (YamlMappingNode) yamlStream.Documents[0].RootNode;
         }
 
-        public RootYAML(AgnosticPath path) : base(ReadFile(path))
+        // ファイルパスをIDとして、ファイルの中身を読み込み
+        public RootYAML(AgnosticPath path) :
+            base(path.ToAgnosticPathString(), ReadFile(path))
         {
             AccessPath = path;
-            ID = path.ToAgnosticPathString();
         }
 
-        AgnosticPath AccessPath { get; set; }
-
-        public void Reload() => Initialize(ReadFile(AccessPath));
-
+        // ファイル保存
         public void Save()
         {
             Proxy.OutSideProxy.FileIO.WithTextWriter(
                 AccessPath, false, (writer) =>
-            {
-                writer.Write(ToString());
-            });
+                {
+                    writer.Write(ToString());
+                });
         }
+
+        // YAMLファイルの存在するパス
+        AgnosticPath AccessPath { get; set; }
     }
 }

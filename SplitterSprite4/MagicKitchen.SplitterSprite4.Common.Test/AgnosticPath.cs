@@ -20,14 +20,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // OS依存な文字列を生成
             var osPathStr =
                 agnosticPathStr.Replace('/', Path.DirectorySeparatorChar);
-            var rootPath =
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            // フルパスを生成
-            var fullPathStr =
-                rootPath + Path.DirectorySeparatorChar + osPathStr;
-            // フルパス上のディレクトリ名を生成
-            var fullDirPathStr =
-                Path.GetDirectoryName(fullPathStr);
 
             // act
             // OS非依存パスと依存パスからAgnosticPathを生成

@@ -25,7 +25,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
                 throw new AgnosticPathNotFoundException(path);
             }
 
-            return new StreamWriter(OSFullPath(path), append, Encoding.UTF8);
+            return new StreamWriter(
+                OSFullPath(path), append, Encoding.UTF8);
         }
 
         public override void CreateDirectory(AgnosticPath path)

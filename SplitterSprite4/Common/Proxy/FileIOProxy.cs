@@ -16,34 +16,58 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         public abstract void CreateDirectory(AgnosticPath path);
 
         // ゲームの実行ファイルのあるディレクトリパス
-        protected static string RootPath { get; private set; } =
+        public string RootPath { get; private set; } =
             Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
         // テスト実行中はRootPathをシステムのTEMPファイル領域に切り替える
         public void WithTestMode(Action testAction)
         {
-            var prevRootPath = RootPath;
-            try
+            // テスト並列実行時に干渉しあわないよう、スレッドロックを取得
+            lock (this)
             {
-                // TEMP領域にテスト用フォルダを作成
-                RootPath = Path.Combine(
-                    Path.GetTempPath(), Path.GetRandomFileName());
-                Directory.CreateDirectory(RootPath);
+                var prevRootPath = RootPath;
                 try
                 {
-                    // テスト実行
-                    testAction();
+                    var testDirName = "SplitterSpriteTest";
+
+                    // TEMP領域にテスト用フォルダを作成
+                    RootPath = Path.Combine(
+                        Path.GetTempPath(),
+                        testDirName,
+                        Path.GetRandomFileName());
+
+                    Directory.CreateDirectory(RootPath);
+
+                    try
+                    {
+                        // テスト実行
+                        testAction();
+                    }
+                    finally
+                    {
+                        // テスト用フォルダの親フォルダごと削除を試みる
+                        // 前のテストで削除できなかったフォルダも削除される
+                        TryDeleteDirectory(RootPath);
+                    }
                 }
                 finally
                 {
-                    // 例外が発生してもテスト用フォルダは削除する
-                    Directory.Delete(RootPath, true);
+                    // 例外が発生してもRootPathは元に戻す
+                    RootPath = prevRootPath;
                 }
             }
-            finally
+        }
+
+        void TryDeleteDirectory(string path)
+        {
+            try
             {
-                // 例外が発生してもRootPathは元に戻す
-                RootPath = prevRootPath;
+                // テスト用フォルダの削除を試みる
+                Directory.Delete(path, true);
+            }
+            catch
+            {
+                // TEMP配下なので削除失敗は気にしない。
             }
         }
 
