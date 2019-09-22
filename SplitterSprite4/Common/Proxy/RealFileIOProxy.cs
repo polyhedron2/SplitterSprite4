@@ -1,37 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿// -----------------------------------------------------------------------
+// <copyright file="RealFileIOProxy.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace MagicKitchen.SplitterSprite4.Common.Proxy
 {
-    class RealFileIOProxy : FileIOProxy
+    using System.IO;
+    using System.Text;
+
+    /// <summary>
+    /// 実際のゲーム中のファイルアクセスを管理するプロキシクラス
+    /// FileIOProxy for actual file access.
+    /// </summary>
+    internal class RealFileIOProxy : FileIOProxy
     {
+        /// <inheritdoc/>
+        public override void CreateDirectory(AgnosticPath path)
+        {
+            Directory.CreateDirectory(this.OSFullDirPath(path));
+        }
+
+        /// <inheritdoc/>
         protected override TextReader FetchTextReader(AgnosticPath path)
         {
-            if (!File.Exists(OSFullPath(path)))
+            if (!File.Exists(this.OSFullPath(path)))
             {
                 throw new AgnosticPathNotFoundException(path);
             }
 
-            return new StreamReader(OSFullPath(path), Encoding.UTF8);
+            return new StreamReader(this.OSFullPath(path), Encoding.UTF8);
         }
 
+        /// <inheritdoc/>
         protected override TextWriter FetchTextWriter(
             AgnosticPath path, bool append)
         {
-            if (!Directory.Exists(OSFullDirPath(path)))
+            if (!Directory.Exists(this.OSFullDirPath(path)))
             {
                 throw new AgnosticPathNotFoundException(path);
             }
 
             return new StreamWriter(
-                OSFullPath(path), append, Encoding.UTF8);
-        }
-
-        public override void CreateDirectory(AgnosticPath path)
-        {
-            Directory.CreateDirectory(OSFullDirPath(path));
+                this.OSFullPath(path), append, Encoding.UTF8);
         }
     }
 }

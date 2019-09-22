@@ -1,123 +1,143 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using YamlDotNet.RepresentationModel;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MappingYAML.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
-    // YAML上の辞書を表現するオブジェクト
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using YamlDotNet.RepresentationModel;
+
+    /// <summary>
+    /// マッピング（ハッシュ、辞書）型のYAMLを表現するクラス
+    /// The YAML class for mapping type YAML.
+    /// </summary>
     public class MappingYAML : YAML, IEnumerable<KeyValuePair<string, YAML>>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MappingYAML"/> class.
+        /// </summary>
         public MappingYAML()
         {
-            Body = new Dictionary<string, YAML>();
-            KeyOrder = new List<string>();
+            this.Body = new Dictionary<string, YAML>();
+            this.KeyOrder = new List<string>();
         }
 
-        public MappingYAML(string id, YamlMappingNode mapping) : this()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MappingYAML"/> class.
+        /// </summary>
+        /// <param name="id">The yaml's ID.</param>
+        /// <param name="mapping">YamlDotNet mapping instance.</param>
+        public MappingYAML(string id, YamlMappingNode mapping)
+            : this()
         {
-            ID = id;
+            this.ID = id;
             foreach (var entry in mapping.Children)
             {
-                var childID = $"{ID}[{entry.Key}]";
-                var child = translate(childID, entry.Value);
-                Add(((YamlScalarNode)entry.Key).Value, child);
+                var childID = $"{this.ID}[{entry.Key}]";
+                var child = Translate(childID, entry.Value);
+                this.Add(((YamlScalarNode)entry.Key).Value, child);
             }
         }
 
-        Dictionary<string, YAML> Body { get; set; }
-        // Dictionaryはキーの順序保存を保証しないので順序管理用リストを持つ
-        List<string> KeyOrder { get; set; }
+        private Dictionary<string, YAML> Body { get; set; }
 
+        // Dictionaryはキーの順序保存を保証しないので順序管理用リストを持つ
+        // The order of the keys in the Dictionary is unspecified.
+        private List<string> KeyOrder { get; set; }
+
+        /// <inheritdoc/>
         public IEnumerator<KeyValuePair<string, YAML>> GetEnumerator()
         {
-            foreach (var key in KeyOrder)
+            foreach (string key in this.KeyOrder)
             {
-                yield return new KeyValuePair<string, YAML>(key, Body[key]);
+                yield return new KeyValuePair<string, YAML>(key, this.Body[key]);
             }
         }
+
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return this.GetEnumerator();
         }
 
+        /// <summary>
+        /// Add key-value pair to this.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="value">The value YAML.</param>
         public void Add(string key, YAML value)
         {
-            if (!Body.ContainsKey(key))
+            if (!this.Body.ContainsKey(key))
             {
-                KeyOrder.Add(key);
+                this.KeyOrder.Add(key);
             }
-            Body[key] = value;
-        }
-        protected override bool Contains(string key) => Body.ContainsKey(key);
-        protected override Value InnerGetter<Value>(string key)
-        {
-            var value = Body[key];
-            if (value is Value)
-            {
-                return value as Value;
-            }
-            else
-            {
-                throw new YAMLTypeSlipException<Value>(
-                    ID, key.ToString(), value);
-            }
-        }
-        protected override void InnerSetter<Value>(string key, Value value)
-        {
-            var childID = $"{ID}[{key}]";
-            value.ID = childID;
-            Add(key, value);
+
+            this.Body[key] = value;
         }
 
+        /// <inheritdoc/>
         public override IEnumerable<string> ToStringLines()
         {
-            IEnumerable<string> translateCollectionLines(string key)
+            IEnumerable<string> TranslateCollectionLines(string key)
             {
                 // entry.ValueのStringLinesが０行であれば、何も出力しない。
+                // If entry.Value has no lines, skip.
                 var i = 0;
-                foreach (var line in Body[key].ToStringLines())
+                foreach (string line in this.Body[key].ToStringLines())
                 {
                     // entry.ValueのStringLinesが１行以上であれば、
                     // keyを出力してから内容をインデント出力。
+                    // If entry.Value has some lines,
+                    // key is dumped at first.
                     if (i == 0)
                     {
                         yield return $"{key}:";
                     }
+
                     yield return $"  {line}";
                     i++;
                 }
             }
 
-            IEnumerable<string> translateScalar(string key)
+            IEnumerable<string> TranslateScalar(string key)
             {
-                var scalar = Body[key] as ScalarYAML;
+                ScalarYAML scalar = this.Body[key] as ScalarYAML;
                 if (scalar.IsMultiLine)
                 {
                     // 複数行であれば、"|+"から始める
+                    // In multi-line case, start with "|+".
                     yield return $"{key}: |+";
-                    foreach (var line in scalar.ToStringLines())
+                    foreach (string line in scalar.ToStringLines())
                     {
                         yield return $"  {line}";
                     }
                 }
                 else
                 {
-                    foreach (var line in Body[key].ToStringLines())
+                    foreach (string line in this.Body[key].ToStringLines())
                     {
                         yield return $"{key}: {line}";
                     }
                 }
             }
 
-            return KeyOrder.SelectMany(
+            return this.KeyOrder.SelectMany(
                 key =>
-                    (Body[key] is ScalarYAML) ?
+                    (this.Body[key] is ScalarYAML) ?
+
                     // Scalarであれば
                     // 単一行なら
                     // key: value
+                    // の形
+
+                    // In single line and scalar case,
+                    // following style.
+                    // key: value
+
                     // 複数行なら
                     // key: |+
                     //   line0
@@ -125,15 +145,58 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //     :
                     //   lineN
                     // の形
-                    translateScalar(key) :
+
+                    // In multi-line and scalar case,
+                    // following style.
+                    // key: |+
+                    //   line0
+                    //   line1
+                    //     :
+                    //   lineN
+                    TranslateScalar(key) :
+
                     // Sequence, Mappingであれば、
-                    // key: 
+                    // key:
                     //   value0
                     //   value1
                     //     :
                     //   valueN
                     // の形
-                    translateCollectionLines(key));
+
+                    // In sequence or mapping case,
+                    // following style.
+                    // key:
+                    //   value0
+                    //   value1
+                    //     :
+                    //   valueN
+                    TranslateCollectionLines(key));
+        }
+
+        /// <inheritdoc/>
+        protected override bool Contains(string key) => this.Body.ContainsKey(key);
+
+        /// <inheritdoc/>
+        protected override TValue InnerGetter<TValue>(string key)
+        {
+            YAML value = this.Body[key];
+            if (value is TValue)
+            {
+                return value as TValue;
+            }
+            else
+            {
+                throw new YAMLTypeSlipException<TValue>(
+                    this.ID, key.ToString(), value);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override void InnerSetter<TValue>(string key, TValue value)
+        {
+            string childID = $"{this.ID}[{key}]";
+            value.ID = childID;
+            this.Add(key, value);
         }
     }
 }

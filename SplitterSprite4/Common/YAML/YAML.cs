@@ -1,15 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using YamlDotNet.RepresentationModel;
+﻿// -----------------------------------------------------------------------
+// <copyright file="YAML.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
-    // 読み書き、ファイル保存機能を備えたYAML処理クラス
+    using System.Collections.Generic;
+    using YamlDotNet.RepresentationModel;
+
+    /// <summary>
+    /// 読み書き、ファイル保存機能を備えたYAML処理クラス
+    /// YAML access class with read, write, and save functions.
+    /// </summary>
     public abstract class YAML
     {
-        // YamlDotNetオブジェクトを独自形式に変換
-        public static YAML translate(string id, YamlNode yamlNode)
+        /// <summary>
+        /// Gets or sets YAML ID which shows how to access this instance.
+        /// </summary>
+        public string ID { get; set; } = "undefined";
+
+        /// <summary>
+        /// Gets indexer for scalar type YAML.
+        /// </summary>
+        public ChildIndexer<ScalarYAML> Scalar
+        {
+            get => new ChildIndexer<ScalarYAML>(this);
+        }
+
+        /// <summary>
+        /// Gets indexer for sequence type YAML.
+        /// </summary>
+        public ChildIndexer<SequenceYAML> Sequence
+        {
+            get => new ChildIndexer<SequenceYAML>(this);
+        }
+
+        /// <summary>
+        /// Gets indexer for mapping type YAML.
+        /// </summary>
+        public ChildIndexer<MappingYAML> Mapping
+        {
+            get => new ChildIndexer<MappingYAML>(this);
+        }
+
+        /// <summary>
+        /// Indexer access as mapping type YAML.
+        /// </summary>
+        /// <param name="key">The string key for mapping.</param>
+        /// <returns>The child YAML.</returns>
+        public YAML this[string key]
+        {
+            get => new ChildIndexer<YAML>(this)[key];
+            set => new ChildIndexer<YAML>(this)[key] = value;
+        }
+
+        /// <summary>
+        /// Indexer access as sequence type YAML.
+        /// </summary>
+        /// <param name="key">The integer key for sequence.</param>
+        /// <returns>The child YAML.</returns>
+        public YAML this[int key]
+        {
+            get => new ChildIndexer<YAML>(this)[key];
+            set => new ChildIndexer<YAML>(this)[key] = value;
+        }
+
+        /// <summary>
+        /// Indexer access as mapping type YAML.
+        /// </summary>
+        /// <param name="key">The string key for mapping.</param>
+        /// <param name="defaultVal">The default value YAML.</param>
+        /// <returns>The child YAML.</returns>
+        public YAML this[string key, YAML defaultVal]
+        {
+            get => new ChildIndexer<YAML>(this)[key, defaultVal];
+        }
+
+        /// <summary>
+        /// Indexer access as sequence type YAML.
+        /// </summary>
+        /// <param name="key">The integer key for sequence.</param>
+        /// <param name="defaultVal">The default value YAML.</param>
+        /// <returns>The child YAML.</returns>
+        public YAML this[int key, YAML defaultVal]
+        {
+            get => new ChildIndexer<YAML>(this)[key, defaultVal];
+        }
+
+        /// <summary>
+        /// YamlDotNetオブジェクトを独自形式に変換
+        /// Translate YamlDotNet instance to YAML instance.
+        /// </summary>
+        /// <param name="id">The id for the translated instance.</param>
+        /// <param name="yamlNode">The target YamlDotNet instance.</param>
+        /// <returns>The translated YAML instance.</returns>
+        public static YAML Translate(string id, YamlNode yamlNode)
         {
             if (yamlNode is YamlMappingNode)
             {
@@ -29,61 +115,120 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
-        // どのYAMLファイルのどのフィールドで
-        // アクセスしたYAMLオブジェクトかを表現
-        public string ID { get; set; } = "undefined";
-
-        // YAML表現の各行を出力するイテレータ
+        /// <summary>
+        /// YAML表現の各行を返すイテレータ
+        /// Iterator for each lines in the YAML body.
+        /// </summary>
+        /// <returns>The iterator.</returns>
         public abstract IEnumerable<string> ToStringLines();
 
-        // 文字列インデクサアクセスが可能かどうか
+        /// <inheritdoc/>
+        public override string ToString() =>
+            string.Join("\n", this.ToStringLines());
+
+        /// <summary>
+        /// 文字列キーについて値を保持しているか否か
+        /// Determines whether the YAML contains the specified string key.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <returns>The result of determination.</returns>
         protected virtual bool Contains(string key)
         {
-            throw new YAMLTypeSlipException<MappingYAML>(ID, this);
+            throw new YAMLTypeSlipException<MappingYAML>(this.ID, this);
         }
 
-        // 整数インデクサアクセスが可能かどうか
+        /// <summary>
+        /// 整数キーについて値を保持しているか否か
+        /// Determines whether the YAML contains the specified int key.
+        /// </summary>
+        /// <param name="key">The integer key.</param>
+        /// <returns>The result of determination.</returns>
         protected virtual bool Contains(int key)
         {
-            throw new YAMLTypeSlipException<SequenceYAML>(ID, this);
+            throw new YAMLTypeSlipException<SequenceYAML>(this.ID, this);
         }
 
-        // 文字列インデクサによる値返却
-        protected virtual Value InnerGetter<Value>(string key)
-            where Value : YAML
+        /// <summary>
+        /// 文字列インデクサによる値返却
+        /// Getter for string indexer.
+        /// </summary>
+        /// <typeparam name="T_Value">
+        /// 返却されるYAML型
+        /// The return yaml type.
+        /// </typeparam>
+        /// <param name="key">The string key.</param>
+        /// <returns>The YAML value.</returns>
+        protected virtual T_Value InnerGetter<T_Value>(string key)
+            where T_Value : YAML
         {
-            throw new YAMLTypeSlipException<MappingYAML>(ID, this);
+            throw new YAMLTypeSlipException<MappingYAML>(this.ID, this);
         }
 
-        // 整数インデクサによる値返却
-        protected virtual Value InnerGetter<Value>(int key)
-            where Value : YAML
+        /// <summary>
+        /// 整数インデクサによる値返却
+        /// Getter for integer indexer.
+        /// </summary>
+        /// <typeparam name="T_Value">
+        /// 返却されるYAML型
+        /// The return yaml type.
+        /// </typeparam>
+        /// <param name="key">The integer key.</param>
+        /// <returns>The YAML value.</returns>
+        protected virtual T_Value InnerGetter<T_Value>(int key)
+            where T_Value : YAML
         {
-            throw new YAMLTypeSlipException<SequenceYAML>(ID, this);
+            throw new YAMLTypeSlipException<SequenceYAML>(this.ID, this);
         }
 
-        // 文字列インデクサによる値更新
-        protected virtual void InnerSetter<Value>(string key, Value value)
-            where Value : YAML
+        /// <summary>
+        /// 文字列インデクサによる値更新
+        /// Setter for string indexer.
+        /// </summary>
+        /// <typeparam name="T_Value">
+        /// 返却されるYAML型
+        /// The return yaml type.
+        /// </typeparam>
+        /// <param name="key">The string key.</param>
+        /// <param name="value">The value for update.</param>
+        protected virtual void InnerSetter<T_Value>(string key, T_Value value)
+            where T_Value : YAML
         {
-            throw new YAMLTypeSlipException<MappingYAML>(ID, this);
+            throw new YAMLTypeSlipException<MappingYAML>(this.ID, this);
         }
 
-        // 整数インデクサによる値更新
-        protected virtual void InnerSetter<Value>(int key, Value value)
-            where Value : YAML
+        /// <summary>
+        /// 整数インデクサによる値更新
+        /// Setter for integer indexer.
+        /// </summary>
+        /// <typeparam name="T_Value">
+        /// 返却されるYAML型
+        /// The return yaml type.
+        /// </typeparam>
+        /// <param name="key">The integer key.</param>
+        /// <param name="value">The value for update.</param>
+        protected virtual void InnerSetter<T_Value>(int key, T_Value value)
+            where T_Value : YAML
         {
-            throw new YAMLTypeSlipException<SequenceYAML>(ID, this);
+            throw new YAMLTypeSlipException<SequenceYAML>(this.ID, this);
         }
 
-        // 文字列インデクサでのデフォルト値アクセスを実現する
-        protected Value InnerDefaultGetter<Value>(string key, Value defaultVal)
-            where Value : YAML
+        /// <summary>
+        /// 文字列インデクサでのデフォルト値アクセスを実現する
+        /// Getter with default value for string indexer.
+        /// </summary>
+        /// <typeparam name="T_Value">
+        /// 返却されるYAML型
+        /// The return yaml type.
+        /// </typeparam>
+        /// <param name="key">The string key.</param>
+        /// <param name="defaultVal">The default value.</param>
+        /// <returns>The YAML value.</returns>
+        protected T_Value InnerDefaultGetter<T_Value>(string key, T_Value defaultVal)
+            where T_Value : YAML
         {
-            // 指定されたキーを持っていなければデフォルト値を返す
-            if (Contains(key))
+            if (this.Contains(key))
             {
-                return InnerGetter<Value>(key);
+                return this.InnerGetter<T_Value>(key);
             }
             else
             {
@@ -91,14 +236,23 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
-        // 整数インデクサでのデフォルト値アクセスを実現する
-        protected Value InnerDefaultGetter<Value>(int key, Value defaultVal)
-            where Value : YAML
+        /// <summary>
+        /// 整数インデクサでのデフォルト値アクセスを実現する
+        /// Getter with default value for integer indexer.
+        /// </summary>
+        /// <typeparam name="T_Value">
+        /// 返却されるYAML型
+        /// The return yaml type.
+        /// </typeparam>
+        /// <param name="key">The integer key.</param>
+        /// <param name="defaultVal">The default value.</param>
+        /// <returns>The YAML value.</returns>
+        protected T_Value InnerDefaultGetter<T_Value>(int key, T_Value defaultVal)
+            where T_Value : YAML
         {
-            // 指定されたキーを持っていなければデフォルト値を返す
-            if (Contains(key))
+            if (this.Contains(key))
             {
-                return InnerGetter<Value>(key);
+                return this.InnerGetter<T_Value>(key);
             }
             else
             {
@@ -106,91 +260,79 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
-        // Scalar, Sequence, Mappingの型指定をしたインデクサアクセス
-        public ChildIndexer<ScalarYAML> Scalar
+        /// <summary>
+        /// Indexer class for child YAML.
+        /// </summary>
+        /// <typeparam name="T_CHILD">Type of child YAML.</typeparam>
+        public class ChildIndexer<T_CHILD>
+            where T_CHILD : YAML
         {
-            get => new ChildIndexer<ScalarYAML>(this);
-        }
+            private YAML parent;
 
-        public ChildIndexer<SequenceYAML> Sequence
-        {
-            get => new ChildIndexer<SequenceYAML>(this);
-        }
-
-        public ChildIndexer<MappingYAML> Mapping
-        {
-            get => new ChildIndexer<MappingYAML>(this);
-        }
-
-        // 型の指定をしないインデクサアクセス
-        public YAML this[string key]
-        {
-            get => new ChildIndexer<YAML>(this)[key];
-            set => new ChildIndexer<YAML>(this)[key] = value;
-        }
-
-        public YAML this[int key]
-        {
-            get => new ChildIndexer<YAML>(this)[key];
-            set => new ChildIndexer<YAML>(this)[key] = value;
-        }
-
-        // 型の指定をしないデフォルト値つきインデクサアクセス
-        public YAML this[string key, YAML defaultVal]
-        {
-            get => new ChildIndexer<YAML>(this)[key, defaultVal];
-        }
-
-        public YAML this[int key, YAML defaultVal]
-        {
-            get => new ChildIndexer<YAML>(this)[key, defaultVal];
-        }
-
-        public class ChildIndexer<CHILD> where CHILD : YAML
-        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ChildIndexer{T_CHILD}"/> class.
+            /// </summary>
+            /// <param name="parent">The parent YAML.</param>
             public ChildIndexer(YAML parent)
             {
                 this.parent = parent;
             }
 
-            YAML parent;
-
-            public CHILD this[string key]
+            /// <summary>
+            /// Indexer as mapping type YAML.
+            /// </summary>
+            /// <param name="key">The string key for mapping YAML.</param>
+            /// <returns>The child YAML.</returns>
+            public T_CHILD this[string key]
             {
                 // 文字列インデクサでの値取得
-                get => parent.Contains(key) ?
-                    parent.InnerGetter<CHILD>(key) :
+                get => this.parent.Contains(key) ?
+                    this.parent.InnerGetter<T_CHILD>(key) :
                     throw new YAMLKeyUndefinedException(
-                        parent.ID, key.ToString());
+                        this.parent.ID, key.ToString());
+
                 // 文字列インデクサでの値更新
-                set => parent.InnerSetter<CHILD>(key, value);
+                set => this.parent.InnerSetter<T_CHILD>(key, value);
             }
 
-            public CHILD this[int key]
+            /// <summary>
+            /// Indexer as sequence type YAML.
+            /// </summary>
+            /// <param name="key">The integer key for sequence YAML.</param>
+            /// <returns>The child YAML.</returns>
+            public T_CHILD this[int key]
             {
                 // 整数インデクサでの値取得
-                get => parent.Contains(key) ?
-                    parent.InnerGetter<CHILD>(key) :
+                get => this.parent.Contains(key) ?
+                    this.parent.InnerGetter<T_CHILD>(key) :
                     throw new YAMLKeyUndefinedException(
-                        parent.ID, key.ToString());
+                        this.parent.ID, key.ToString());
+
                 // 整数インデクサでの値更新
-                set => parent.InnerSetter<CHILD>(key, value);
+                set => this.parent.InnerSetter<T_CHILD>(key, value);
             }
 
-            // 文字列インデクサでのデフォルト値つき値取得
-            public CHILD this[string key, CHILD defaultVal]
+            /// <summary>
+            /// Indexer as mapping type YAML.
+            /// </summary>
+            /// <param name="key">The string key for mapping YAML.</param>
+            /// <param name="defaultVal">The default YAML.</param>
+            /// <returns>The child YAML.</returns>
+            public T_CHILD this[string key, T_CHILD defaultVal]
             {
-                get => parent.InnerDefaultGetter<CHILD>(key, defaultVal);
+                get => this.parent.InnerDefaultGetter<T_CHILD>(key, defaultVal);
             }
 
-            // 整数インデクサでのデフォルト値つき値取得
-            public CHILD this[int key, CHILD defaultVal]
+            /// <summary>
+            /// Indexer as integer type YAML.
+            /// </summary>
+            /// <param name="key">The integer key for sequence YAML.</param>
+            /// <param name="defaultVal">The default YAML.</param>
+            /// <returns>The child YAML.</returns>
+            public T_CHILD this[int key, T_CHILD defaultVal]
             {
-                get => parent.InnerDefaultGetter<CHILD>(key, defaultVal);
+                get => this.parent.InnerDefaultGetter<T_CHILD>(key, defaultVal);
             }
         }
-
-        public override string ToString() =>
-            string.Join("\n", ToStringLines());
     }
 }

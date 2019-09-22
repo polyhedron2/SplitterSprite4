@@ -1,36 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿// -----------------------------------------------------------------------
+// <copyright file="AgnosticPath.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace MagicKitchen.SplitterSprite4.Common
 {
-    // ゲームの実行ファイルのあるディレクトリを起点とした相対パスを
-    // OS非依存(OS-Agnostic)に実現するクラス
+    using System;
+    using System.IO;
+    using System.Linq;
+
+    /// <summary>
+    /// ゲームの実行ファイルのあるディレクトリを起点とした相対パスを
+    /// OS非依存(OS-Agnostic)に実現するクラス
+    /// The os-agnostic relative file path class
+    /// from the game's execution file.
+    /// </summary>
     public class AgnosticPath
     {
-        // 各種OSでファイル名・ディレクトリ名に使用してはいけない禁止文字の集合
-        static char[] ProhibitedChars { get; } =
-        {
-            // for Windows
-            '\\', '*', '?', '"', '<', '>', '|', ':', 
-            // for Linux
-            '\0',
-            // for Windows, Mac, and Linux
-            '/',
-        };
-
-        // OS毎に異なるファイル区切り文字を置き換えるための文字
-        // '/'を用いるので、実態はLinuxスタイルのファイルパスに一致する。
-        public static char InternalSeparatorChar { get; } = '/';
-
         private AgnosticPath(string path, char separatorChar)
         {
-            // 禁止文字チェックと区切り文字置換処理
+            // 禁止文字チェック
+            // Check the prohibited characters.
             foreach (var c in ProhibitedChars)
             {
-                // 禁止文字がファイル区切り文字以外として入っていれば例外
+                // OS依存ファイル区切り文字であれば区切り文字として
+                // 入っているので例外とならない
+                // If the prohibited character is file separator,
+                // no exception will be thrown.
                 if (c != separatorChar && path.Contains(c))
                 {
                     throw new ProhibitedCharacterContainedException(path, c);
@@ -38,40 +35,97 @@ namespace MagicKitchen.SplitterSprite4.Common
             }
 
             // OS毎に異なるファイル区切り文字を置換
-            InternalPath = path.Replace(separatorChar, InternalSeparatorChar);
+            // Replace the os-dependent file separator.
+            this.InternalPath = path.Replace(separatorChar, InternalSeparatorChar);
         }
 
-        string InternalPath { get; set; }
+        /// <summary>
+        /// Gets the internal file separator character.
+        /// Os-dependent file separators are replaced with this.
+        /// Actually, the replaced file paths are linux-style.
+        /// </summary>
+        public static char InternalSeparatorChar { get; } = '/';
 
-        // OS非依存化された文字列からのオブジェクト生成
+        // Prohibited characters for file name.
+        private static char[] ProhibitedChars { get; } =
+        {
+            // for Windows
+            '\\', '*', '?', '"', '<', '>', '|', ':',
+
+            // for Linux
+            '\0',
+
+            // for Windows, Mac, and Linux
+            '/',
+        };
+
+        private string InternalPath { get; set; }
+
+        /// <summary>
+        /// OS非依存化された文字列からのオブジェクト生成
+        /// Generate AgnosticPath instance from os-agnostic path string.
+        /// </summary>
+        /// <param name="agnosticPath">The os-agnostic path string.</param>
+        /// <returns>The AgnosticPath instance.</returns>
         public static AgnosticPath FromAgnosticPathString(
             string agnosticPath) =>
             new AgnosticPath(agnosticPath, InternalSeparatorChar);
 
-        // OS依存な文字列からのオブジェクト生成
+        /// <summary>
+        /// OS依存な文字列からのオブジェクト生成
+        /// Generate AgnosticPath instance from os-dependent path string.
+        /// </summary>
+        /// <param name="agnosticPath">The os-dependent path string.</param>
+        /// <returns>The AgnosticPath instance.</returns>
         public static AgnosticPath FromOSPathString(
             string agnosticPath) =>
             new AgnosticPath(agnosticPath, Path.DirectorySeparatorChar);
 
-        // OS非依存化された文字列として出力
-        public string ToAgnosticPathString() => InternalPath;
+        /// <summary>
+        /// OS非依存化されたファイルパスとして出力
+        /// Dump as os-agnostic path string.
+        /// </summary>
+        /// <returns>The os-agnostic path string.</returns>
+        public string ToAgnosticPathString() => this.InternalPath;
 
-        // OS依存なファイルパスとして出力
-        public string ToOSPathString() => InternalPath.Replace(
+        /// <summary>
+        /// OS依存なファイルパスとして出力
+        /// Dump as os-dependent path string.
+        /// </summary>
+        /// <returns>The os-dependent path string.</returns>
+        public string ToOSPathString() => this.InternalPath.Replace(
             InternalSeparatorChar, Path.DirectorySeparatorChar);
 
+        /// <summary>
+        /// 禁止文字がファイルパス内に含まれている際の例外
+        /// The exception that is thrown when an attempt to
+        /// load file path string that contains a prohibited character.
+        /// </summary>
         public class ProhibitedCharacterContainedException : Exception
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ProhibitedCharacterContainedException"/> class.
+            /// </summary>
+            /// <param name="path">The file path string.</param>
+            /// <param name="containedChar">The contained prohibited character.</param>
             public ProhibitedCharacterContainedException(
-                string path, char containedChar) : base(
+                string path, char containedChar)
+                : base(
                     $"ファイルパス\"{path}\"に" +
                     $"禁止文字'{containedChar}'が含まれています。")
             {
-                Path = path;
-                ContainedChar = containedChar;
+                this.Path = path;
+                this.ContainedChar = containedChar;
             }
 
-            public string Path { get; private set;}
+            /// <summary>
+            /// Gets the path string.
+            /// </summary>
+            public string Path { get; private set; }
+
+            /// <summary>
+            /// Gets the contained prohibited character.
+            /// </summary>
             public char ContainedChar { get; private set; }
         }
     }

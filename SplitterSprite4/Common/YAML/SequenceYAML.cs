@@ -1,71 +1,73 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using YamlDotNet.RepresentationModel;
+﻿// -----------------------------------------------------------------------
+// <copyright file="SequenceYAML.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
-    // YAML上の配列を表すオブジェクト
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using YamlDotNet.RepresentationModel;
+
+    /// <summary>
+    /// 配列型のYAMLを表現するクラス
+    /// The YAML class for sequence type YAML.
+    /// </summary>
     public class SequenceYAML : YAML, IEnumerable<YAML>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SequenceYAML"/> class.
+        /// </summary>
         public SequenceYAML()
         {
-            Children = new List<YAML>();
+            this.Children = new List<YAML>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SequenceYAML"/> class.
+        /// </summary>
+        /// <param name="id">The yaml's ID.</param>
+        /// <param name="sequence">YamlDotNet sequence instance.</param>
         public SequenceYAML(string id, YamlSequenceNode sequence)
         {
-            ID = id;
-            Children = new List<YAML>();
+            this.ID = id;
+            this.Children = new List<YAML>();
 
             var i = 0;
             foreach (var child in sequence)
             {
-                var translatedChild = translate($"{ID}[{i}]", child);
-                Children.Add(translatedChild);
+                YAML translatedChild = Translate($"{this.ID}[{i}]", child);
+                this.Children.Add(translatedChild);
                 i++;
             }
         }
 
-        public List<YAML> Children { get; set; }
+        private List<YAML> Children { get; set; }
 
-        public void Add(YAML child) => Children.Add(child);
+        /// <summary>
+        /// Add child yaml to this.
+        /// </summary>
+        /// <param name="child">The child YAML.</param>
+        public void Add(YAML child) => this.Children.Add(child);
+
+        /// <inheritdoc/>
         public IEnumerator<YAML> GetEnumerator()
         {
-            return Children.GetEnumerator();
+            return this.Children.GetEnumerator();
         }
+
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return this.GetEnumerator();
         }
 
-        protected override bool Contains(int key) =>
-            0 <= key && key < Children.Count;
-        protected override Value InnerGetter<Value>(int key)
-        {
-            var value = Children[key];
-            if (value is Value)
-            {
-                return value as Value;
-            }
-            else
-            {
-                throw new YAMLTypeSlipException<Value>(
-                    ID, key.ToString(), value);
-            }
-        }
-        protected override void InnerSetter<Value>(int key, Value value)
-        {
-            var childID = $"{ID}[{key}]";
-            value.ID = childID;
-            Children[key] = value;
-        }
-
+        /// <inheritdoc/>
         public override IEnumerable<string> ToStringLines()
         {
-            IEnumerable<string> translateSequence(YAML child)
+            IEnumerable<string> TranslateSequence(YAML child)
             {
                 var i = 0;
                 foreach (var line in child.ToStringLines())
@@ -74,12 +76,13 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     {
                         yield return "-";
                     }
+
                     yield return $"  {line}";
                     i++;
                 }
             }
 
-            IEnumerable<string> translateScalar(YAML child)
+            IEnumerable<string> TranslateScalar(YAML child)
             {
                 var scalar = child as ScalarYAML;
                 if (!scalar.IsMultiLine)
@@ -97,10 +100,13 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
 
             // 子要素をインデント。
+            // Indent children.
             // この要素の１行目は"- "をつけ、２行目以降は"  "をつける。
-            return Children.SelectMany(
+            // First line starts with "-", Other lines start with "  ".
+            return this.Children.SelectMany(
                 child =>
                     (child is SequenceYAML) ?
+
                     // Sequenceであれば、
                     // -
                     //   - value0
@@ -108,8 +114,17 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //     :
                     //   - valueN
                     // の形
-                    translateSequence(child) :
+
+                    // In sequence case,
+                    // following style.
+                    // -
+                    //   - value0
+                    //   - value1
+                    //     :
+                    //   - valueN
+                    TranslateSequence(child) :
                     (child is ScalarYAML) ?
+
                     // Scalarであれば
                     // 単一行なら
                     // - value
@@ -120,20 +135,61 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //     :
                     //   lineN
                     // の形
-                    translateScalar(child) :
+
+                    // In single line and scalar case,
+                    // following style.
+                    // - value
+                    // In multi line and scalar case,
+                    // following style.
+                    // - |+
+                    //   line0
+                    //   line1
+                    //     :
+                    //   lineN
+                    TranslateScalar(child) :
+
                     // Mappingであれば、
                     // - key0: value0
                     //   key1: value1
                     //     :
                     //   keyN: valueN
                     // の形
-                    // Scalarであれば、
-                    // - key: value
-                    // の形
-                    child.ToStringLines().Select(
-                        (line, index) => (index == 0) ? $"- {line}" : $"  {line}"
-                    )
-                );
+
+                    // In mapping case,
+                    // following style.
+                    // - key0: value0
+                    //   key1: value1
+                    //     :
+                    //   keyN: valueN
+                    child.ToStringLines().Select((line, index) =>
+                        (index == 0) ? $"- {line}" : $"  {line}"));
+        }
+
+        /// <inheritdoc/>
+        protected override bool Contains(int key) =>
+            key >= 0 && key < this.Children.Count;
+
+        /// <inheritdoc/>
+        protected override TValue InnerGetter<TValue>(int key)
+        {
+            YAML value = this.Children[key];
+            if (value is TValue)
+            {
+                return value as TValue;
+            }
+            else
+            {
+                throw new YAMLTypeSlipException<TValue>(
+                    this.ID, key.ToString(), value);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override void InnerSetter<TValue>(int key, TValue value)
+        {
+            string childID = $"{this.ID}[{key}]";
+            value.ID = childID;
+            this.Children[key] = value;
         }
     }
 }
