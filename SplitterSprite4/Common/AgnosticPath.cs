@@ -46,6 +46,15 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// </summary>
         public static char InternalSeparatorChar { get; } = '/';
 
+        /// <summary>
+        /// Gets the os-agnostic path of a directory that contains this path.
+        /// </summary>
+        public AgnosticPath Dir
+        {
+            get => FromOSPathString(
+                Path.GetDirectoryName(this.ToOSPathString()));
+        }
+
         // Prohibited characters for file name.
         private static char[] ProhibitedChars { get; } =
         {

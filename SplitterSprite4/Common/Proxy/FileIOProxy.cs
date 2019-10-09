@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Proxy
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
 
@@ -33,6 +34,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// The os-agnostic path.
         /// </param>
         public abstract void CreateDirectory(AgnosticPath path);
+
+        /// <summary>
+        /// OS非依存パス先のサブフォルダ一覧を返却
+        /// Enumearate sub directories in the os-agnostic path directory.
+        /// </summary>
+        /// <param name="path">
+        /// OS非依存パス
+        /// The os-agnostic path.
+        /// </param>
+        /// <returns>
+        /// サブフォルダのOS非依存パスイテレータ
+        /// Iterator of the sub directories.
+        /// </returns>
+        public abstract IEnumerable<AgnosticPath>
+            EnumerateDirectories(AgnosticPath path);
 
         /// <summary>
         /// テスト実行中はRootPathをシステムのTEMPファイル領域に切り替える

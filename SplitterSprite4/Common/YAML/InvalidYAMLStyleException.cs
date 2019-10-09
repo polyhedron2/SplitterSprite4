@@ -20,6 +20,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// </summary>
         /// <param name="id">The yaml's id.</param>
         public InvalidYAMLStyleException(string id)
-            : base($"YAML\"{id}\"上の形式は想定される形式ではありません。") { }
+            : base($"YAML\"{id}\"上の形式は想定される形式ではありません。")
+        {
+        }
     }
 }

@@ -6,7 +6,9 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.Proxy
 {
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -18,7 +20,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// <inheritdoc/>
         public override void CreateDirectory(AgnosticPath path)
         {
-            Directory.CreateDirectory(this.OSFullDirPath(path));
+            Directory.CreateDirectory(this.OSFullPath(path));
+        }
+
+        /// <inheritdoc/>
+        public override IEnumerable<AgnosticPath>
+            EnumerateDirectories(AgnosticPath path)
+        {
+            return Directory.GetDirectories(this.OSFullPath(path)).Select(
+                subDirStr => AgnosticPath.FromOSPathString(subDirStr));
         }
 
         /// <inheritdoc/>

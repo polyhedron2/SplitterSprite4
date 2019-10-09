@@ -31,7 +31,7 @@ namespace MagicKitchen.SplitterSprite4.ForWPF
             Canvas.SetTop(content, 100);
             textBlock = new TextBlock();
 
-            string sample = Common.Launcher.Sample();
+            string sample = "sample";
             textBlock.Text = sample;
 
             textBlock.FontSize = 40;

@@ -27,6 +27,15 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             this.AccessPath = path;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RootYAML"/> class.
+        /// </summary>
+        /// <param name="agnosticPathStr">The os-agnostic path string.</param>
+        public RootYAML(string agnosticPathStr)
+            : this(AgnosticPath.FromAgnosticPathString(agnosticPathStr))
+        {
+        }
+
         // YAMLファイルの存在するパス
         // The YAML file path.
         private AgnosticPath AccessPath { get; set; }
