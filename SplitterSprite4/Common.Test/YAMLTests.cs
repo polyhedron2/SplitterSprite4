@@ -726,7 +726,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         {
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
-            OutSideProxy.FileIO.CreateDirectory(agnosticPath.Dir);
+            OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
             OutSideProxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
             {

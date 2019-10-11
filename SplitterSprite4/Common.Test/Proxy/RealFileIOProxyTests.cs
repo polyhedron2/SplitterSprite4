@@ -35,7 +35,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
                 Assert.False(Directory.Exists(dirFullPath));
 
                 // act
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Dir);
+                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
                 // assert
                 Assert.True(Directory.Exists(dirFullPath));
@@ -95,7 +95,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
                 // act
                 // 書き込み先ファイルのためのディレクトリを作成
                 // Create directory for file writing.
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Dir);
+                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
                 // 各行ごとにファイルに新規書き込み(append=false)
                 // File writing with append=false mode.
@@ -151,7 +151,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
                 // act
                 // 書き込み先ファイルのためのディレクトリを作成
                 // Create directory for file writing.
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Dir);
+                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
                 // 各行ごとにファイルに新規書き込み(append=false)
                 // File writing with append=false mode.
@@ -216,7 +216,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
                 // act
                 // 書き込み先ファイルのためのディレクトリを作成
                 // Create directory for file writing.
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Dir);
+                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
                 // 各行ごとにファイルに追加書き込み(append=true)
                 // File writing with append=true mode.

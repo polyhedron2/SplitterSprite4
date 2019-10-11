@@ -11,10 +11,8 @@ namespace MagicKitchen.SplitterSprite4.Common
     using System.Linq;
 
     /// <summary>
-    /// ゲームの実行ファイルのあるディレクトリを起点とした相対パスを
-    /// OS非依存(OS-Agnostic)に実現するクラス
-    /// The os-agnostic relative file path class
-    /// from the game's execution file.
+    /// ファイルパスをOS非依存(OS-Agnostic)に実現するクラス
+    /// The os-agnostic file path class.
     /// </summary>
     public class AgnosticPath
     {
@@ -49,11 +47,29 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <summary>
         /// Gets the os-agnostic path of a directory that contains this path.
         /// </summary>
-        public AgnosticPath Dir
+        public AgnosticPath Parent
         {
-            get => FromOSPathString(
-                Path.GetDirectoryName(this.ToOSPathString()));
+            get
+            {
+                var dummyPrefixedUri = new Uri(DummyUri, this.InternalUri);
+                var dummyPrefixedUriStr = dummyPrefixedUri.ToString();
+                dummyPrefixedUriStr =
+                    dummyPrefixedUriStr.EndsWith("/") ?
+                    dummyPrefixedUriStr.Substring(
+                        0, dummyPrefixedUriStr.Length - 1) :
+                    dummyPrefixedUriStr;
+                var parentLength = dummyPrefixedUriStr.LastIndexOf(
+                    InternalSeparatorChar) + 1;
+                var dummyPrefixedParent = new Uri(
+                    dummyPrefixedUri.ToString().Substring(0, parentLength));
+                var parentUri = DummyUri.MakeRelativeUri(dummyPrefixedParent);
+
+                return FromAgnosticPathString(parentUri.ToString());
+            }
         }
+
+        private static string DummyPhrase { get; } =
+            "DummyPhraseForSplitterSpriteAgnosticPath";
 
         // Prohibited characters for file name.
         private static char[] ProhibitedChars { get; } =
@@ -68,7 +84,22 @@ namespace MagicKitchen.SplitterSprite4.Common
             '/',
         };
 
-        private string InternalPath { get; set; }
+        private static Uri DummyUri { get; } = new Uri("http://" +
+            string.Concat(Enumerable.Repeat(DummyPhrase + "/", 100)));
+
+        // ファイルパス正規化のためURIインスタンスとして保持する
+        // Store as Uri instance for canonicalization.
+        private Uri InternalUri { get; set; }
+
+        private string InternalPath
+        {
+            get => this.InternalUri.ToString().Replace("%25", "%");
+            set
+            {
+                this.InternalUri = DummyUri.MakeRelativeUri(
+                    new Uri(DummyUri, value.Replace("%", "%25")));
+            }
+        }
 
         /// <summary>
         /// OS非依存化された文字列からのオブジェクト生成

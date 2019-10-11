@@ -159,5 +159,61 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal('\\', ex.ContainedChar);
             }
         }
+
+        /// <summary>
+        /// Test the parent directory property.
+        /// </summary>
+        /// <param name="agnosticPathStr">The os-agnostic path string.</param>
+        /// <param name="expectedParent">The expected parent path string.</param>
+        [Theory]
+        [InlineData("../..", "../../../")]
+        [InlineData("../../", "../../../")]
+        [InlineData("..", "../../")]
+        [InlineData("../", "../../")]
+        [InlineData("", "../")]
+        [InlineData(".", "../")]
+        [InlineData("foo.txt", "")]
+        [InlineData("bar.yaml", "")]
+        [InlineData("baz.meta", "")]
+        [InlineData("dir/", "")]
+        [InlineData("dir/foo.txt", "dir/")]
+        [InlineData("dir/dir2/", "dir/")]
+        [InlineData("dir/dir2/foo.txt", "dir/dir2/")]
+        public void ParentTest(string agnosticPathStr, string expectedParent)
+        {
+            // arrange
+            var path = AgnosticPath.FromAgnosticPathString(agnosticPathStr);
+
+            // act
+            var parent = path.Parent;
+
+            // assert
+            Assert.Equal(
+                expectedParent,
+                parent.ToAgnosticPathString());
+        }
+
+        /// <summary>
+        /// Test canonicalization process in constractor.
+        /// </summary>
+        /// <param name="agnosticPathStr">The os-agnostic path string.</param>
+        /// <param name="canonicalPathStr">The expected canonicalized path.</param>
+        [Theory]
+        [InlineData("../foo.txt", "../foo.txt")]
+        [InlineData("./foo.txt", "foo.txt")]
+        [InlineData("dir/../foo.txt", "foo.txt")]
+        [InlineData("dir/./foo.txt", "dir/foo.txt")]
+        [InlineData("dir1/dir2/../foo.txt", "dir1/foo.txt")]
+        [InlineData("dir1/dir2/../../../foo.txt", "../foo.txt")]
+        [InlineData("../dir1/dir2/foo.txt", "../dir1/dir2/foo.txt")]
+        public void CanonicalizationTest(
+            string agnosticPathStr, string canonicalPathStr)
+        {
+            // arrange
+            var path = AgnosticPath.FromAgnosticPathString(agnosticPathStr);
+
+            // assert
+            Assert.Equal(canonicalPathStr, path.ToAgnosticPathString());
+        }
     }
 }
