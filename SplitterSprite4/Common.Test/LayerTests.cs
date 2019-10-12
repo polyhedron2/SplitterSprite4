@@ -15,6 +15,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
     /// </summary>
     public class LayerTests
     {
+        /// <summary>
+        /// Test the layer creation.
+        /// </summary>
+        /// <param name="name">The layer name.</param>
+        /// <param name="dependencies">The dependent layers.</param>
         [Theory]
         [InlineData("layer")]
         [InlineData("foo")]
