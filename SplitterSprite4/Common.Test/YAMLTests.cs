@@ -90,7 +90,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     yaml.Scalar["multiline_text_field"].ID);
 
                 Assert.Equal(
-                    this.JoinLines("line 0", "line 1", "line 2"),
+                    Utility.JoinLines("line 0", "line 1", "line 2"),
                     yaml.Scalar["multiline_text_field"].ToString());
 
                 Assert.Throws<YAMLTypeSlipException<ScalarYAML>>(() =>
@@ -130,7 +130,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     yaml.Sequence["simple_sequence_field"].ID);
 
                 Assert.Equal(
-                    this.JoinLines(
+                    Utility.JoinLines(
                         "- sqeuence_member_0",
                         "- sqeuence_member_1",
                         "- sqeuence_member_2"),
@@ -177,7 +177,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     yaml.Mapping["simple_mapping_field"].ID);
 
                 Assert.Equal(
-                    this.JoinLines(
+                    Utility.JoinLines(
                         "simple_mapping_key_0: simple_mapping_value_0",
                         "simple_mapping_key_1: simple_mapping_value_1",
                         "simple_mapping_key_2: simple_mapping_value_2"),
@@ -237,7 +237,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     multilineDefaultResult.ID);
 
                 Assert.Equal(
-                    this.JoinLines("line 0", "line 1", "line 2"),
+                    Utility.JoinLines("line 0", "line 1", "line 2"),
                     multilineDefaultResult.ToString());
 
                 Assert.Throws<YAMLTypeSlipException<ScalarYAML>>(() =>
@@ -289,7 +289,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     sequenceDefaultResult.ID);
 
                 Assert.Equal(
-                    this.JoinLines(
+                    Utility.JoinLines(
                         "- sqeuence_member_0",
                         "- sqeuence_member_1",
                         "- sqeuence_member_2"),
@@ -337,7 +337,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     yaml.Mapping["simple_mapping_field", defaultValue].ID);
 
                 Assert.Equal(
-                    this.JoinLines(
+                    Utility.JoinLines(
                         "simple_mapping_key_0: simple_mapping_value_0",
                         "simple_mapping_key_1: simple_mapping_value_1",
                         "simple_mapping_key_2: simple_mapping_value_2"),
@@ -407,13 +407,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         "new_value_1",
                         yaml.Scalar["scalar_field"].ToString());
                     Assert.Equal(
-                        this.JoinLines("new_line_1", "new_line_2"),
+                        Utility.JoinLines("new_line_1", "new_line_2"),
                         yaml.Scalar["multiline_text_field"].ToString());
                     Assert.Equal(
                         "new_value_2",
                         yaml.Scalar["undefined_field"].ToString());
                     Assert.Equal(
-                        this.JoinLines("new_line_3", "new_line_4"),
+                        Utility.JoinLines("new_line_3", "new_line_4"),
                         yaml.Scalar["multiline_undefined_field"].ToString());
                 }
 
@@ -465,10 +465,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         yaml.Sequence["undefined_field"].ID);
 
                     Assert.Equal(
-                        this.JoinLines("- new_value_1_1", "- new_value_1_2"),
+                        Utility.JoinLines("- new_value_1_1", "- new_value_1_2"),
                         yaml.Sequence["simple_sequence_field"].ToString());
                     Assert.Equal(
-                        this.JoinLines("- new_value_2_1", "- new_value_2_2"),
+                        Utility.JoinLines("- new_value_2_1", "- new_value_2_2"),
                         yaml.Sequence["undefined_field"].ToString());
                 }
 
@@ -520,12 +520,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         yaml.Mapping["undefined_field"].ID);
 
                     Assert.Equal(
-                        this.JoinLines(
+                        Utility.JoinLines(
                             "new_key_1_1: new_value_1_1",
                             "new_key_1_2: new_value_1_2"),
                         yaml.Mapping["simple_mapping_field"].ToString());
                     Assert.Equal(
-                        this.JoinLines(
+                        Utility.JoinLines(
                             "new_key_2_1: new_value_2_1",
                             "new_key_2_2: new_value_2_2"),
                         yaml.Mapping["undefined_field"].ToString());
@@ -560,12 +560,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
                 // 複数行でも同様
                 Assert.Equal(
-                    this.JoinLines("line 0", "line 1", "line 2"),
+                    Utility.JoinLines("line 0", "line 1", "line 2"),
                     yaml["multiline_text_field"].ToString());
 
                 // Sequenceは自動でSequenceとして読まれる
                 Assert.Equal(
-                    this.JoinLines(
+                    Utility.JoinLines(
                         "- sqeuence_member_0",
                         "- sqeuence_member_1",
                         "- sqeuence_member_2"),
@@ -578,7 +578,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
                 // Mappingは自動でMappingとして読まれる
                 Assert.Equal(
-                    this.JoinLines(
+                    Utility.JoinLines(
                         "simple_mapping_key_0: simple_mapping_value_0",
                         "simple_mapping_key_1: simple_mapping_value_1",
                         "simple_mapping_key_2: simple_mapping_value_2"),
@@ -677,12 +677,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
         }
 
-        private string JoinLines(params string[] lines)
-        {
-            return string.Join("\n", lines);
-        }
-
-        private string TestYAMLBody() => this.JoinLines(
+        private string TestYAMLBody() => Utility.JoinLines(
             "scalar_field: scalar_value",
             "multiline_text_field: |+",
             "  line 0",

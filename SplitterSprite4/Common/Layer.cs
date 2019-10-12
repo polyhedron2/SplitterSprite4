@@ -14,7 +14,7 @@ namespace MagicKitchen.SplitterSprite4.Common
     /// ゲーム素材の重ね合わせレイヤークラス
     /// The layer class for game parts.
     /// </summary>
-    internal class Layer
+    public class Layer
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Layer"/> class.

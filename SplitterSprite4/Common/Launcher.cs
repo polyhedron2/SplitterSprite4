@@ -31,7 +31,10 @@ namespace MagicKitchen.SplitterSprite4.Common
             this.Layers = this.SortLayers(this.LoadLayers());
         }
 
-        private IEnumerable<Layer> Layers { get; set; }
+        /// <summary>
+        /// Gets the sorted layers.
+        /// </summary>
+        public IEnumerable<Layer> Layers { get; }
 
         private IEnumerable<Layer> LoadLayers()
         {
