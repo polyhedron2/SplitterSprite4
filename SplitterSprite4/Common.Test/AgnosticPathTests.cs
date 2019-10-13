@@ -66,10 +66,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [InlineData("<bra", '<')]
         [InlineData("ket>", '>')]
         [InlineData("|vertial|", '|')]
-        [InlineData(":colon:", ':')]
         [InlineData("null\0", '\0')]
         [InlineData("multi*prohibited?chars", '*')]
-        [InlineData("prohibited/chars:with/separator", ':')]
+        [InlineData("prohibited/chars?with/separator", '?')]
         public void ProhibitedPathTest(
             string prohibitedPathStr, char prohibitedChar)
         {

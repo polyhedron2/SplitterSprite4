@@ -9,6 +9,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using Xunit;
 
@@ -39,6 +40,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
 
                 // assert
                 Assert.True(Directory.Exists(dirFullPath));
+            });
+        }
+
+        /// <summary>
+        /// Test the EnumerateDirectory method.
+        /// </summary>
+        /// <param name="basePath">The parent direcotry path.</param>
+        /// <param name="childrenPaths">The children direcotry paths.</param>
+        [Theory]
+        [InlineData("parent")]
+        [InlineData("parent", "child0")]
+        [InlineData("parent", "child0", "child1")]
+        [InlineData("parent", "child0", "child1", "child2")]
+        [InlineData("foo", "child0", "child1", "child2")]
+        [InlineData("bar", "child0", "child1", "child2")]
+        public void EnumerateDirectoriesTest(
+            string basePath, params string[] childrenPaths)
+        {
+            OutSideProxy.WithTestMode(() =>
+            {
+                // arrange
+                var parent = AgnosticPath.FromAgnosticPathString(basePath);
+                var children = childrenPaths.Select(
+                    child => AgnosticPath.FromAgnosticPathString($"{basePath}/{child}"));
+                OutSideProxy.FileIO.CreateDirectory(parent);
+                foreach (var child in children)
+                {
+                    OutSideProxy.FileIO.CreateDirectory(child);
+                }
+
+                // act
+                var result = OutSideProxy.FileIO.EnumerateDirectories(
+                    parent).Select(d => d.ToAgnosticPathString()).ToHashSet();
+
+                // assert
+                Assert.Equal(childrenPaths.ToHashSet(), result);
             });
         }
 

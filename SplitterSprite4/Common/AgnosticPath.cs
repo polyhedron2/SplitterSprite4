@@ -75,7 +75,10 @@ namespace MagicKitchen.SplitterSprite4.Common
         private static char[] ProhibitedChars { get; } =
         {
             // for Windows
-            '\\', '*', '?', '"', '<', '>', '|', ':',
+            // ':'もファイル名禁止文字だがボリューム名("C:"など)表現のため除外
+            // ':' cannot be contained in windows file name,
+            // but not prohibited for volume name.
+            '\\', '*', '?', '"', '<', '>', '|',
 
             // for Linux
             '\0',
@@ -115,11 +118,11 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// OS依存な文字列からのオブジェクト生成
         /// Generate AgnosticPath instance from os-dependent path string.
         /// </summary>
-        /// <param name="agnosticPath">The os-dependent path string.</param>
+        /// <param name="osPath">The os-dependent path string.</param>
         /// <returns>The AgnosticPath instance.</returns>
         public static AgnosticPath FromOSPathString(
-            string agnosticPath) =>
-            new AgnosticPath(agnosticPath, Path.DirectorySeparatorChar);
+            string osPath) =>
+            new AgnosticPath(osPath, Path.DirectorySeparatorChar);
 
         /// <summary>
         /// OS非依存化されたファイルパスとして出力

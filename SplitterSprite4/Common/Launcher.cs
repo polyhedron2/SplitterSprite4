@@ -41,7 +41,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             foreach (var dir in Proxy.OutSideProxy.FileIO.EnumerateDirectories(
                 AgnosticPath.FromAgnosticPathString(string.Empty)))
             {
-                var name = dir.ToString();
+                var name = dir.ToAgnosticPathString();
                 Layer layer;
 
                 try
@@ -62,6 +62,18 @@ namespace MagicKitchen.SplitterSprite4.Common
             var visiting = new HashSet<string>();
             var visited = new HashSet<string>();
 
+            Layer FetchDependeeLayer(Layer dependerLayer, string dependeeName)
+            {
+                try
+                {
+                    return new Layer(dependeeName);
+                }
+                catch (Proxy.AgnosticPathNotFoundException ex)
+                {
+                    throw new NonExistentLayerException(dependerLayer, ex);
+                }
+            }
+
             IEnumerable<Layer> Visit(Layer layer)
             {
                 if (visiting.Contains(layer.Name))
@@ -73,22 +85,47 @@ namespace MagicKitchen.SplitterSprite4.Common
                 {
                     visiting.Add(layer.Name);
 
-                    var ret = layer.Dependencies.SelectMany(
-                        dependent => Visit(new Layer(dependent))).Concat(
-                        new Layer[1] { layer });
+                    foreach (var dependeeName in layer.Dependencies)
+                    {
+                        foreach (var l in
+                            Visit(FetchDependeeLayer(layer, dependeeName)))
+                        {
+                            yield return l;
+                        }
+                    }
+
+                    yield return layer;
 
                     visiting.Remove(layer.Name);
                     visited.Add(layer.Name);
-
-                    return ret;
-                }
-                else
-                {
-                    return new Layer[0];
                 }
             }
 
-            return layers.SelectMany(layer => Visit(layer));
+            // 依存先から依存元の順になっているので、逆転する
+            // Reverse to sort by "from depender to dependee" order.
+            return layers.SelectMany(layer => Visit(layer)).Reverse();
+        }
+
+        /// <summary>
+        /// レイヤーの依存先が存在していない場合の例外
+        /// The exception that is thrown when an attempt to
+        /// a layer depends on a non-existent layer.
+        /// </summary>
+        public class NonExistentLayerException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="NonExistentLayerException"/> class.
+            /// </summary>
+            /// <param name="layer">The depending layer.</param>
+            /// <param name="cause">The AgnosticPathNotFoundException.</param>
+            internal NonExistentLayerException(
+                Layer layer, Proxy.AgnosticPathNotFoundException cause)
+                : base(
+                      $"{layer.Name}の依存先{cause.Path.Parent}は" +
+                      "有効なレイヤーとして存在していません。",
+                      cause)
+            {
+            }
         }
 
         /// <summary>
@@ -96,7 +133,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// The exception that is thrown when an attempt to
         /// load layers that contains cyclic dependencies.
         /// </summary>
-        internal class CyclicDependencyException : Exception
+        public class CyclicDependencyException : Exception
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="CyclicDependencyException"/> class.

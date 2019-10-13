@@ -27,8 +27,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         public override IEnumerable<AgnosticPath>
             EnumerateDirectories(AgnosticPath path)
         {
-            return Directory.GetDirectories(this.OSFullPath(path)).Select(
-                subDirStr => AgnosticPath.FromOSPathString(subDirStr));
+            var basePath = this.OSFullPath(path);
+            AgnosticPath SubDirPath(string fullPath)
+            {
+                // + 1 is for separator length.
+                var subDirName = fullPath.Substring(basePath.Length + 1);
+                return AgnosticPath.FromOSPathString(subDirName);
+            }
+
+            return Directory.EnumerateDirectories(
+                basePath).Select(subDirStr => SubDirPath(subDirStr));
         }
 
         /// <inheritdoc/>
