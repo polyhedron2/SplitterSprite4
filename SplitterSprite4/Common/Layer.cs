@@ -19,11 +19,12 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="Layer"/> class.
         /// </summary>
+        /// <param name="proxy">The OutSideProxy for file access.</param>
         /// <param name="name">The layer name.</param>
-        public Layer(string name)
+        public Layer(Proxy.OutSideProxy proxy, string name)
         {
             this.Name = name;
-            var yaml = new RootYAML($"{name}/layer.meta");
+            var yaml = new RootYAML(proxy, $"{name}/layer.meta");
             this.Dependencies = yaml.Sequence["dependencies"].Select(
                 child => child.ToString());
         }

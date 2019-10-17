@@ -15,7 +15,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
     /// 実際のゲーム中のファイルアクセスを管理するプロキシクラス
     /// FileIOProxy for actual file access.
     /// </summary>
-    internal class RealFileIOProxy : FileIOProxy
+    public class RealFileIOProxy : FileIOProxy
     {
         /// <inheritdoc/>
         public override void CreateDirectory(AgnosticPath path)

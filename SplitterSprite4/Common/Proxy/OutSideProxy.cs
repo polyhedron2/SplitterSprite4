@@ -17,23 +17,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
     public class OutSideProxy
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="OutSideProxy"/> class.
+        /// </summary>
+        /// <param name="fileIO">A FileIOProxy instance.</param>
+        public OutSideProxy(FileIOProxy fileIO)
+        {
+            this.FileIO = fileIO;
+        }
+
+        /// <summary>
         /// Gets proxy for configuration (spec) files, media files,
         /// and program files.
         /// </summary>
-        public static FileIOProxy FileIO { get; private set; } =
-            new RealFileIOProxy();
-
-        /// <summary>
-        /// テスト実行中はRootPathをシステムのTEMPファイル領域に切り替える
-        /// Switch the RootPath to temporary directory while testing.
-        /// </summary>
-        /// <param name="action">
-        /// テスト実行するActionインスタンス
-        /// The Action instance for testing.
-        /// </param>
-        public static void WithTestMode(Action action)
-        {
-            FileIO.WithTestMode(action);
-        }
+        public FileIOProxy FileIO { get; }
     }
 }

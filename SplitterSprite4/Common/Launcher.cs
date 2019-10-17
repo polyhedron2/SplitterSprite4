@@ -9,6 +9,7 @@ namespace MagicKitchen.SplitterSprite4.Common
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -20,15 +21,16 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="Launcher"/> class.
         /// </summary>
-        public Launcher()
+        /// <param name="proxy">The OutSideProxy for file access.</param>
+        public Launcher(OutSideProxy proxy)
         {
-            var yaml = new RootYAML("launcher.meta");
+            var yaml = new RootYAML(proxy, "launcher.meta");
             var entryPoint = yaml["entry_point"].ToString();
 
             /* レイヤーを依存関係順にトポロジカルソートする。
              * Sort layers topologically by dependency relation.
              */
-            this.Layers = this.SortLayers(this.LoadLayers());
+            this.Layers = this.SortLayers(proxy, this.LoadLayers(proxy));
         }
 
         /// <summary>
@@ -36,9 +38,9 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// </summary>
         public IEnumerable<Layer> Layers { get; }
 
-        private IEnumerable<Layer> LoadLayers()
+        private IEnumerable<Layer> LoadLayers(Proxy.OutSideProxy proxy)
         {
-            foreach (var dir in Proxy.OutSideProxy.FileIO.EnumerateDirectories(
+            foreach (var dir in proxy.FileIO.EnumerateDirectories(
                 AgnosticPath.FromAgnosticPathString(string.Empty)))
             {
                 var name = dir.ToAgnosticPathString();
@@ -46,7 +48,7 @@ namespace MagicKitchen.SplitterSprite4.Common
 
                 try
                 {
-                    layer = new Layer(name);
+                    layer = new Layer(proxy, name);
                 }
                 catch (Proxy.AgnosticPathNotFoundException)
                 {
@@ -57,7 +59,8 @@ namespace MagicKitchen.SplitterSprite4.Common
             }
         }
 
-        private IEnumerable<Layer> SortLayers(IEnumerable<Layer> layers)
+        private IEnumerable<Layer> SortLayers(
+            Proxy.OutSideProxy proxy, IEnumerable<Layer> layers)
         {
             var visiting = new HashSet<string>();
             var visited = new HashSet<string>();
@@ -66,7 +69,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             {
                 try
                 {
-                    return new Layer(dependeeName);
+                    return new Layer(proxy, dependeeName);
                 }
                 catch (Proxy.AgnosticPathNotFoundException ex)
                 {

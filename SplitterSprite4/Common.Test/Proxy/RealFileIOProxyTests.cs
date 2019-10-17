@@ -27,20 +27,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         [InlineData("dir1/dir2/file.txt")]
         public void CreateDirectoryTest(string path)
         {
-            OutSideProxy.WithTestMode(() =>
-            {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-                var dirFullPath =
-                    OutSideProxy.FileIO.OSFullDirPath(agnosticPath);
-                Assert.False(Directory.Exists(dirFullPath));
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            var dirFullPath = proxy.FileIO.OSFullDirPath(agnosticPath);
+            Assert.False(Directory.Exists(dirFullPath));
 
-                // act
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
+            // act
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
-                // assert
-                Assert.True(Directory.Exists(dirFullPath));
-            });
+            // assert
+            Assert.True(Directory.Exists(dirFullPath));
         }
 
         /// <summary>
@@ -58,25 +55,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         public void EnumerateDirectoriesTest(
             string basePath, params string[] childrenPaths)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var parent = AgnosticPath.FromAgnosticPathString(basePath);
+            var children = childrenPaths.Select(
+                child => AgnosticPath.FromAgnosticPathString($"{basePath}/{child}"));
+            proxy.FileIO.CreateDirectory(parent);
+            foreach (var child in children)
             {
-                // arrange
-                var parent = AgnosticPath.FromAgnosticPathString(basePath);
-                var children = childrenPaths.Select(
-                    child => AgnosticPath.FromAgnosticPathString($"{basePath}/{child}"));
-                OutSideProxy.FileIO.CreateDirectory(parent);
-                foreach (var child in children)
-                {
-                    OutSideProxy.FileIO.CreateDirectory(child);
-                }
+                proxy.FileIO.CreateDirectory(child);
+            }
 
-                // act
-                var result = OutSideProxy.FileIO.EnumerateDirectories(
-                    parent).Select(d => d.ToAgnosticPathString()).ToHashSet();
+            // act
+            var result = proxy.FileIO.EnumerateDirectories(
+                parent).Select(d => d.ToAgnosticPathString()).ToHashSet();
 
-                // assert
-                Assert.Equal(childrenPaths.ToHashSet(), result);
-            });
+            // assert
+            Assert.Equal(childrenPaths.ToHashSet(), result);
         }
 
         /// <summary>
@@ -89,25 +84,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         [InlineData("dir1/dir2/baz.meta")]
         public void FullPathTest(string path)
         {
-            OutSideProxy.WithTestMode(() =>
-            {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-                var expectedFullPath = Path.Combine(
-                    OutSideProxy.FileIO.RootPath,
-                    agnosticPath.ToOSPathString());
-                var expectedFullDirPath =
-                    Path.GetDirectoryName(expectedFullPath);
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            var expectedFullPath = Path.Combine(
+                proxy.FileIO.RootPath,
+                agnosticPath.ToOSPathString());
+            var expectedFullDirPath =
+                Path.GetDirectoryName(expectedFullPath);
 
-                // act
-                var actualFullPath = OutSideProxy.FileIO.OSFullPath(agnosticPath);
-                var actualFullDirPath =
-                    OutSideProxy.FileIO.OSFullDirPath(agnosticPath);
+            // act
+            var actualFullPath = proxy.FileIO.OSFullPath(agnosticPath);
+            var actualFullDirPath =
+                proxy.FileIO.OSFullDirPath(agnosticPath);
 
-                // assert
-                Assert.Equal(expectedFullPath, actualFullPath);
-                Assert.Equal(expectedFullDirPath, actualFullDirPath);
-            });
+            // assert
+            Assert.Equal(expectedFullPath, actualFullPath);
+            Assert.Equal(expectedFullDirPath, actualFullDirPath);
         }
 
         /// <summary>
@@ -124,45 +117,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         public void ActionWithReaderAndWriterTest(
             string path, params string[] fileBody)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // act
+            // 書き込み先ファイルのためのディレクトリを作成
+            // Create directory for file writing.
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
+
+            // 各行ごとにファイルに新規書き込み(append=false)
+            // File writing with append=false mode.
+            foreach (var line in fileBody)
             {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-
-                // act
-                // 書き込み先ファイルのためのディレクトリを作成
-                // Create directory for file writing.
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
-
-                // 各行ごとにファイルに新規書き込み(append=false)
-                // File writing with append=false mode.
-                foreach (var line in fileBody)
-                {
-                    OutSideProxy.FileIO.WithTextWriter(
-                        agnosticPath, false, (writer) =>
-                        {
-                            writer.WriteLine(line);
-                        });
-                }
-
-                // 書き込んだ内容を取得
-                // Read the written body.
-                var readLine = string.Empty;
-                OutSideProxy.FileIO.WithTextReader(
-                    agnosticPath, (reader) =>
+                proxy.FileIO.WithTextWriter(
+                    agnosticPath, false, (writer) =>
                     {
-                        readLine = reader.ReadToEnd();
+                        writer.WriteLine(line);
                     });
+            }
 
-                // assert
-                // 新規書き込みの繰り返しであったので、
-                // ファイルには最後の行だけ書き込まれている
-                // Because append=false,
-                // there is only the last line.
-                Assert.Equal(
-                    fileBody[fileBody.Length - 1] + Environment.NewLine,
-                    readLine);
-            });
+            // 書き込んだ内容を取得
+            // Read the written body.
+            var readLine = string.Empty;
+            proxy.FileIO.WithTextReader(
+                agnosticPath, (reader) =>
+                {
+                    readLine = reader.ReadToEnd();
+                });
+
+            // assert
+            // 新規書き込みの繰り返しであったので、
+            // ファイルには最後の行だけ書き込まれている
+            // Because append=false,
+            // there is only the last line.
+            Assert.Equal(
+                fileBody[fileBody.Length - 1] + Environment.NewLine,
+                readLine);
         }
 
         /// <summary>
@@ -179,56 +170,54 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         public void FunctionWithReaderAndWriterTest(
             string path, params string[] fileBody)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            var returnList = new List<string>();
+
+            // act
+            // 書き込み先ファイルのためのディレクトリを作成
+            // Create directory for file writing.
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
+
+            // 各行ごとにファイルに新規書き込み(append=false)
+            // File writing with append=false mode.
+            foreach (var line in fileBody)
             {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-                var returnList = new List<string>();
-
-                // act
-                // 書き込み先ファイルのためのディレクトリを作成
-                // Create directory for file writing.
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
-
-                // 各行ごとにファイルに新規書き込み(append=false)
-                // File writing with append=false mode.
-                foreach (var line in fileBody)
-                {
-                    // Functionの結果を戻り値として取得できることを確認
-                    // The result of the Function is the result of WithTextWriter.
-                    var returnLine = OutSideProxy.FileIO.WithTextWriter(
-                        agnosticPath, false, (writer) =>
-                        {
-                            writer.WriteLine(line);
-                            return line;
-                        });
-                    returnList.Add(returnLine);
-                }
-
-                // 書き込んだ内容を戻り値として取得
-                // Read the written body.
-                var readLine = OutSideProxy.FileIO.WithTextReader(
-                    agnosticPath, (reader) =>
+                // Functionの結果を戻り値として取得できることを確認
+                // The result of the Function is the result of WithTextWriter.
+                var returnLine = proxy.FileIO.WithTextWriter(
+                    agnosticPath, false, (writer) =>
                     {
-                        return reader.ReadToEnd();
+                        writer.WriteLine(line);
+                        return line;
                     });
+                returnList.Add(returnLine);
+            }
 
-                // assert
-                for (var i = 0; i < fileBody.Length; i++)
+            // 書き込んだ内容を戻り値として取得
+            // Read the written body.
+            var readLine = proxy.FileIO.WithTextReader(
+                agnosticPath, (reader) =>
                 {
-                    // Functionの戻り値は入力したlineと一致する
-                    // The result is as same as the Function.
-                    Assert.Equal(fileBody[i], returnList[i]);
-                }
+                    return reader.ReadToEnd();
+                });
 
-                // 新規書き込みの繰り返しであったので、
-                // ファイルには最後の行だけ書き込まれている
-                // Because append=false,
-                // there is only the last line.
-                Assert.Equal(
-                    fileBody[fileBody.Length - 1] + Environment.NewLine,
-                    readLine);
-            });
+            // assert
+            for (var i = 0; i < fileBody.Length; i++)
+            {
+                // Functionの戻り値は入力したlineと一致する
+                // The result is as same as the Function.
+                Assert.Equal(fileBody[i], returnList[i]);
+            }
+
+            // 新規書き込みの繰り返しであったので、
+            // ファイルには最後の行だけ書き込まれている
+            // Because append=false,
+            // there is only the last line.
+            Assert.Equal(
+                fileBody[fileBody.Length - 1] + Environment.NewLine,
+                readLine);
         }
 
         /// <summary>
@@ -245,45 +234,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         public void ActionWithReaderAndWriterAppendModeTest(
             string path, params string[] fileBody)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // act
+            // 書き込み先ファイルのためのディレクトリを作成
+            // Create directory for file writing.
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
+
+            // 各行ごとにファイルに追加書き込み(append=true)
+            // File writing with append=true mode.
+            foreach (var line in fileBody)
             {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-
-                // act
-                // 書き込み先ファイルのためのディレクトリを作成
-                // Create directory for file writing.
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
-
-                // 各行ごとにファイルに追加書き込み(append=true)
-                // File writing with append=true mode.
-                foreach (var line in fileBody)
-                {
-                    OutSideProxy.FileIO.WithTextWriter(
-                        agnosticPath, true, (writer) =>
-                        {
-                            writer.WriteLine(line);
-                        });
-                }
-
-                // 書き込んだ内容を取得
-                // Read the written body.
-                var readLine = string.Empty;
-                OutSideProxy.FileIO.WithTextReader(
-                    agnosticPath, (reader) =>
+                proxy.FileIO.WithTextWriter(
+                    agnosticPath, true, (writer) =>
                     {
-                        readLine = reader.ReadToEnd();
+                        writer.WriteLine(line);
                     });
+            }
 
-                // assert
-                // 追加書き込みの繰り返しであったので、
-                // ファイルには全ての行が書き込まれている
-                // Because append=true,
-                // there are all of the lines.
-                Assert.Equal(
-                    string.Join(Environment.NewLine, fileBody) + Environment.NewLine,
-                    readLine);
-            });
+            // 書き込んだ内容を取得
+            // Read the written body.
+            var readLine = string.Empty;
+            proxy.FileIO.WithTextReader(
+                agnosticPath, (reader) =>
+                {
+                    readLine = reader.ReadToEnd();
+                });
+
+            // assert
+            // 追加書き込みの繰り返しであったので、
+            // ファイルには全ての行が書き込まれている
+            // Because append=true,
+            // there are all of the lines.
+            Assert.Equal(
+                string.Join(Environment.NewLine, fileBody) + Environment.NewLine,
+                readLine);
         }
 
         /// <summary>
@@ -296,24 +283,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         [InlineData("dir1/dir2/baz.meta")]
         public void ReaderWithoutFileTest(string path)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // assert
+            // 開始時点ではpathに至るファイルが存在しない
+            // There is no file on the path.
+            Assert.False(File.Exists(
+                proxy.FileIO.OSFullPath(agnosticPath)));
+
+            // ファイルが無い状態で読み込みをしようとすれば例外
+            // Exception will be thrown when an attempt to read the path.
+            Assert.Throws<AgnosticPathNotFoundException>(() =>
             {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-
-                // assert
-                // 開始時点ではpathに至るファイルが存在しない
-                // There is no file on the path.
-                Assert.False(File.Exists(
-                    OutSideProxy.FileIO.OSFullPath(agnosticPath)));
-
-                // ファイルが無い状態で読み込みをしようとすれば例外
-                // Exception will be thrown when an attempt to read the path.
-                Assert.Throws<AgnosticPathNotFoundException>(() =>
-                {
-                    OutSideProxy.FileIO.WithTextReader(
-                        agnosticPath, (reader) => { });
-                });
+                proxy.FileIO.WithTextReader(
+                    agnosticPath, (reader) => { });
             });
         }
 
@@ -326,24 +311,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         [InlineData("dir1/dir2/baz.meta")]
         public void WriterWithoutDirectoryTest(string path)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // assert
+            // 開始時点ではpathに至るディレクトリが存在しない
+            // There is no file on the path.
+            Assert.False(Directory.Exists(
+                proxy.FileIO.OSFullDirPath(agnosticPath)));
+
+            // ディレクトリが無い状態で書き込みをしようとすれば例外
+            // Exception will be thrown when an attempt to write the path.
+            Assert.Throws<AgnosticPathNotFoundException>(() =>
             {
-                // arrange
-                var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-
-                // assert
-                // 開始時点ではpathに至るディレクトリが存在しない
-                // There is no file on the path.
-                Assert.False(Directory.Exists(
-                    OutSideProxy.FileIO.OSFullDirPath(agnosticPath)));
-
-                // ディレクトリが無い状態で書き込みをしようとすれば例外
-                // Exception will be thrown when an attempt to write the path.
-                Assert.Throws<AgnosticPathNotFoundException>(() =>
-                {
-                    OutSideProxy.FileIO.WithTextWriter(
-                        agnosticPath, false, (writer) => { });
-                });
+                proxy.FileIO.WithTextWriter(
+                    agnosticPath, false, (writer) => { });
             });
         }
     }

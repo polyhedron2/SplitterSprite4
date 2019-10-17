@@ -20,9 +20,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
     public abstract class FileIOProxy
     {
         /// <summary>
-        /// Gets the directory path which contains the game executable file.
+        /// Gets or sets the directory path which contains
+        /// the game executable file.
         /// </summary>
-        public string RootPath { get; private set; } =
+        public string RootPath { get; protected set; } =
             Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
         /// <summary>
@@ -49,57 +50,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// </returns>
         public abstract IEnumerable<AgnosticPath>
             EnumerateDirectories(AgnosticPath path);
-
-        /// <summary>
-        /// テスト実行中はRootPathをシステムのTEMPファイル領域に切り替える
-        /// Switch the RootPath to temporary directory while testing.
-        /// </summary>
-        /// <param name="testAction">
-        /// テスト実行するActionインスタンス
-        /// The Action instance for testing.
-        /// </param>
-        public void WithTestMode(Action testAction)
-        {
-            // テスト並列実行時に干渉しあわないよう、スレッドロックを取得
-            // Thread lock for parallel testing.
-            lock (this)
-            {
-                var prevRootPath = this.RootPath;
-                try
-                {
-                    var testDirName = "SplitterSpriteTest";
-
-                    // TEMP領域にテスト用フォルダを作成
-                    // Create temporary directory for testing.
-                    this.RootPath = Path.Combine(
-                        Path.GetTempPath(),
-                        testDirName,
-                        Path.GetRandomFileName());
-
-                    Directory.CreateDirectory(this.RootPath);
-
-                    try
-                    {
-                        // テスト実行
-                        // Testing.
-                        testAction();
-                    }
-                    finally
-                    {
-                        // テスト用フォルダの親フォルダごと削除を試みる
-                        // 前のテストで削除できなかったフォルダも削除される
-                        // Attempt to delete the testing directory.
-                        this.TryDeleteDirectory(this.RootPath);
-                    }
-                }
-                finally
-                {
-                    // 例外が発生してもRootPathは元に戻す
-                    // Make RootPath back to the original.
-                    this.RootPath = prevRootPath;
-                }
-            }
-        }
 
         /// <summary>
         /// OS依存なフルパスとして出力
@@ -247,20 +197,5 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// <returns>The text writer instance.</returns>
         protected abstract TextWriter FetchTextWriter(
             AgnosticPath path, bool append);
-
-        private void TryDeleteDirectory(string path)
-        {
-            try
-            {
-                // テスト用フォルダの削除を試みる
-                // Attempt to delete testing directory.
-                Directory.Delete(path, true);
-            }
-            catch
-            {
-                // TEMP配下なので削除失敗は気にしない。
-                // Failure is ignored, because it is temporary directory.
-            }
-        }
     }
 }

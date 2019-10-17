@@ -22,36 +22,34 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [Fact]
         public void LayerSortTotalOrderTest()
         {
-            OutSideProxy.WithTestMode(() =>
-            {
-                // arange
+            // arange
+            var proxy = Utility.TestOutSideProxy();
 
-                /*  Hasse diagram of the tested dependencies.
-                 * head -----------------------------------> tail
-                 *
-                 * [first]-----[second]-----[third]-----[fourth]
-                 */
-                this.SetUpLauncherYamlFile();
-                this.SetupLayerYamlFile(
-                    "first", "dependencies:", "  - second");
-                this.SetupLayerYamlFile(
-                    "second", "dependencies:", "  - third");
-                this.SetupLayerYamlFile(
-                    "third", "dependencies:", "  - fourth");
-                this.SetupLayerYamlFile(
-                    "fourth", "dependencies: []");
+            /*  Hasse diagram of the tested dependencies.
+             * head -----------------------------------> tail
+             *
+             * [first]-----[second]-----[third]-----[fourth]
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy, "first", "dependencies:", "  - second");
+            this.SetupLayerYamlFile(
+                proxy, "second", "dependencies:", "  - third");
+            this.SetupLayerYamlFile(
+                proxy, "third", "dependencies:", "  - fourth");
+            this.SetupLayerYamlFile(
+                proxy, "fourth", "dependencies: []");
 
-                // act
-                var launcher = new Launcher();
+            // act
+            var launcher = new Launcher(proxy);
 
-                // assert
-                var result =
-                    launcher.Layers.Select(layer => layer.Name).ToArray();
-                Assert.Equal(0, Array.IndexOf(result, "first"));
-                Assert.Equal(1, Array.IndexOf(result, "second"));
-                Assert.Equal(2, Array.IndexOf(result, "third"));
-                Assert.Equal(3, Array.IndexOf(result, "fourth"));
-            });
+            // assert
+            var result =
+                launcher.Layers.Select(layer => layer.Name).ToArray();
+            Assert.Equal(0, Array.IndexOf(result, "first"));
+            Assert.Equal(1, Array.IndexOf(result, "second"));
+            Assert.Equal(2, Array.IndexOf(result, "third"));
+            Assert.Equal(3, Array.IndexOf(result, "fourth"));
         }
 
         /// <summary>
@@ -60,71 +58,78 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [Fact]
         public void LayerSortPartialOrderTest()
         {
-            OutSideProxy.WithTestMode(() =>
-            {
-                // arange
+            // arange
+            var proxy = Utility.TestOutSideProxy();
 
-                /*       Hasse diagram of the tested dependencies.
-                 * head ---------------------------------------------> tail
-                 *
-                 *            [second]-------------------[sixth]
-                 *            /      \                  /        \
-                 *           /        \                /          \
-                 *          /          [fourth]--------------------[eighth]
-                 *         /          /              /             /
-                 *        /          /              /             /
-                 * [first]----------/--------[fifth]             /
-                 *        \        /                \           /
-                 *         \      /                  \         /
-                 *          [third]-------------------[seventh]
-                 */
-                this.SetUpLauncherYamlFile();
-                this.SetupLayerYamlFile(
-                    "first",
-                    "dependencies:",
-                    "  - second",
-                    "  - third",
-                    "  - fifth");
-                this.SetupLayerYamlFile(
-                    "second",
-                    "dependencies:",
-                    "  - fourth",
-                    "  - sixth");
-                this.SetupLayerYamlFile(
-                    "third",
-                    "dependencies:",
-                    "  - fourth",
-                    "  - seventh");
-                this.SetupLayerYamlFile(
-                    "fourth",
-                    "dependencies:",
-                    "  - eighth");
-                this.SetupLayerYamlFile(
-                    "fifth",
-                    "dependencies:",
-                    "  - sixth",
-                    "  - seventh");
-                this.SetupLayerYamlFile(
-                    "sixth",
-                    "dependencies:",
-                    "  - eighth");
-                this.SetupLayerYamlFile(
-                    "seventh",
-                    "dependencies:",
-                    "  - eighth");
-                this.SetupLayerYamlFile(
-                    "eighth",
-                    "dependencies: []");
+            /*       Hasse diagram of the tested dependencies.
+             * head ---------------------------------------------> tail
+             *
+             *            [second]-------------------[sixth]
+             *            /      \                  /        \
+             *           /        \                /          \
+             *          /          [fourth]--------------------[eighth]
+             *         /          /              /             /
+             *        /          /              /             /
+             * [first]----------/--------[fifth]             /
+             *        \        /                \           /
+             *         \      /                  \         /
+             *          [third]-------------------[seventh]
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy,
+                "first",
+                "dependencies:",
+                "  - second",
+                "  - third",
+                "  - fifth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "second",
+                "dependencies:",
+                "  - fourth",
+                "  - sixth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "third",
+                "dependencies:",
+                "  - fourth",
+                "  - seventh");
+            this.SetupLayerYamlFile(
+                proxy,
+                "fourth",
+                "dependencies:",
+                "  - eighth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "fifth",
+                "dependencies:",
+                "  - sixth",
+                "  - seventh");
+            this.SetupLayerYamlFile(
+                proxy,
+                "sixth",
+                "dependencies:",
+                "  - eighth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "seventh",
+                "dependencies:",
+                "  - eighth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "eighth",
+                "dependencies: []");
 
-                // act
-                var launcher = new Launcher();
+            // act
+            var launcher = new Launcher(proxy);
 
-                // assert
-                var result =
-                    launcher.Layers.Select(layer => layer.Name).ToArray();
-                Assert.Equal(
-                    new string[]
-                    {
+            // assert
+            var result =
+                launcher.Layers.Select(layer => layer.Name).ToArray();
+            Assert.Equal(
+                new string[]
+                {
                         "first",
                         "second",
                         "third",
@@ -133,45 +138,44 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         "sixth",
                         "seventh",
                         "eighth",
-                    }.ToHashSet(),
-                    result.ToHashSet());
-                Assert.True(
-                    Array.IndexOf(result, "first") <
-                    Array.IndexOf(result, "second"));
-                Assert.True(
-                    Array.IndexOf(result, "first") <
-                    Array.IndexOf(result, "third"));
-                Assert.True(
-                    Array.IndexOf(result, "first") <
-                    Array.IndexOf(result, "fifth"));
-                Assert.True(
-                    Array.IndexOf(result, "second") <
-                    Array.IndexOf(result, "fourth"));
-                Assert.True(
-                    Array.IndexOf(result, "second") <
-                    Array.IndexOf(result, "sixth"));
-                Assert.True(
-                    Array.IndexOf(result, "third") <
-                    Array.IndexOf(result, "fourth"));
-                Assert.True(
-                    Array.IndexOf(result, "third") <
-                    Array.IndexOf(result, "seventh"));
-                Assert.True(
-                    Array.IndexOf(result, "fourth") <
-                    Array.IndexOf(result, "eighth"));
-                Assert.True(
-                    Array.IndexOf(result, "fifth") <
-                    Array.IndexOf(result, "sixth"));
-                Assert.True(
-                    Array.IndexOf(result, "fifth") <
-                    Array.IndexOf(result, "seventh"));
-                Assert.True(
-                    Array.IndexOf(result, "sixth") <
-                    Array.IndexOf(result, "eighth"));
-                Assert.True(
-                    Array.IndexOf(result, "seventh") <
-                    Array.IndexOf(result, "eighth"));
-            });
+                }.ToHashSet(),
+                result.ToHashSet());
+            Assert.True(
+                Array.IndexOf(result, "first") <
+                Array.IndexOf(result, "second"));
+            Assert.True(
+                Array.IndexOf(result, "first") <
+                Array.IndexOf(result, "third"));
+            Assert.True(
+                Array.IndexOf(result, "first") <
+                Array.IndexOf(result, "fifth"));
+            Assert.True(
+                Array.IndexOf(result, "second") <
+                Array.IndexOf(result, "fourth"));
+            Assert.True(
+                Array.IndexOf(result, "second") <
+                Array.IndexOf(result, "sixth"));
+            Assert.True(
+                Array.IndexOf(result, "third") <
+                Array.IndexOf(result, "fourth"));
+            Assert.True(
+                Array.IndexOf(result, "third") <
+                Array.IndexOf(result, "seventh"));
+            Assert.True(
+                Array.IndexOf(result, "fourth") <
+                Array.IndexOf(result, "eighth"));
+            Assert.True(
+                Array.IndexOf(result, "fifth") <
+                Array.IndexOf(result, "sixth"));
+            Assert.True(
+                Array.IndexOf(result, "fifth") <
+                Array.IndexOf(result, "seventh"));
+            Assert.True(
+                Array.IndexOf(result, "sixth") <
+                Array.IndexOf(result, "eighth"));
+            Assert.True(
+                Array.IndexOf(result, "seventh") <
+                Array.IndexOf(result, "eighth"));
         }
 
         /// <summary>
@@ -180,76 +184,83 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [Fact]
         public void LayerSortDisconnectedPartialOrderTest()
         {
-            OutSideProxy.WithTestMode(() =>
-            {
-                // arange
+            // arange
+            var proxy = Utility.TestOutSideProxy();
 
-                /*  Hasse diagram of the tested dependencies.
-                 * head ---------------------------------> tail
-                 *
-                 *                  [second]
-                 *                 /        \
-                 *                /          \
-                 *               /            \
-                 *        [first]              [fourth]
-                 *               \            /
-                 *                \          /
-                 *                 \        /
-                 *                   [third]
-                 *
-                 *                  [sixth]
-                 *                 /        \
-                 *                /          \
-                 *               /            \
-                 *        [fifth]              [eighth]
-                 *               \            /
-                 *                \          /
-                 *                 \        /
-                 *                 [seventh]
-                 */
-                this.SetUpLauncherYamlFile();
-                this.SetupLayerYamlFile(
-                    "first",
-                    "dependencies:",
-                    "  - second",
-                    "  - third");
-                this.SetupLayerYamlFile(
-                    "second",
-                    "dependencies:",
-                    "  - fourth");
-                this.SetupLayerYamlFile(
-                    "third",
-                    "dependencies:",
-                    "  - fourth");
-                this.SetupLayerYamlFile(
-                    "fourth",
-                    "dependencies: []");
-                this.SetupLayerYamlFile(
-                    "fifth",
-                    "dependencies:",
-                    "  - sixth",
-                    "  - seventh");
-                this.SetupLayerYamlFile(
-                    "sixth",
-                    "dependencies:",
-                    "  - eighth");
-                this.SetupLayerYamlFile(
-                    "seventh",
-                    "dependencies:",
-                    "  - eighth");
-                this.SetupLayerYamlFile(
-                    "eighth",
-                    "dependencies: []");
+            /*  Hasse diagram of the tested dependencies.
+             * head ---------------------------------> tail
+             *
+             *                  [second]
+             *                 /        \
+             *                /          \
+             *               /            \
+             *        [first]              [fourth]
+             *               \            /
+             *                \          /
+             *                 \        /
+             *                   [third]
+             *
+             *                  [sixth]
+             *                 /        \
+             *                /          \
+             *               /            \
+             *        [fifth]              [eighth]
+             *               \            /
+             *                \          /
+             *                 \        /
+             *                 [seventh]
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy,
+                "first",
+                "dependencies:",
+                "  - second",
+                "  - third");
+            this.SetupLayerYamlFile(
+                proxy,
+                "second",
+                "dependencies:",
+                "  - fourth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "third",
+                "dependencies:",
+                "  - fourth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "fourth",
+                "dependencies: []");
+            this.SetupLayerYamlFile(
+                proxy,
+                "fifth",
+                "dependencies:",
+                "  - sixth",
+                "  - seventh");
+            this.SetupLayerYamlFile(
+                proxy,
+                "sixth",
+                "dependencies:",
+                "  - eighth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "seventh",
+                "dependencies:",
+                "  - eighth");
+            this.SetupLayerYamlFile(
+                proxy,
+                "eighth",
+                "dependencies: []");
 
-                // act
-                var launcher = new Launcher();
+            // act
+            var launcher = new Launcher(proxy);
 
-                // assert
-                var result =
-                    launcher.Layers.Select(layer => layer.Name).ToArray();
-                Assert.Equal(
-                    new string[]
-                    {
+            // assert
+            var result =
+                launcher.Layers.Select(layer => layer.Name).ToArray();
+            Assert.Equal(
+                new string[]
+                {
                         "first",
                         "second",
                         "third",
@@ -258,33 +269,32 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         "sixth",
                         "seventh",
                         "eighth",
-                    }.ToHashSet(),
-                    result.ToHashSet());
-                Assert.True(
-                    Array.IndexOf(result, "first") <
-                    Array.IndexOf(result, "second"));
-                Assert.True(
-                    Array.IndexOf(result, "first") <
-                    Array.IndexOf(result, "third"));
-                Assert.True(
-                    Array.IndexOf(result, "second") <
-                    Array.IndexOf(result, "fourth"));
-                Assert.True(
-                    Array.IndexOf(result, "third") <
-                    Array.IndexOf(result, "fourth"));
-                Assert.True(
-                    Array.IndexOf(result, "fifth") <
-                    Array.IndexOf(result, "sixth"));
-                Assert.True(
-                    Array.IndexOf(result, "fifth") <
-                    Array.IndexOf(result, "seventh"));
-                Assert.True(
-                    Array.IndexOf(result, "sixth") <
-                    Array.IndexOf(result, "eighth"));
-                Assert.True(
-                    Array.IndexOf(result, "seventh") <
-                    Array.IndexOf(result, "eighth"));
-            });
+                }.ToHashSet(),
+                result.ToHashSet());
+            Assert.True(
+                Array.IndexOf(result, "first") <
+                Array.IndexOf(result, "second"));
+            Assert.True(
+                Array.IndexOf(result, "first") <
+                Array.IndexOf(result, "third"));
+            Assert.True(
+                Array.IndexOf(result, "second") <
+                Array.IndexOf(result, "fourth"));
+            Assert.True(
+                Array.IndexOf(result, "third") <
+                Array.IndexOf(result, "fourth"));
+            Assert.True(
+                Array.IndexOf(result, "fifth") <
+                Array.IndexOf(result, "sixth"));
+            Assert.True(
+                Array.IndexOf(result, "fifth") <
+                Array.IndexOf(result, "seventh"));
+            Assert.True(
+                Array.IndexOf(result, "sixth") <
+                Array.IndexOf(result, "eighth"));
+            Assert.True(
+                Array.IndexOf(result, "seventh") <
+                Array.IndexOf(result, "eighth"));
         }
 
         /// <summary>
@@ -293,47 +303,45 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [Fact]
         public void NonLayerDirectoryIgnoredTest()
         {
-            OutSideProxy.WithTestMode(() =>
-            {
-                // arange
+            // arange
+            var proxy = Utility.TestOutSideProxy();
 
-                /*  Hasse diagram of the tested dependencies.
-                 * head -----------------------------------> tail
-                 *
-                 * [first]-----[second]-----[third]-----[fourth]
-                 */
-                this.SetUpLauncherYamlFile();
-                this.SetupLayerYamlFile(
-                    "first", "dependencies:", "  - second");
-                this.SetupLayerYamlFile(
-                    "second", "dependencies:", "  - third");
-                this.SetupLayerYamlFile(
-                    "third", "dependencies:", "  - fourth");
-                this.SetupLayerYamlFile(
-                    "fourth", "dependencies: []");
+            /*  Hasse diagram of the tested dependencies.
+             * head -----------------------------------> tail
+             *
+             * [first]-----[second]-----[third]-----[fourth]
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy, "first", "dependencies:", "  - second");
+            this.SetupLayerYamlFile(
+                proxy, "second", "dependencies:", "  - third");
+            this.SetupLayerYamlFile(
+                proxy, "third", "dependencies:", "  - fourth");
+            this.SetupLayerYamlFile(
+                proxy, "fourth", "dependencies: []");
 
-                // These direcotries don't have "layer.meta".
-                this.SetupEmptyDirectory("fifth");
-                this.SetupEmptyDirectory("sixth");
+            // These direcotries don't have "layer.meta".
+            this.SetupEmptyDirectory(proxy, "fifth");
+            this.SetupEmptyDirectory(proxy, "sixth");
 
-                // act
-                var launcher = new Launcher();
+            // act
+            var launcher = new Launcher(proxy);
 
-                // assert
-                var result =
-                    launcher.Layers.Select(layer => layer.Name).ToArray();
+            // assert
+            var result =
+                launcher.Layers.Select(layer => layer.Name).ToArray();
 
-                // There are only directories with "layer.meta".
-                Assert.Equal(
-                    new string[]
-                    {
+            // There are only directories with "layer.meta".
+            Assert.Equal(
+                new string[]
+                {
                         "first",
                         "second",
                         "third",
                         "fourth",
-                    }.ToHashSet(),
-                    result.ToHashSet());
-            });
+                }.ToHashSet(),
+                result.ToHashSet());
         }
 
         /// <summary>
@@ -342,58 +350,59 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [Fact]
         public void CyclicDependencyExceptionTest()
         {
-            OutSideProxy.WithTestMode(() =>
+            // arange
+            var proxy = Utility.TestOutSideProxy();
+
+            /*     Hasse diagram of the tested dependencies.
+             * head --------------------------------------> tail
+             *
+             * [first]---[second]---[third]---[fourth]---[first]
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy, "first", "dependencies:", "  - second");
+            this.SetupLayerYamlFile(
+                proxy, "second", "dependencies:", "  - third");
+            this.SetupLayerYamlFile(
+                proxy, "third", "dependencies:", "  - fourth");
+            this.SetupLayerYamlFile(
+                proxy, "fourth", "dependencies:", "  - first");
+
+            // act & assert
+            Assert.Throws<Launcher.CyclicDependencyException>(() =>
             {
-                // arange
-
-                /*     Hasse diagram of the tested dependencies.
-                 * head --------------------------------------> tail
-                 *
-                 * [first]---[second]---[third]---[fourth]---[first]
-                 */
-                this.SetUpLauncherYamlFile();
-                this.SetupLayerYamlFile(
-                    "first", "dependencies:", "  - second");
-                this.SetupLayerYamlFile(
-                    "second", "dependencies:", "  - third");
-                this.SetupLayerYamlFile(
-                    "third", "dependencies:", "  - fourth");
-                this.SetupLayerYamlFile(
-                    "fourth", "dependencies:", "  - first");
-
-                // act & assert
-                Assert.Throws<Launcher.CyclicDependencyException>(() =>
-                {
-                    var layers = new Launcher().Layers.ToArray();
-                });
+                var launcher = new Launcher(proxy);
+                var layers = launcher.Layers.ToArray();
             });
         }
 
-        private void SetUpLauncherYamlFile()
+        private void SetUpLauncherYamlFile(OutSideProxy proxy)
         {
             var agnosticPath =
                 AgnosticPath.FromAgnosticPathString("launcher.meta");
-            OutSideProxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
+
+            proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
             {
                 writer.Write(Utility.JoinLines(
                     "entry_point: spider/cycle.spec"));
             });
         }
 
-        private void SetupLayerYamlFile(string name, params string[] lines)
+        private void SetupLayerYamlFile(
+            OutSideProxy proxy, string name, params string[] lines)
         {
             var agnosticPath =
                 AgnosticPath.FromAgnosticPathString($"{name}/layer.meta");
-            OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
-            OutSideProxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
+            proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
             {
                 writer.Write(Utility.JoinLines(lines));
             });
         }
 
-        private void SetupEmptyDirectory(string name)
+        private void SetupEmptyDirectory(OutSideProxy proxy, string name)
         {
-            OutSideProxy.FileIO.CreateDirectory(
+            proxy.FileIO.CreateDirectory(
                 AgnosticPath.FromAgnosticPathString(name));
         }
     }

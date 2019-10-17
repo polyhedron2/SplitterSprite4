@@ -27,31 +27,29 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [InlineData("baz", "foo", "bar")]
         public void CreationTest(string name, params string[] dependencies)
         {
-            OutSideProxy.WithTestMode(() =>
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath =
+                AgnosticPath.FromAgnosticPathString($"{name}/layer.meta");
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
+            var yamlBody =
+                dependencies.Length == 0 ?
+                "dependencies: []" :
+                "dependencies:\n" + Utility.JoinLines(
+                    dependencies.Select(d => $"  - {d}").ToArray());
+            proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
             {
-                // arrange
-                var agnosticPath =
-                    AgnosticPath.FromAgnosticPathString($"{name}/layer.meta");
-                OutSideProxy.FileIO.CreateDirectory(agnosticPath.Parent);
-                var yamlBody =
-                    dependencies.Length == 0 ?
-                    "dependencies: []" :
-                    "dependencies:\n" + Utility.JoinLines(
-                        dependencies.Select(d => $"  - {d}").ToArray());
-                OutSideProxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
-                {
-                    writer.Write(yamlBody);
-                });
-
-                // act
-                var layer = new Layer(name);
-
-                // assert
-                Assert.Equal(name, layer.Name);
-                Assert.Equal(
-                    dependencies.ToHashSet(),
-                    layer.Dependencies.ToHashSet());
+                writer.Write(yamlBody);
             });
+
+            // act
+            var layer = new Layer(proxy, name);
+
+            // assert
+            Assert.Equal(name, layer.Name);
+            Assert.Equal(
+                dependencies.ToHashSet(),
+                layer.Dependencies.ToHashSet());
         }
     }
 }
