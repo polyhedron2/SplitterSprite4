@@ -88,16 +88,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines("line 0", "line 1", "line 2"),
                 yaml.Scalar["multiline_text_field"].ToString());
 
-            Assert.Throws<YAMLTypeSlipException<ScalarYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<ScalarYAML>>(() =>
             {
                 var seq = yaml.Scalar["simple_sequence_field"];
             });
-            Assert.Throws<YAMLTypeSlipException<ScalarYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<ScalarYAML>>(() =>
             {
                 var seq = yaml.Scalar["simple_mapping_field"];
             });
 
-            Assert.Throws<YAMLKeyUndefinedException>(() =>
+            Assert.Throws<YAML.YAMLKeyUndefinedException>(() =>
             {
                 var map = yaml.Scalar["undefined_field"];
             });
@@ -133,16 +133,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "sqeuence_member_0",
                 yaml.Sequence["simple_sequence_field"][0].ToString());
 
-            Assert.Throws<YAMLTypeSlipException<SequenceYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
             {
                 var seq = yaml.Sequence["scalar_field"];
             });
-            Assert.Throws<YAMLTypeSlipException<SequenceYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
             {
                 var seq = yaml.Sequence["simple_mapping_field"];
             });
 
-            Assert.Throws<YAMLKeyUndefinedException>(() =>
+            Assert.Throws<YAML.YAMLKeyUndefinedException>(() =>
             {
                 var map = yaml.Sequence["undefined_field"];
             });
@@ -180,16 +180,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "simple_mapping_field"][
                     "simple_mapping_key_0"].ToString());
 
-            Assert.Throws<YAMLTypeSlipException<MappingYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
             {
                 var seq = yaml.Mapping["scalar_field"];
             });
-            Assert.Throws<YAMLTypeSlipException<MappingYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
             {
                 var seq = yaml.Mapping["simple_sequence_field"];
             });
 
-            Assert.Throws<YAMLKeyUndefinedException>(() =>
+            Assert.Throws<YAML.YAMLKeyUndefinedException>(() =>
             {
                 var map = yaml.Mapping["undefined_field"];
             });
@@ -229,13 +229,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines("line 0", "line 1", "line 2"),
                 multilineDefaultResult.ToString());
 
-            Assert.Throws<YAMLTypeSlipException<ScalarYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<ScalarYAML>>(() =>
             {
                 var seq = yaml.Scalar[
                     "simple_sequence_field",
                     new ScalarYAML("dummy")];
             });
-            Assert.Throws<YAMLTypeSlipException<ScalarYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<ScalarYAML>>(() =>
             {
                 var seq = yaml.Scalar[
                     "simple_mapping_field",
@@ -282,12 +282,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "- sqeuence_member_2"),
                 sequenceDefaultResult.ToString());
 
-            Assert.Throws<YAMLTypeSlipException<SequenceYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
             {
                 var seq = yaml.Sequence[
                     "scalar_field", defaultValue];
             });
-            Assert.Throws<YAMLTypeSlipException<SequenceYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
             {
                 var seq = yaml.Sequence[
                     "simple_mapping_field", defaultValue];
@@ -328,11 +328,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "simple_mapping_key_2: simple_mapping_value_2"),
                 yaml.Mapping["simple_mapping_field", defaultValue].ToString());
 
-            Assert.Throws<YAMLTypeSlipException<MappingYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
             {
                 var seq = yaml.Mapping["scalar_field", defaultValue];
             });
-            Assert.Throws<YAMLTypeSlipException<MappingYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
             {
                 var seq = yaml.Mapping[
                     "simple_sequence_field", defaultValue];
@@ -627,27 +627,27 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "simple_mapping_key_0"].ToString());
 
             // 定義された内容が配列でない場合、整数インデクサを用いれば例外
-            Assert.Throws<YAMLTypeSlipException<SequenceYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
             {
                 var seq = yaml["scalar_field"][0];
             });
-            Assert.Throws<YAMLTypeSlipException<SequenceYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
             {
                 var seq = yaml["simple_mapping_field"][0];
             });
 
             // 定義された内容が辞書でない場合、文字列インデクサを用いれば例外
-            Assert.Throws<YAMLTypeSlipException<MappingYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
             {
                 var seq = yaml["scalar_field"]["foo"];
             });
-            Assert.Throws<YAMLTypeSlipException<MappingYAML>>(() =>
+            Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
             {
                 var seq = yaml["simple_sequence_field"]["foo"];
             });
 
             // 未定義の値にアクセスすると例外
-            Assert.Throws<YAMLKeyUndefinedException>(() =>
+            Assert.Throws<YAML.YAMLKeyUndefinedException>(() =>
             {
                 var map = yaml["undefined_field"];
             });
