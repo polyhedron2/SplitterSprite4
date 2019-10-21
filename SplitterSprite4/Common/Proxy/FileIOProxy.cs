@@ -60,20 +60,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// The os-agnostic path.
         /// </param>
         /// <returns>The full-path.</returns>
-        public string OSFullPath(AgnosticPath path) =>
-            Path.Combine(this.RootPath, path.ToOSPathString());
+        public string OSFullPath(AgnosticPath path)
+        {
+            if (path.ToAgnosticPathString().StartsWith("../"))
+            {
+                throw new OutOfRootAccessException(path);
+            }
 
-        /// <summary>
-        /// OS依存なフルパスのディレクトリ名を出力
-        /// Dump the directory of OS-dependent full-path.
-        /// </summary>
-        /// <param name="path">
-        /// OS非依存パス
-        /// The os-agnostic path.
-        /// </param>
-        /// <returns>The direcotry path.</returns>
-        public string OSFullDirPath(AgnosticPath path) =>
-            Path.GetDirectoryName(this.OSFullPath(path));
+            return Path.Combine(this.RootPath, path.ToOSPathString());
+        }
 
         /// <summary>
         /// Pythonのwith構文ライクにテキストリーダを使用
@@ -197,5 +192,47 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// <returns>The text writer instance.</returns>
         protected abstract TextWriter FetchTextWriter(
             AgnosticPath path, bool append);
+
+        /// <summary>
+        /// ゲームディレクトリ外にアクセスが実行された際の例外
+        /// The exception that is thrown when an attempt to
+        /// access out of the root path.
+        /// </summary>
+        public class OutOfRootAccessException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OutOfRootAccessException"/> class.
+            /// </summary>
+            /// <param name="path">The os-agnostic path.</param>
+            internal OutOfRootAccessException(AgnosticPath path)
+                : base(
+                      $"ゲームディレクトリ外" +
+                      $"\"{path.ToAgnosticPathString()}\"へのアクセス")
+            {
+            }
+        }
+
+        /// <summary>
+        /// OS非依存パスに対応するファイルパス上にデータが見つからない際の例外
+        /// The exception that is thrown when an attempt to
+        /// access a file that does not exist on the correcponding path fails.
+        /// </summary>
+        public class AgnosticPathNotFoundException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="AgnosticPathNotFoundException"/> class.
+            /// </summary>
+            /// <param name="path">The os-agnostic path.</param>
+            public AgnosticPathNotFoundException(AgnosticPath path)
+                : base($"ファイル\"{path.ToOSPathString()}\"が見つかりません")
+            {
+                this.Path = path;
+            }
+
+            /// <summary>
+            /// Gets the os-agnostic path.
+            /// </summary>
+            public AgnosticPath Path { get; private set; }
+        }
     }
 }

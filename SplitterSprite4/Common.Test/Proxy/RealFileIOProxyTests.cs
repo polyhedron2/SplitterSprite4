@@ -30,7 +30,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            var dirFullPath = proxy.FileIO.OSFullDirPath(agnosticPath);
+            var dirFullPath = proxy.FileIO.OSFullPath(agnosticPath.Parent);
             Assert.False(Directory.Exists(dirFullPath));
 
             // act
@@ -96,7 +96,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
             // act
             var actualFullPath = proxy.FileIO.OSFullPath(agnosticPath);
             var actualFullDirPath =
-                proxy.FileIO.OSFullDirPath(agnosticPath);
+                proxy.FileIO.OSFullPath(agnosticPath.Parent);
+            if (actualFullDirPath.EndsWith(Path.DirectorySeparatorChar))
+            {
+                actualFullDirPath = actualFullDirPath.Substring(
+                    0, actualFullDirPath.Length - 1);
+            }
 
             // assert
             Assert.Equal(expectedFullPath, actualFullPath);
@@ -295,7 +300,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
 
             // ファイルが無い状態で読み込みをしようとすれば例外
             // Exception will be thrown when an attempt to read the path.
-            Assert.Throws<AgnosticPathNotFoundException>(() =>
+            Assert.Throws<FileIOProxy.AgnosticPathNotFoundException>(() =>
             {
                 proxy.FileIO.WithTextReader(
                     agnosticPath, (reader) => { });
@@ -319,14 +324,63 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
             // 開始時点ではpathに至るディレクトリが存在しない
             // There is no file on the path.
             Assert.False(Directory.Exists(
-                proxy.FileIO.OSFullDirPath(agnosticPath)));
+                proxy.FileIO.OSFullPath(agnosticPath.Parent)));
 
             // ディレクトリが無い状態で書き込みをしようとすれば例外
             // Exception will be thrown when an attempt to write the path.
-            Assert.Throws<AgnosticPathNotFoundException>(() =>
+            Assert.Throws<FileIOProxy.AgnosticPathNotFoundException>(() =>
             {
                 proxy.FileIO.WithTextWriter(
                     agnosticPath, false, (writer) => { });
+            });
+        }
+
+        /// <summary>
+        /// Test access out of the game root directory.
+        /// </summary>
+        /// <param name="path">The os-agnostic path string.</param>
+        [Theory]
+        [InlineData("../foo")]
+        public void OutOfRootAccessTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // assert
+            Assert.Throws<FileIOProxy.OutOfRootAccessException>(() =>
+            {
+                proxy.FileIO.CreateDirectory(agnosticPath);
+            });
+            Assert.Throws<FileIOProxy.OutOfRootAccessException>(() =>
+            {
+                proxy.FileIO.EnumerateDirectories(agnosticPath);
+            });
+            Assert.Throws<FileIOProxy.OutOfRootAccessException>(() =>
+            {
+                proxy.FileIO.WithTextReader(agnosticPath, (reader) =>
+                {
+                });
+            });
+            Assert.Throws<FileIOProxy.OutOfRootAccessException>(() =>
+            {
+                proxy.FileIO.WithTextReader(agnosticPath, (reader) =>
+                {
+                    return 0;
+                });
+            });
+            Assert.Throws<FileIOProxy.OutOfRootAccessException>(() =>
+            {
+                proxy.FileIO.WithTextWriter(agnosticPath, false, (reader) =>
+                {
+                });
+            });
+            Assert.Throws<FileIOProxy.OutOfRootAccessException>(() =>
+            {
+                proxy.FileIO.WithTextWriter(agnosticPath, false, (reader) =>
+                {
+                    return 0;
+                });
             });
         }
     }

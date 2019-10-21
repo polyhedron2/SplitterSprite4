@@ -54,7 +54,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         protected override TextWriter FetchTextWriter(
             AgnosticPath path, bool append)
         {
-            if (!Directory.Exists(this.OSFullDirPath(path)))
+            if (!Directory.Exists(this.OSFullPath(path.Parent)))
             {
                 throw new AgnosticPathNotFoundException(path);
             }

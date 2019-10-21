@@ -9,6 +9,7 @@ namespace MagicKitchen.SplitterSprite4.Common
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -65,7 +66,7 @@ namespace MagicKitchen.SplitterSprite4.Common
                 {
                     layer = new Layer(proxy, name);
                 }
-                catch (Proxy.AgnosticPathNotFoundException)
+                catch (FileIOProxy.AgnosticPathNotFoundException)
                 {
                     continue;
                 }
@@ -86,7 +87,7 @@ namespace MagicKitchen.SplitterSprite4.Common
                 {
                     return new Layer(proxy, dependeeName);
                 }
-                catch (Proxy.AgnosticPathNotFoundException ex)
+                catch (FileIOProxy.AgnosticPathNotFoundException ex)
                 {
                     throw new NonExistentLayerException(dependerLayer, ex);
                 }
@@ -137,7 +138,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             /// <param name="layer">The depending layer.</param>
             /// <param name="cause">The AgnosticPathNotFoundException.</param>
             internal NonExistentLayerException(
-                Layer layer, Proxy.AgnosticPathNotFoundException cause)
+                Layer layer, FileIOProxy.AgnosticPathNotFoundException cause)
                 : base(
                       $"{layer.Name}の依存先{cause.Path.Parent}は" +
                       "有効なレイヤーとして存在していません。",
