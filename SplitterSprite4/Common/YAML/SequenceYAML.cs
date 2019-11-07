@@ -44,6 +44,14 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
+        /// <summary>
+        /// Gets the length of this sequence.
+        /// </summary>
+        public int Length
+        {
+            get => this.Children.Count;
+        }
+
         private List<YAML> Children { get; set; }
 
         /// <summary>
@@ -67,36 +75,72 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// <inheritdoc/>
         public override IEnumerable<string> ToStringLines()
         {
-            IEnumerable<string> TranslateSequence(YAML child)
+            IEnumerable<string> TranslateSequence(SequenceYAML child)
             {
-                var i = 0;
-                foreach (var line in child.ToStringLines())
+                if (child.Length == 0)
                 {
-                    if (i == 0)
+                    yield return $"- {child.ToString()}";
+                }
+                else
+                {
+                    var i = 0;
+                    foreach (var line in child.ToStringLines())
                     {
-                        yield return "-";
-                    }
+                        if (i == 0)
+                        {
+                            yield return "-";
+                        }
 
-                    yield return $"  {line}";
-                    i++;
+                        yield return $"  {line}";
+                        i++;
+                    }
                 }
             }
 
-            IEnumerable<string> TranslateScalar(YAML child)
+            IEnumerable<string> TranslateScalar(ScalarYAML child)
             {
-                var scalar = child as ScalarYAML;
-                if (!scalar.IsMultiLine)
+                if (!child.IsMultiLine)
                 {
-                    yield return $"- {scalar}";
+                    yield return $"- {child}";
                 }
                 else
                 {
                     yield return "- |+";
-                    foreach (var line in scalar.ToStringLines())
+                    foreach (var line in child.ToStringLines())
                     {
                         yield return $"  {line}";
                     }
                 }
+            }
+
+            IEnumerable<string> TranslateMapping(MappingYAML child)
+            {
+                if (child.Length == 0)
+                {
+                    yield return $"- {child.ToString()}";
+                }
+                else
+                {
+                    var i = 0;
+                    foreach (var line in child.ToStringLines())
+                    {
+                        if (i == 0)
+                        {
+                            yield return $"- {line}";
+                        }
+                        else
+                        {
+                            yield return $"  {line}";
+                        }
+
+                        i++;
+                    }
+                }
+            }
+
+            if (this.Length == 0)
+            {
+                return new string[] { "[]" };
             }
 
             // 子要素をインデント。
@@ -122,7 +166,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //   - value1
                     //     :
                     //   - valueN
-                    TranslateSequence(child) :
+                    TranslateSequence(child as SequenceYAML) :
                     (child is ScalarYAML) ?
 
                     // Scalarであれば
@@ -146,7 +190,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //   line1
                     //     :
                     //   lineN
-                    TranslateScalar(child) :
+                    TranslateScalar(child as ScalarYAML) :
 
                     // Mappingであれば、
                     // - key0: value0
@@ -161,8 +205,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //   key1: value1
                     //     :
                     //   keyN: valueN
-                    child.ToStringLines().Select((line, index) =>
-                        (index == 0) ? $"- {line}" : $"  {line}"));
+                    TranslateMapping(child as MappingYAML));
         }
 
         /// <inheritdoc/>

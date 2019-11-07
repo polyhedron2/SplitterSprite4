@@ -6,6 +6,8 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
+    using System;
+    using System.IO;
     using YamlDotNet.RepresentationModel;
 
     /// <summary>
@@ -19,11 +21,17 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file access.</param>
         /// <param name="path">The os-agnostic path.</param>
-        public RootYAML(Proxy.OutSideProxy proxy, AgnosticPath path)
+        /// <param name="acceptEmpty">Accept non-existence of the yaml file.</param>
+        public RootYAML(
+                Proxy.OutSideProxy proxy,
+                AgnosticPath path,
+                bool acceptEmpty = false)
 
             // ファイルパスをIDとする
             // ID is the os-agnostic path.
-            : base(path.ToAgnosticPathString(), ReadFile(proxy, path))
+            : base(
+                  path.ToAgnosticPathString(),
+                  ReadFile(proxy, path, acceptEmpty))
         {
             this.AccessPath = path;
             this.Proxy = proxy;
@@ -34,8 +42,15 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file access.</param>
         /// <param name="agnosticPathStr">The os-agnostic path string.</param>
-        public RootYAML(Proxy.OutSideProxy proxy, string agnosticPathStr)
-            : this(proxy, AgnosticPath.FromAgnosticPathString(agnosticPathStr))
+        /// <param name="acceptEmpty">Accept non-existence of the yaml file.</param>
+        public RootYAML(
+                Proxy.OutSideProxy proxy,
+                string agnosticPathStr,
+                bool acceptEmpty = false)
+            : this(
+                  proxy,
+                  AgnosticPath.FromAgnosticPathString(agnosticPathStr),
+                  acceptEmpty)
         {
         }
 
@@ -51,6 +66,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// </summary>
         public void Save()
         {
+            this.Proxy.FileIO.CreateDirectory(this.AccessPath.Parent);
             this.Proxy.FileIO.WithTextWriter(
                 this.AccessPath, false, (writer) =>
                 {
@@ -59,13 +75,31 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         }
 
         private static YamlMappingNode ReadFile(
-            Proxy.OutSideProxy proxy, AgnosticPath path)
+            Proxy.OutSideProxy proxy, AgnosticPath path, bool acceptEmpty)
         {
             var yamlStream = new YamlStream();
-            proxy.FileIO.WithTextReader(path, (reader) =>
+            try
             {
-                yamlStream.Load(reader);
-            });
+                proxy.FileIO.WithTextReader(path, (reader) =>
+                {
+                    yamlStream.Load(reader);
+                });
+            }
+            catch (Exception ex)
+            {
+                if (acceptEmpty)
+                {
+                    using (StringReader reader = new StringReader("{}"))
+                    {
+                        yamlStream.Load(reader);
+                    }
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
+
             return (YamlMappingNode)yamlStream.Documents[0].RootNode;
         }
     }

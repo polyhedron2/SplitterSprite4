@@ -16,6 +16,27 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
     public class YAMLTests
     {
         /// <summary>
+        /// Test acceptEmpty option.
+        /// </summary>
+        /// <param name="path">The os-agnostic path string.</param>
+        [Theory]
+        [InlineData("foo.yaml")]
+        [InlineData("dir/bar.yaml")]
+        [InlineData("dir1/dir2/baz.yaml")]
+        public void AcceptEmptyTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // act
+            var yaml = new RootYAML(proxy, agnosticPath, acceptEmpty: true);
+
+            // assert
+            Assert.Equal("{}", yaml.ToString());
+        }
+
+        /// <summary>
         /// Test the ID of the RootYAML instance.
         /// </summary>
         /// <param name="path">The os-agnostic path string.</param>
@@ -679,6 +700,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             "    - nested_sequence_member_0",
             "    - nested_sequence_member_1",
             "    - nested_sequence_member_2",
+            "  - []",
+            "  - {}",
             "nested_mapping_field:",
             "  deep_nested_multiline_text_field: |+",
             "    nested line 3",
@@ -691,7 +714,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             "  deep_nested_sequence_field:",
             "    - nested_sequence_member_3",
             "    - nested_sequence_member_4",
-            "    - nested_sequence_member_5");
+            "    - nested_sequence_member_5",
+            "  deep_nested_empty_sequence: []",
+            "  deep_nested_empty_mapping: {}");
 
         private RootYAML SetupYamlFile(OutSideProxy proxy, string path)
         {

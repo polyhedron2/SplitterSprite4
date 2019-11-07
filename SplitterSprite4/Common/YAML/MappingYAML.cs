@@ -43,6 +43,14 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
+        /// <summary>
+        /// Gets the length of this mapping.
+        /// </summary>
+        public int Length
+        {
+            get => this.Body.Count;
+        }
+
         private Dictionary<string, YAML> Body { get; set; }
 
         // Dictionaryはキーの順序保存を保証しないので順序管理用リストを持つ
@@ -84,22 +92,39 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         {
             IEnumerable<string> TranslateCollectionLines(string key)
             {
-                // entry.ValueのStringLinesが０行であれば、何も出力しない。
-                // If entry.Value has no lines, skip.
-                var i = 0;
-                foreach (string line in this.Body[key].ToStringLines())
+                bool isEmptyCollection = false;
+                if (this.Body[key] is SequenceYAML)
                 {
-                    // entry.ValueのStringLinesが１行以上であれば、
-                    // keyを出力してから内容をインデント出力。
-                    // If entry.Value has some lines,
-                    // key is dumped at first.
-                    if (i == 0)
-                    {
-                        yield return $"{key}:";
-                    }
+                    var body = this.Body[key] as SequenceYAML;
+                    isEmptyCollection = body.Length == 0;
+                }
+                else if (this.Body[key] is MappingYAML)
+                {
+                    var body = this.Body[key] as MappingYAML;
+                    isEmptyCollection = body.Length == 0;
+                }
 
-                    yield return $"  {line}";
-                    i++;
+                if (isEmptyCollection)
+                {
+                    yield return $"{key}: {this.Body[key].ToString()}";
+                }
+                else
+                {
+                    var i = 0;
+                    foreach (string line in this.Body[key].ToStringLines())
+                    {
+                        // entry.ValueのStringLinesが１行以上であれば、
+                        // keyを出力してから内容をインデント出力。
+                        // If entry.Value has some lines,
+                        // key is dumped at first.
+                        if (i == 0)
+                        {
+                            yield return $"{key}:";
+                        }
+
+                        yield return $"  {line}";
+                        i++;
+                    }
                 }
             }
 
@@ -123,6 +148,11 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                         yield return $"{key}: {line}";
                     }
                 }
+            }
+
+            if (this.Length == 0)
+            {
+                return new string[] { "{}" };
             }
 
             return this.KeyOrder.SelectMany(
