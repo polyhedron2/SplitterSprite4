@@ -18,17 +18,21 @@ namespace MagicKitchen.SplitterSprite4.Common
     /// </summary>
     public class Layer
     {
+        private RootYAML yaml;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Layer"/> class.
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file access.</param>
         /// <param name="name">The layer name.</param>
-        public Layer(Proxy.OutSideProxy proxy, string name)
+        /// <param name="acceptEmpty">Accept non-existence of the layer directory.</param>
+        public Layer(
+            Proxy.OutSideProxy proxy,
+            string name,
+            bool acceptEmpty = false)
         {
             this.Name = name;
-            var yaml = new RootYAML(proxy, $"{name}/layer.meta");
-            this.Dependencies = yaml.Sequence["dependencies"].Select(
-                child => child.ToString());
+            this.yaml = new RootYAML(proxy, $"{name}/layer.meta", acceptEmpty);
         }
 
         /// <summary>
@@ -37,9 +41,29 @@ namespace MagicKitchen.SplitterSprite4.Common
         public string Name { get; }
 
         /// <summary>
-        /// Gets the layer's dependencies.
+        /// Gets or sets the layer's dependencies.
         /// </summary>
-        public IEnumerable<string> Dependencies { get; }
+        public IEnumerable<string> Dependencies
+        {
+            get
+            {
+                return this.yaml.Sequence[
+                    "dependencies", new SequenceYAML()].Select(
+                    child => child.ToString());
+            }
+
+            set
+            {
+                var newSeq = new SequenceYAML();
+
+                foreach (var dep in value)
+                {
+                    newSeq.Add(new ScalarYAML(dep));
+                }
+
+                this.yaml.Sequence["dependencies"] = newSeq;
+            }
+        }
 
         /// <summary>
         /// 依存関係でトポロジカルソートしたレイヤー群を取得。
@@ -53,6 +77,11 @@ namespace MagicKitchen.SplitterSprite4.Common
         {
             return SortLayers(proxy, LoadLayers(proxy));
         }
+
+        /// <summary>
+        /// Save the layer directory and yaml file.
+        /// </summary>
+        public void Save() => this.yaml.Save();
 
         private static IEnumerable<Layer> LoadLayers(Proxy.OutSideProxy proxy)
         {

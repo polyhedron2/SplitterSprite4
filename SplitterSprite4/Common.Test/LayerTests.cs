@@ -54,6 +54,52 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the layer creation which does not exist.
+        /// </summary>
+        /// <param name="name">The layer name.</param>
+        [Theory]
+        [InlineData("layer")]
+        public void CreationWithEmptyTest(string name)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+
+            // act
+            var layer = new Layer(proxy, name, acceptEmpty: true);
+
+            // assert
+            Assert.Equal(name, layer.Name);
+        }
+
+        /// <summary>
+        /// Test the layer creation.
+        /// </summary>
+        /// <param name="name">The layer name.</param>
+        /// <param name="dependencies">The dependent layers.</param>
+        [Theory]
+        [InlineData("layer")]
+        [InlineData("foo")]
+        [InlineData("bar", "foo")]
+        [InlineData("baz", "foo", "bar")]
+        public void SaveTest(string name, params string[] dependencies)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var editLayer = new Layer(proxy, name, acceptEmpty: true);
+            editLayer.Dependencies = dependencies;
+
+            // act
+            editLayer.Save();
+            var layer = new Layer(proxy, name);
+
+            // assert
+            Assert.Equal(name, layer.Name);
+            Assert.Equal(
+                dependencies.ToHashSet(),
+                layer.Dependencies.ToHashSet());
+        }
+
+        /// <summary>
         /// Test layer sort with total order dependency.
         /// </summary>
         [Fact]
