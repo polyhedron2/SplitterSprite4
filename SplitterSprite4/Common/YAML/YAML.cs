@@ -128,6 +128,26 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             string.Join("\n", this.ToStringLines());
 
         /// <summary>
+        /// 文字列キーについて、該当の値を削除する。
+        /// Remove the child on the string key.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        public virtual void Remove(string key)
+        {
+            throw new YAMLTypeSlipException<SequenceYAML>(this.ID, this);
+        }
+
+        /// <summary>
+        /// 整数キーについて、該当の値を削除する。
+        /// Remove the child on the integer key.
+        /// </summary>
+        /// <param name="key">The integer key.</param>
+        public virtual void Remove(int key)
+        {
+            throw new YAMLTypeSlipException<SequenceYAML>(this.ID, this);
+        }
+
+        /// <summary>
         /// 文字列キーについて値を保持しているか否か
         /// Determines whether the YAML contains the specified string key.
         /// </summary>

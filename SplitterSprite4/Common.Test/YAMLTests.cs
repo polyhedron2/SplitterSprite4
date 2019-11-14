@@ -79,6 +79,49 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the remove method.
+        /// </summary>
+        /// <param name="path">The os-agnostic path string.</param>
+        [Theory]
+        [InlineData("foo.yaml")]
+        [InlineData("dir/bar.yaml")]
+        [InlineData("dir1/dir2/baz.yaml")]
+        public void RemoveTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            RootYAML yaml = this.SetupYamlFile(proxy, path);
+            Assert.Equal(
+                Utility.JoinLines(
+                    "- sqeuence_member_0",
+                    "- sqeuence_member_1",
+                    "- sqeuence_member_2"),
+                yaml["simple_sequence_field"].ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "simple_mapping_key_0: simple_mapping_value_0",
+                    "simple_mapping_key_1: simple_mapping_value_1",
+                    "simple_mapping_key_2: simple_mapping_value_2"),
+                yaml["simple_mapping_field"].ToString());
+
+            // act
+            yaml["simple_sequence_field"].Remove(1);
+            yaml["simple_mapping_field"].Remove("simple_mapping_key_1");
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "- sqeuence_member_0",
+                    "- sqeuence_member_2"),
+                yaml["simple_sequence_field"].ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "simple_mapping_key_0: simple_mapping_value_0",
+                    "simple_mapping_key_2: simple_mapping_value_2"),
+                yaml["simple_mapping_field"].ToString());
+        }
+
+        /// <summary>
         /// Test the scalar getter method.
         /// </summary>
         /// <param name="path">The os-agnostic path string.</param>

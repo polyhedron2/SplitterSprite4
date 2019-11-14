@@ -209,6 +209,12 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         }
 
         /// <inheritdoc/>
+        public override void Remove(int key)
+        {
+            this.Children.RemoveAt(key);
+        }
+
+        /// <inheritdoc/>
         protected override bool Contains(int key) =>
             key >= 0 && key < this.Children.Count;
 
