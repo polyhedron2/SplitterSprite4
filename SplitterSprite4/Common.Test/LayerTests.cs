@@ -54,6 +54,45 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the top layer creation.
+        /// </summary>
+        /// <param name="name">The layer name.</param>
+        /// <param name="dependencies">The dependent layers.</param>
+        [Theory]
+        [InlineData("layer")]
+        [InlineData("foo")]
+        [InlineData("bar", "foo")]
+        [InlineData("baz", "foo", "bar")]
+        public void TopCreationTest(string name, params string[] dependencies)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath =
+                AgnosticPath.FromAgnosticPathString($"{name}/layer.meta");
+            proxy.FileIO.CreateDirectory(agnosticPath.Parent);
+            var yamlBody =
+                dependencies.Length == 0 ?
+                "dependencies: []" :
+                "dependencies:\n" + Utility.JoinLines(
+                    dependencies.Select(d => $"  - {d}").ToArray());
+            yamlBody += "\ntop: true";
+
+            proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
+            {
+                writer.Write(yamlBody);
+            });
+
+            // act
+            var layer = new Layer(proxy, name);
+
+            // assert
+            Assert.Equal(name, layer.Name);
+            Assert.Equal(
+                dependencies.ToHashSet(),
+                layer.Dependencies.ToHashSet());
+        }
+
+        /// <summary>
         /// Test the layer creation which does not exist.
         /// </summary>
         /// <param name="name">The layer name.</param>
@@ -75,18 +114,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Test the layer creation.
         /// </summary>
         /// <param name="name">The layer name.</param>
+        /// <param name="top">The value indicating whether the layer is top or not.</param>
         /// <param name="dependencies">The dependent layers.</param>
         [Theory]
-        [InlineData("layer")]
-        [InlineData("foo")]
-        [InlineData("bar", "foo")]
-        [InlineData("baz", "foo", "bar")]
-        public void SaveTest(string name, params string[] dependencies)
+        [InlineData("layer", false)]
+        [InlineData("foo", true)]
+        [InlineData("bar", false, "foo")]
+        [InlineData("baz", true, "foo", "bar")]
+        public void SaveTest(
+            string name, bool top, params string[] dependencies)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var editLayer = new Layer(proxy, name, acceptEmpty: true);
             editLayer.Dependencies = dependencies;
+            editLayer.IsTop = top;
 
             // act
             editLayer.Save();
@@ -97,13 +139,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 dependencies.ToHashSet(),
                 layer.Dependencies.ToHashSet());
+            Assert.Equal(top, layer.IsTop);
         }
 
         /// <summary>
         /// Test layer sort with total order dependency.
         /// </summary>
         [Fact]
-        public void LayerSortTotalOrderTest()
+        public void LayerSortWithTotalOrderTest()
         {
             // arange
             var proxy = Utility.TestOutSideProxy();
@@ -132,6 +175,41 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(1, Array.IndexOf(result, "second"));
             Assert.Equal(2, Array.IndexOf(result, "third"));
             Assert.Equal(3, Array.IndexOf(result, "fourth"));
+        }
+
+        /// <summary>
+        /// Test layer sort with top layer.
+        /// </summary>
+        [Fact]
+        public void LayerSortWithTopTest()
+        {
+            // arange
+            var proxy = Utility.TestOutSideProxy();
+
+            /*  Hasse diagram of the tested dependencies.
+             * head -----------------------------------> tail
+             *
+             *  [top]----[first]-----[second]-----[third]
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy, "top", "top: true");
+            this.SetupLayerYamlFile(
+                proxy, "first", "dependencies:", "  - second");
+            this.SetupLayerYamlFile(
+                proxy, "second", "dependencies:", "  - third");
+            this.SetupLayerYamlFile(
+                proxy, "third", "dependencies: []");
+
+            // act
+            var layers = Layer.FetchSortedLayers(proxy);
+
+            // assert
+            var result = layers.Select(layer => layer.Name).ToArray();
+            Assert.Equal(0, Array.IndexOf(result, "top"));
+            Assert.Equal(1, Array.IndexOf(result, "first"));
+            Assert.Equal(2, Array.IndexOf(result, "second"));
+            Assert.Equal(3, Array.IndexOf(result, "third"));
         }
 
         /// <summary>
@@ -446,6 +524,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 proxy, "third", "dependencies:", "  - fourth");
             this.SetupLayerYamlFile(
                 proxy, "fourth", "dependencies:", "  - first");
+
+            // act & assert
+            Assert.Throws<Layer.CyclicDependencyException>(() =>
+            {
+                var layers = Layer.FetchSortedLayers(proxy).ToArray();
+            });
+        }
+
+        /// <summary>
+        /// Test layer sort with double top layers.
+        /// </summary>
+        [Fact]
+        public void LayerSortWithDoubleTopTest()
+        {
+            // arange
+            var proxy = Utility.TestOutSideProxy();
+
+            /*     Hasse diagram of the tested dependencies.
+             * head --------------------------------------> tail
+             *
+             * [top1]----+
+             *           |
+             *           +----[first]---[second]---[third]
+             *           |
+             * [top2]----+
+             */
+            this.SetUpLauncherYamlFile(proxy);
+            this.SetupLayerYamlFile(
+                proxy, "top1", "top: true");
+            this.SetupLayerYamlFile(
+                proxy, "top2", "top: true");
+            this.SetupLayerYamlFile(
+                proxy, "first", "dependencies:", "  - second");
+            this.SetupLayerYamlFile(
+                proxy, "second", "dependencies:", "  - third");
+            this.SetupLayerYamlFile(
+                proxy, "third", "dependencies: []");
 
             // act & assert
             Assert.Throws<Layer.CyclicDependencyException>(() =>

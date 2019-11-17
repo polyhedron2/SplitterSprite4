@@ -41,6 +41,30 @@ namespace MagicKitchen.SplitterSprite4.Common
         public string Name { get; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the layer is top or not.
+        /// </summary>
+        public bool IsTop
+        {
+            get
+            {
+                return bool.Parse(this.yaml.Scalar[
+                    "top", new ScalarYAML("false")].ToString());
+            }
+
+            set
+            {
+                if (value)
+                {
+                    this.yaml.Scalar["top"] = new ScalarYAML("true");
+                }
+                else
+                {
+                    this.yaml.Remove("top");
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the layer's dependencies.
         /// </summary>
         public IEnumerable<string> Dependencies
@@ -133,7 +157,22 @@ namespace MagicKitchen.SplitterSprite4.Common
                 {
                     visiting.Add(layer.Name);
 
-                    foreach (var dependeeName in layer.Dependencies)
+                    IEnumerable<string> dependencies;
+                    if (layer.IsTop)
+                    {
+                        // topレイヤーは他のすべてのレイヤーよりも優先して読むため、
+                        // 他のすべてのレイヤーに依存するとみなす。
+                        // Top layer have top read priority,
+                        // then top layer is assumed that depends on all other layers.
+                        dependencies = layers.Select(
+                            l => l.Name).Where(n => n != layer.Name);
+                    }
+                    else
+                    {
+                        dependencies = layer.Dependencies;
+                    }
+
+                    foreach (var dependeeName in dependencies)
                     {
                         foreach (var l in
                             Visit(FetchDependeeLayer(layer, dependeeName)))
