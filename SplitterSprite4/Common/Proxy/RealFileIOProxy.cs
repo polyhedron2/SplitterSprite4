@@ -40,6 +40,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         }
 
         /// <inheritdoc/>
+        public override bool FileExists(AgnosticPath path)
+        {
+            return File.Exists(this.OSFullPath(path));
+        }
+
+        /// <inheritdoc/>
         protected override TextReader FetchTextReader(AgnosticPath path)
         {
             if (!File.Exists(this.OSFullPath(path)))

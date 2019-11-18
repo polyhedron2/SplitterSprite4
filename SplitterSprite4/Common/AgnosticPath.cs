@@ -105,6 +105,19 @@ namespace MagicKitchen.SplitterSprite4.Common
         }
 
         /// <summary>
+        /// OS非依存パス同士の結合
+        /// Combine two os-agnostic paths.
+        /// </summary>
+        /// <param name="a">The first operand path.</param>
+        /// <param name="b">The second operand path.</param>
+        /// <returns>Combined path.</returns>
+        public static AgnosticPath operator +(AgnosticPath a, AgnosticPath b)
+        {
+            return AgnosticPath.FromOSPathString(Path.Combine(
+                a.ToOSPathString(), b.ToOSPathString()));
+        }
+
+        /// <summary>
         /// OS非依存化された文字列からのオブジェクト生成
         /// Generate AgnosticPath instance from os-agnostic path string.
         /// </summary>

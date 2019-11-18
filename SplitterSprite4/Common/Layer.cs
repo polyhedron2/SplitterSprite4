@@ -41,6 +41,14 @@ namespace MagicKitchen.SplitterSprite4.Common
         public string Name { get; }
 
         /// <summary>
+        /// Gets the layer's os-agnostic path.
+        /// </summary>
+        public AgnosticPath Path
+        {
+            get => AgnosticPath.FromAgnosticPathString(this.Name);
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the layer is top or not.
         /// </summary>
         public bool IsTop

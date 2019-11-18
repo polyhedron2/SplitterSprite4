@@ -71,6 +71,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         }
 
         /// <summary>
+        /// ファイルが存在するか否か
+        /// A value indicating wheter the file exists or not.
+        /// </summary>
+        /// <param name="path">The os-agnostic path.</param>
+        /// <returns>A value indicating wheter the file exists or not.</returns>
+        public abstract bool FileExists(AgnosticPath path);
+
+        /// <summary>
         /// Pythonのwith構文ライクにテキストリーダを使用
         /// Use text reader instance like Python's with-statement.
         /// </summary>
