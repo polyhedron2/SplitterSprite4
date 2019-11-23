@@ -109,6 +109,36 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         }
 
         /// <summary>
+        /// Test the FileExists method.
+        /// </summary>
+        /// <param name="pathStr">The os-agnostic path.</param>
+        [Theory]
+        [InlineData("foo.txt")]
+        [InlineData("dir/foo.txt")]
+        [InlineData("dir/dir2/foo.txt")]
+        public void FileExistsTest(string pathStr)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var path = AgnosticPath.FromAgnosticPathString(pathStr);
+
+            // act
+            var beforeCreateDirectory = proxy.FileIO.FileExists(path);
+            proxy.FileIO.CreateDirectory(path.Parent);
+            var afterCreateDirectory = proxy.FileIO.FileExists(path);
+            proxy.FileIO.WithTextWriter(path, false, (writer) =>
+            {
+                writer.WriteLine("file body");
+            });
+            var afterCreateFile = proxy.FileIO.FileExists(path);
+
+            // assert
+            Assert.False(beforeCreateDirectory);
+            Assert.False(afterCreateDirectory);
+            Assert.True(afterCreateFile);
+        }
+
+        /// <summary>
         /// Test the WithTextReder and WithTextWriter method
         /// with Action instance.
         /// </summary>

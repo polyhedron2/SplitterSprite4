@@ -48,6 +48,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // assert
             Assert.Equal(name, layer.Name);
+            Assert.Equal(name, layer.Path.ToAgnosticPathString());
             Assert.Equal(
                 dependencies.ToHashSet(),
                 layer.Dependencies.ToHashSet());

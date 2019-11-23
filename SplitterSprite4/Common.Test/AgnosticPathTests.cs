@@ -214,5 +214,32 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(canonicalPathStr, path.ToAgnosticPathString());
         }
+
+        /// <summary>
+        /// Test "+" operator.
+        /// </summary>
+        /// <param name="firstPath">The first operand.</param>
+        /// <param name="secondPath">The second operand.</param>
+        /// <param name="expectedPath">The expected result.</param>
+        [Theory]
+        [InlineData("dir", "foo.txt", "dir/foo.txt")]
+        [InlineData("dir", "../foo.txt", "foo.txt")]
+        [InlineData("dir", "../../foo.txt", "../foo.txt")]
+        [InlineData("dir/dir2", "foo.txt", "dir/dir2/foo.txt")]
+        [InlineData("../", "foo.txt", "../foo.txt")]
+        [InlineData("../dir", "foo.txt", "../dir/foo.txt")]
+        public void PlusOperatorTest(
+            string firstPath, string secondPath, string expectedPath)
+        {
+            // arrange
+            var first = AgnosticPath.FromAgnosticPathString(firstPath);
+            var second = AgnosticPath.FromAgnosticPathString(secondPath);
+
+            // act
+            var actual = first + second;
+
+            // assert
+            Assert.Equal(expectedPath, actual.ToAgnosticPathString());
+        }
     }
 }

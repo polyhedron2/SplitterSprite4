@@ -45,14 +45,14 @@ namespace MagicKitchen.SplitterSprite4.Common
         public AgnosticPath Path { get; }
 
         /// <summary>
-        /// Gets the author name. If it's undefined, empty string.
+        /// Gets or sets the author name. If it's undefined, empty string.
         /// </summary>
-        public string Author { get; }
+        public string Author { get; set; }
 
         /// <summary>
-        /// Gets the title. If it's undefined, empty string.
+        /// Gets or sets the title. If it's undefined, empty string.
         /// </summary>
-        public string Title { get; }
+        public string Title { get; set; }
 
         /// <summary>
         /// メタデータ情報を保存
@@ -87,7 +87,10 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// </summary>
         public void SaveMetaData()
         {
-            this.SaveMetaData(new Layer(this.proxy, "save"));
+            // 読み込みに用いられる最上位レイヤーに対して書き込むため
+            // FetchReadLayerを用いる。
+            // Use FetchReadLayer to write into the layer which is used to read.
+            this.SaveMetaData(this.FetchReadLayer());
         }
 
         /// <summary>
@@ -96,18 +99,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <returns>The os-agnostic path for file read.</returns>
         public AgnosticPath FetchReadPath()
         {
-            try
-            {
-                return Layer.FetchSortedLayers(this.proxy).Select(
-                    layer => layer.Path + this.Path).First(
-                    path => this.proxy.FileIO.FileExists(path));
-            }
-            catch (InvalidOperationException)
-            {
-                // どのレイヤーにもファイルが存在しない
-                // No layer has the file.
-                throw new LayeredFileNotFoundException(this.Path);
-            }
+            return this.FetchReadLayer().Path + this.Path;
         }
 
         /// <summary>
@@ -126,7 +118,23 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <returns>The os-agnostic path for file write.</returns>
         public AgnosticPath FetchWritePath()
         {
-            return this.FetchWritePath(new Layer(this.proxy, "save"));
+            return this.FetchWritePath(new Layer(this.proxy, "save", true));
+        }
+
+        private Layer FetchReadLayer()
+        {
+            try
+            {
+                return Layer.FetchSortedLayers(this.proxy).First(
+                    layer => this.proxy.FileIO.FileExists(
+                        layer.Path + this.Path));
+            }
+            catch (InvalidOperationException)
+            {
+                // どのレイヤーにもファイルが存在しない
+                // No layer has the file.
+                throw new LayeredFileNotFoundException(this.Path);
+            }
         }
 
         private RootYAML FetchReadMetaYAML()
