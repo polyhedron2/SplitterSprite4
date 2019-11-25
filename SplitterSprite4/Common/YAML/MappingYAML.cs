@@ -88,7 +88,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> ToStringLines()
+        public override IEnumerable<string> ToStringLines(
+            bool ignoreEmptyMappingChild)
         {
             IEnumerable<string> TranslateCollectionLines(string key)
             {
@@ -106,12 +107,16 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 
                 if (isEmptyCollection)
                 {
-                    yield return $"{key}: {this.Body[key].ToString()}";
+                    if (!ignoreEmptyMappingChild)
+                    {
+                        yield return $"{key}: {this.Body[key].ToString()}";
+                    }
                 }
                 else
                 {
                     var i = 0;
-                    foreach (string line in this.Body[key].ToStringLines())
+                    foreach (string line in
+                        this.Body[key].ToStringLines(ignoreEmptyMappingChild))
                     {
                         // entry.ValueのStringLinesが１行以上であれば、
                         // keyを出力してから内容をインデント出力。
@@ -136,14 +141,16 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     // 複数行であれば、"|+"から始める
                     // In multi-line case, start with "|+".
                     yield return $"{key}: |+";
-                    foreach (string line in scalar.ToStringLines())
+                    foreach (string line in
+                        scalar.ToStringLines(ignoreEmptyMappingChild))
                     {
                         yield return $"  {line}";
                     }
                 }
                 else
                 {
-                    foreach (string line in this.Body[key].ToStringLines())
+                    foreach (string line in
+                        this.Body[key].ToStringLines(ignoreEmptyMappingChild))
                     {
                         yield return $"{key}: {line}";
                     }

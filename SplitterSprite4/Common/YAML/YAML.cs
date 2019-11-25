@@ -120,12 +120,21 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// YAML表現の各行を返すイテレータ
         /// Iterator for each lines in the YAML body.
         /// </summary>
+        /// <param name="ignoreEmptyMappingChild">Ignore MappingYAML's child if it's empty collection.</param>
         /// <returns>The iterator.</returns>
-        public abstract IEnumerable<string> ToStringLines();
+        public abstract IEnumerable<string> ToStringLines(
+            bool ignoreEmptyMappingChild);
 
         /// <inheritdoc/>
-        public override string ToString() =>
-            string.Join("\n", this.ToStringLines());
+        public override string ToString() => this.ToString(false);
+
+        /// <summary>
+        /// Dump yaml body as string.
+        /// </summary>
+        /// <param name="ignoreEmptyMappingChild">Ignore MappingYAML's child if it's empty collection.</param>
+        /// <returns>The yaml body string.</returns>
+        public string ToString(bool ignoreEmptyMappingChild) =>
+            string.Join("\n", this.ToStringLines(ignoreEmptyMappingChild));
 
         /// <summary>
         /// 文字列キーについて、該当の値を削除する。

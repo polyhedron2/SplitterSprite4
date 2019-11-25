@@ -113,7 +113,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <summary>
         /// Save the layer directory and yaml file.
         /// </summary>
-        public void Save() => this.yaml.Save();
+        public void Save() => this.yaml.Overwrite();
 
         private static IEnumerable<Layer> LoadLayers(Proxy.OutSideProxy proxy)
         {

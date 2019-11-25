@@ -20,10 +20,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         /// <param name="proxy">The OusSideProxy for file access.</param>
         /// <param name="body">The YAML.</param>
-        internal SpecChild(OutSideProxy proxy, YAML body)
+        internal SpecChild(OutSideProxy proxy, MappingYAML body)
+            : base(proxy, body)
         {
-            this.Proxy = proxy;
-            this.Body = body;
         }
     }
 }

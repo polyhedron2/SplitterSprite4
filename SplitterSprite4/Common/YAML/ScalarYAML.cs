@@ -58,7 +58,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         private string Value { get; set; }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> ToStringLines()
+        public override IEnumerable<string> ToStringLines(
+            bool ignoreEmptyMappingChild)
         {
             return this.Value.Split(
                 new string[] { "\n" }, StringSplitOptions.None);

@@ -61,14 +61,26 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         private Proxy.OutSideProxy Proxy { get; }
 
         /// <summary>
-        /// ファイル保存を実行
-        /// Save the YAML body.
+        /// ファイル上書き保存を実行
+        /// Overwrite the YAML body.
         /// </summary>
-        public void Save()
+        /// <param name="ignoreEmptyMappingChild">Ignore MappingYAML's child if it's empty collection.</param>
+        public void Overwrite(bool ignoreEmptyMappingChild = false)
         {
-            this.Proxy.FileIO.CreateDirectory(this.AccessPath.Parent);
+            this.SaveAs(this.AccessPath, ignoreEmptyMappingChild);
+        }
+
+        /// <summary>
+        /// ファイル保存を指定のパスに実行
+        /// Save the YAML body to the path.
+        /// </summary>
+        /// <param name="savePath">The save path.</param>
+        /// <param name="ignoreEmptyMappingChild">Ignore MappingYAML's child if it's empty collection.</param>
+        public void SaveAs(AgnosticPath savePath, bool ignoreEmptyMappingChild = false)
+        {
+            this.Proxy.FileIO.CreateDirectory(savePath.Parent);
             this.Proxy.FileIO.WithTextWriter(
-                this.AccessPath, false, (writer) =>
+                savePath, false, (writer) =>
                 {
                     writer.Write(this.ToString());
                 });

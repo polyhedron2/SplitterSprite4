@@ -73,7 +73,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> ToStringLines()
+        public override IEnumerable<string> ToStringLines(
+            bool ignoreEmptyMappingChild)
         {
             IEnumerable<string> TranslateSequence(SequenceYAML child)
             {
@@ -84,7 +85,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 else
                 {
                     var i = 0;
-                    foreach (var line in child.ToStringLines())
+                    foreach (var line in
+                        child.ToStringLines(ignoreEmptyMappingChild))
                     {
                         if (i == 0)
                         {
@@ -106,7 +108,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 else
                 {
                     yield return "- |+";
-                    foreach (var line in child.ToStringLines())
+                    foreach (var line in
+                        child.ToStringLines(ignoreEmptyMappingChild))
                     {
                         yield return $"  {line}";
                     }
@@ -122,7 +125,8 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 else
                 {
                     var i = 0;
-                    foreach (var line in child.ToStringLines())
+                    foreach (var line in
+                        child.ToStringLines(ignoreEmptyMappingChild))
                     {
                         if (i == 0)
                         {

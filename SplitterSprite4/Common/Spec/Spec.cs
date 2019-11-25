@@ -17,6 +17,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     public abstract class Spec
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Spec"/> class.
+        /// </summary>
+        /// <param name="proxy">The OusSideProxy for file access.</param>
+        /// <param name="body">The YAML.</param>
+        internal Spec(OutSideProxy proxy, MappingYAML body)
+        {
+            this.Proxy = proxy;
+            this.Body = body;
+        }
+
+        /// <summary>
         /// Gets the Spec ID which shows show to access this instance.
         /// </summary>
         public string ID
@@ -123,14 +134,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Gets or sets the OutSideProxy for file access.
+        /// Gets or the OutSideProxy for file access.
         /// </summary>
-        protected OutSideProxy Proxy { get; set; }
+        protected OutSideProxy Proxy { get; }
 
         /// <summary>
-        /// Gets or sets the YAML instance.
+        /// Gets the YAML instance.
         /// </summary>
-        protected YAML Body { get; set; }
+        protected MappingYAML Body { get; }
 
         /// <summary>
         /// Gets the sub spec.
@@ -167,7 +178,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <returns>The sub spec.</returns>
             public SpecChild this[string key]
             {
-                get => new SpecChild(this.proxy, this.body[key]);
+                get
+                {
+                    var childYaml = this.body.Mapping[key, new MappingYAML()];
+                    childYaml.ID = $"{this.body.ID}[{key}]";
+                    return new SpecChild(this.proxy, childYaml);
+                }
             }
         }
 
@@ -212,7 +228,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        return this.getter(this.body[key].ToString());
+                        return this.getter(this.body.Scalar[key].ToString());
                     }
                     catch (Exception ex)
                     {
@@ -247,7 +263,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        return this.getter(this.body[
+                        return this.getter(this.body.Scalar[
                             key, new ScalarYAML(this.setter(defaultVal))]
                             .ToString());
                     }

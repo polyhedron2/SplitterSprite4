@@ -78,7 +78,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             UpdateMeta("author", this.Author);
             UpdateMeta("title", this.Title);
 
-            meta.Save();
+            meta.Overwrite();
         }
 
         /// <summary>

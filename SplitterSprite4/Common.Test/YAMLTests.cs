@@ -69,7 +69,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             RootYAML yaml = this.SetupYamlFile(proxy, path);
 
             // act
-            yaml.Save();
+            yaml.Overwrite();
             var readLines = proxy.FileIO.WithTextReader(
                 AgnosticPath.FromAgnosticPathString(path),
                 (reader) => reader.ReadToEnd());
@@ -430,7 +430,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 new ScalarYAML("new_line_1", "new_line_2");
             originalYaml.Scalar["multiline_undefined_field"] =
                 new ScalarYAML("new_line_3", "new_line_4");
-            originalYaml.Save();
+            originalYaml.Overwrite();
             var reloadYaml =
                 new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
 
@@ -495,7 +495,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         new ScalarYAML("new_value_2_1"),
                         new ScalarYAML("new_value_2_2"),
                 };
-            originalYaml.Save();
+            originalYaml.Overwrite();
             var reloadYaml =
                 new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
 
@@ -548,7 +548,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         { "new_key_2_1", new ScalarYAML("new_value_2_1") },
                         { "new_key_2_2", new ScalarYAML("new_value_2_2") },
                 };
-            originalYaml.Save();
+            originalYaml.Overwrite();
             var reloadYaml =
                 new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
 

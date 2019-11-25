@@ -274,7 +274,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 var meta = new RootYAML(proxy, layer.Path + metaPath, true);
                 meta["author"] = new ScalarYAML($"{layerName}_author");
                 meta["title"] = new ScalarYAML($"{layerName}_title");
-                meta.Save();
+                meta.Overwrite();
             }
         }
     }
