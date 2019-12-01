@@ -82,7 +82,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             this.Proxy.FileIO.WithTextWriter(
                 savePath, false, (writer) =>
                 {
-                    writer.Write(this.ToString());
+                    writer.Write(this.ToString(ignoreEmptyMappingChild));
                 });
         }
 

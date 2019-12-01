@@ -55,14 +55,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
-        /// Test the load and save of the RootYAML instance.
+        /// Test the load and overwrite of the RootYAML instance.
         /// </summary>
         /// <param name="path">The os-agnostic path string.</param>
         [Theory]
         [InlineData("foo.yaml")]
         [InlineData("dir/bar.yaml")]
         [InlineData("dir1/dir2/baz.yaml")]
-        public void SimpleSaveTest(string path)
+        public void OverwriteTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
@@ -76,6 +76,97 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // assert
             Assert.Equal(this.TestYAMLBody(), readLines);
+        }
+
+        /// <summary>
+        /// Test the load and rename of the RootYAML instance.
+        /// </summary>
+        /// <param name="fromPath">Path string which the yaml is renamed from.</param>
+        /// <param name="toPath">Path string which the yaml is renamed to.</param>
+        [Theory]
+        [InlineData("foo.yaml", "foo2.yaml")]
+        [InlineData("dir/bar.yaml", "dir/bar2.yaml")]
+        [InlineData("dir1/dir2/baz.yaml", "dir3/dir4/baz.yaml")]
+        public void SaveAsTest(string fromPath, string toPath)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            RootYAML yaml = this.SetupYamlFile(proxy, fromPath);
+
+            // act
+            yaml.SaveAs(AgnosticPath.FromAgnosticPathString(toPath));
+            var readLines = proxy.FileIO.WithTextReader(
+                AgnosticPath.FromAgnosticPathString(toPath),
+                (reader) => reader.ReadToEnd());
+
+            // assert
+            Assert.Equal(this.TestYAMLBody(), readLines);
+        }
+
+        /// <summary>
+        /// Test the load and overwrite of the RootYAML instance.
+        /// </summary>
+        /// <param name="path">The os-agnostic path string.</param>
+        [Theory]
+        [InlineData("foo.yaml")]
+        [InlineData("dir/bar.yaml")]
+        [InlineData("dir1/dir2/baz.yaml")]
+        public void IgnoreEmptyMappingChildSaveTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var loadBody = Utility.JoinLines(
+                "scalar_key: scalar_value",
+                "list_key:",
+                "  - foo",
+                "  - []",
+                "  - {}",
+                "  -",
+                "    - []",
+                "  -",
+                "    - {}",
+                "  - first: []",
+                "  - second: {}",
+                "mapping_key:",
+                "  first: bar",
+                "  second: []",
+                "  third: {}",
+                "  fourth:",
+                "    - []",
+                "  fifth:",
+                "    - {}",
+                "  sixth:",
+                "    first: []",
+                "  seventh:",
+                "    first: {}");
+            var saveBody = Utility.JoinLines(
+                "scalar_key: scalar_value",
+                "list_key:",
+                "  - foo",
+                "  - []",
+                "  - {}",
+                "  -",
+                "    - []",
+                "  -",
+                "    - {}",
+                "  - {}",
+                "  - {}",
+                "mapping_key:",
+                "  first: bar",
+                "  fourth:",
+                "    - []",
+                "  fifth:",
+                "    - {}");
+            RootYAML yaml = this.SetupYamlFile(proxy, path, loadBody);
+
+            // act
+            yaml.Overwrite(ignoreEmptyMappingChild: true);
+            var readLines = proxy.FileIO.WithTextReader(
+                AgnosticPath.FromAgnosticPathString(path),
+                (reader) => reader.ReadToEnd());
+
+            // assert
+            Assert.Equal(saveBody, readLines);
         }
 
         /// <summary>
@@ -763,13 +854,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
         private RootYAML SetupYamlFile(OutSideProxy proxy, string path)
         {
+            return this.SetupYamlFile(proxy, path, this.TestYAMLBody());
+        }
+
+        private RootYAML SetupYamlFile(OutSideProxy proxy, string path, string body)
+        {
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
             proxy.FileIO.CreateDirectory(agnosticPath.Parent);
 
             proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
             {
-                writer.Write(this.TestYAMLBody());
+                writer.Write(body);
             });
 
             return new RootYAML(proxy, agnosticPath);

@@ -93,23 +93,18 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         {
             IEnumerable<string> TranslateCollectionLines(string key)
             {
-                bool isEmptyCollection = false;
-                if (this.Body[key] is SequenceYAML)
-                {
-                    var body = this.Body[key] as SequenceYAML;
-                    isEmptyCollection = body.Length == 0;
-                }
-                else if (this.Body[key] is MappingYAML)
-                {
-                    var body = this.Body[key] as MappingYAML;
-                    isEmptyCollection = body.Length == 0;
-                }
+                string bodyFirstLine;
+                bodyFirstLine = this.Body[key].ToStringLines(ignoreEmptyMappingChild).First();
+                var isEmptyCollection =
+                    bodyFirstLine == "{}" || bodyFirstLine == "[]";
 
                 if (isEmptyCollection)
                 {
                     if (!ignoreEmptyMappingChild)
                     {
-                        yield return $"{key}: {this.Body[key].ToString()}";
+                        var emptyValue = this.Body[key].ToString(
+                            ignoreEmptyMappingChild);
+                        yield return $"{key}: {emptyValue}";
                     }
                 }
                 else
@@ -162,7 +157,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 return new string[] { "{}" };
             }
 
-            return this.KeyOrder.SelectMany(
+            var ret = this.KeyOrder.SelectMany(
                 key =>
                     (this.Body[key] is ScalarYAML) ?
 
@@ -208,6 +203,16 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //     :
                     //   valueN
                     TranslateCollectionLines(key));
+
+            try
+            {
+                ret.First();
+                return ret;
+            }
+            catch (System.InvalidOperationException)
+            {
+                return new string[] { "{}" };
+            }
         }
 
         /// <inheritdoc/>
