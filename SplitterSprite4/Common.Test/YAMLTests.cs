@@ -16,21 +16,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
     public class YAMLTests
     {
         /// <summary>
-        /// Test acceptEmpty option.
+        /// Test acceptAbsence option.
         /// </summary>
         /// <param name="path">The os-agnostic path string.</param>
         [Theory]
         [InlineData("foo.yaml")]
         [InlineData("dir/bar.yaml")]
         [InlineData("dir1/dir2/baz.yaml")]
-        public void AcceptEmptyTest(string path)
+        public void AcceptAbsenceTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
             // act
-            var yaml = new RootYAML(proxy, agnosticPath, acceptEmpty: true);
+            var yaml = new RootYAML(proxy, agnosticPath, acceptAbsence: true);
 
             // assert
             Assert.Equal("{}", yaml.ToString());

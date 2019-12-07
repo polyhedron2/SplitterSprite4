@@ -24,7 +24,9 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file access.</param>
         /// <param name="path">The relative path from layer directory.</param>
-        public LayeredFile(OutSideProxy proxy, AgnosticPath path)
+        /// <param name="acceptAbsence">Accept absence of the layered file or not.</param>
+        public LayeredFile(
+            OutSideProxy proxy, AgnosticPath path, bool acceptAbsence = false)
         {
             if (path.ToAgnosticPathString().StartsWith("../"))
             {
@@ -34,9 +36,24 @@ namespace MagicKitchen.SplitterSprite4.Common
             this.proxy = proxy;
             this.Path = path;
 
-            var meta = this.FetchReadMetaYAML();
-            this.Author = meta["author", new ScalarYAML()].ToString();
-            this.Title = meta["title", new ScalarYAML()].ToString();
+            try
+            {
+                var meta = this.FetchReadMetaYAML();
+                this.Author = meta["author", new ScalarYAML()].ToString();
+                this.Title = meta["title", new ScalarYAML()].ToString();
+            }
+            catch (LayeredFileNotFoundException ex)
+            {
+                if (acceptAbsence)
+                {
+                    this.Author = string.Empty;
+                    this.Title = string.Empty;
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
         }
 
         /// <summary>
@@ -82,18 +99,6 @@ namespace MagicKitchen.SplitterSprite4.Common
         }
 
         /// <summary>
-        /// メタデータ情報を保存
-        /// Save the metadata.
-        /// </summary>
-        public void SaveMetaData()
-        {
-            // 読み込みに用いられる最上位レイヤーに対して書き込むため
-            // FetchReadLayerを用いる。
-            // Use FetchReadLayer to write into the layer which is used to read.
-            this.SaveMetaData(this.FetchReadLayer());
-        }
-
-        /// <summary>
         /// Gets the os-agnostic path for file read.
         /// </summary>
         /// <returns>The os-agnostic path for file read.</returns>
@@ -110,15 +115,6 @@ namespace MagicKitchen.SplitterSprite4.Common
         public AgnosticPath FetchWritePath(Layer writeLayer)
         {
             return writeLayer.Path + this.Path;
-        }
-
-        /// <summary>
-        /// Gets the os-agnostic path for file write.
-        /// </summary>
-        /// <returns>The os-agnostic path for file write.</returns>
-        public AgnosticPath FetchWritePath()
-        {
-            return this.FetchWritePath(new Layer(this.proxy, "save", true));
         }
 
         private Layer FetchReadLayer()
@@ -141,14 +137,14 @@ namespace MagicKitchen.SplitterSprite4.Common
         {
             var metaFilePath = AgnosticPath.FromAgnosticPathString(
                 this.FetchReadPath().ToAgnosticPathString() + ".meta");
-            return new RootYAML(this.proxy, metaFilePath, acceptEmpty: true);
+            return new RootYAML(this.proxy, metaFilePath, acceptAbsence: true);
         }
 
         private RootYAML FetchWriteMetaYAML(Layer writeLayer)
         {
             var metaFilePath = AgnosticPath.FromAgnosticPathString(
                 this.FetchWritePath(writeLayer).ToAgnosticPathString() + ".meta");
-            return new RootYAML(this.proxy, metaFilePath, acceptEmpty: true);
+            return new RootYAML(this.proxy, metaFilePath, acceptAbsence: true);
         }
 
         /// <summary>

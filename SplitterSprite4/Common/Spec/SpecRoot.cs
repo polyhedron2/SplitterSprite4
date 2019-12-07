@@ -25,14 +25,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 OutSideProxy proxy,
                 AgnosticPath layeredPath,
                 bool acceptAbsence = false)
-            : base(
-                  proxy,
-                  new RootYAML(
-                      proxy,
-                      new LayeredFile(proxy, layeredPath).FetchReadPath(),
-                      acceptAbsence))
         {
-            this.LayeredFile = new LayeredFile(proxy, layeredPath);
+            this.Proxy = proxy;
+            this.LayeredFile = new LayeredFile(proxy, layeredPath, acceptAbsence);
+
+            AgnosticPath yamlPath;
+            try
+            {
+                yamlPath = this.LayeredFile.FetchReadPath();
+            }
+            catch (LayeredFile.LayeredFileNotFoundException)
+            {
+                yamlPath = this.LayeredFile.FetchWritePath(
+                    new Layer(proxy, "save", true));
+            }
+
+            this.Body = new RootYAML(proxy, yamlPath, acceptAbsence);
         }
 
         private LayeredFile LayeredFile { get; }
@@ -42,8 +50,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public void Save()
         {
-            (this.Body as RootYAML).SaveAs(
-                this.LayeredFile.FetchWritePath());
+            var saveLayer = new Layer(this.Proxy, "save", true);
+            saveLayer.IsTop = true;
+            saveLayer.Save();
+            this.Save(saveLayer);
         }
 
         /// <summary>
@@ -52,19 +62,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <param name="layer">Layer to save the spec.</param>
         public void Save(Layer layer)
         {
-            (this.Body as RootYAML).SaveAs(
-                this.LayeredFile.FetchWritePath(layer));
+            this.Save(layer, this.LayeredFile.Path);
         }
 
         /// <summary>
         /// Save the spec's values into the specified layer and path.
         /// </summary>
         /// <param name="layer">Layer to save the spec.</param>
-        /// <param name="path">Layered path to save the spec.</param>
-        public void Save(Layer layer, AgnosticPath path)
+        /// <param name="layeredPath">Layered path to save the spec.</param>
+        public void Save(Layer layer, AgnosticPath layeredPath)
         {
-            (this.Body as RootYAML).SaveAs(
-                new LayeredFile(this.Proxy, path).FetchWritePath(layer));
+            var writePath = new LayeredFile(
+                this.Proxy, layeredPath, true).FetchWritePath(layer);
+
+            this.Proxy.FileIO.CreateDirectory(writePath.Parent);
+            (this.Body as RootYAML).SaveAs(writePath, true);
         }
     }
 }

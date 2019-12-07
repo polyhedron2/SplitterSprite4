@@ -21,17 +21,17 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file access.</param>
         /// <param name="path">The os-agnostic path.</param>
-        /// <param name="acceptEmpty">Accept non-existence of the yaml file.</param>
+        /// <param name="acceptAbsence">Accept absence of the yaml file.</param>
         public RootYAML(
                 Proxy.OutSideProxy proxy,
                 AgnosticPath path,
-                bool acceptEmpty = false)
+                bool acceptAbsence = false)
 
             // ファイルパスをIDとする
             // ID is the os-agnostic path.
             : base(
                   path.ToAgnosticPathString(),
-                  ReadFile(proxy, path, acceptEmpty))
+                  ReadFile(proxy, path, acceptAbsence))
         {
             this.AccessPath = path;
             this.Proxy = proxy;

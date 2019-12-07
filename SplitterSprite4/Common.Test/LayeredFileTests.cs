@@ -43,9 +43,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 $"second/{layeredPathStr}",
                 lFile.FetchReadPath().ToAgnosticPathString());
             Assert.Equal(
-                $"save/{layeredPathStr}",
-                lFile.FetchWritePath().ToAgnosticPathString());
-            Assert.Equal(
                 $"first/{layeredPathStr}",
                 lFile.FetchWritePath(
                     new Layer(proxy, "first")).ToAgnosticPathString());
@@ -82,9 +79,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 $"second/{layeredPathStr}",
                 lFile.FetchReadPath().ToAgnosticPathString());
-            Assert.Equal(
-                $"save/{layeredPathStr}",
-                lFile.FetchWritePath().ToAgnosticPathString());
             Assert.Equal(
                 $"first/{layeredPathStr}",
                 lFile.FetchWritePath(
@@ -137,7 +131,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // act
             lFileForEdit.Author = newAuthor;
             lFileForEdit.Title = newTitle;
-            lFileForEdit.SaveMetaData();
+            lFileForEdit.SaveMetaData(new Layer(proxy, "layer"));
 
             // assert
             var lFile = new LayeredFile(proxy, layeredPath);

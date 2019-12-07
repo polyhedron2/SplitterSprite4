@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
+    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
@@ -17,28 +18,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     public abstract class Spec
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Spec"/> class.
-        /// </summary>
-        /// <param name="proxy">The OusSideProxy for file access.</param>
-        /// <param name="body">The YAML.</param>
-        internal Spec(OutSideProxy proxy, MappingYAML body)
-        {
-            this.Proxy = proxy;
-            this.Body = body;
-        }
-
-        /// <summary>
         /// Gets the Spec ID which shows show to access this instance.
         /// </summary>
         public string ID
         {
-            get => this.Body.ID;
+            get
+            {
+                var fromGameDirPath = this.Body.ID;
+
+                // remove the layer name at the head of body ID.
+                return string.Join("/", fromGameDirPath.Split('/').Skip(1));
+            }
         }
 
-        /// <summary>
-        /// Gets the indexer for sub spec.
-        /// </summary>
-        public SubSpecIndexer SubSpec
+    /// <summary>
+    /// Gets the indexer for sub spec.
+    /// </summary>
+    public SubSpecIndexer SubSpec
         {
             get => new SubSpecIndexer(this.Proxy, this.Body);
         }
@@ -134,14 +130,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Gets or the OutSideProxy for file access.
+        /// Gets or sets the OutSideProxy for file access.
         /// </summary>
-        protected OutSideProxy Proxy { get; }
+        protected OutSideProxy Proxy { get; set; }
 
         /// <summary>
-        /// Gets the YAML instance.
+        /// Gets or sets the YAML instance.
         /// </summary>
-        protected MappingYAML Body { get; }
+        protected MappingYAML Body { get; set; }
 
         /// <summary>
         /// Gets the sub spec.
@@ -151,6 +147,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public SpecChild this[string key]
         {
             get => this.SubSpec[key];
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return this.Body.ToString();
         }
 
         /// <summary>
