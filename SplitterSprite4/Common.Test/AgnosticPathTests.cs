@@ -25,6 +25,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [InlineData("baz.meta")]
         [InlineData("dir/foo.txt")]
         [InlineData("dir/dir2/foo.txt")]
+        [InlineData("dir with space/foo.txt")]
+        [InlineData("dir%with%percent/foo.txt")]
         public void CreationTest(string agnosticPathStr)
         {
             // arrange

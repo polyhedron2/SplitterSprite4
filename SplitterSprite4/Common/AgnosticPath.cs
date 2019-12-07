@@ -96,11 +96,11 @@ namespace MagicKitchen.SplitterSprite4.Common
 
         private string InternalPath
         {
-            get => this.InternalUri.ToString().Replace("%25", "%");
+            get => Uri.UnescapeDataString(this.InternalUri.ToString());
             set
             {
                 this.InternalUri = DummyUri.MakeRelativeUri(
-                    new Uri(DummyUri, value.Replace("%", "%25")));
+                    new Uri(DummyUri, value));
             }
         }
 
