@@ -31,10 +31,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             }
         }
 
-    /// <summary>
-    /// Gets the indexer for sub spec.
-    /// </summary>
-    public SubSpecIndexer SubSpec
+        /// <summary>
+        /// Gets the indexer for sub spec.
+        /// </summary>
+        public SubSpecIndexer SubSpec
         {
             get => new SubSpecIndexer(this.Proxy, this.Body);
         }
