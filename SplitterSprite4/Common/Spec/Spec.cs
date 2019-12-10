@@ -130,14 +130,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets or sets the YAML instance.
+        /// </summary>
+        public MappingYAML Body { get; protected set; }
+
+        /// <summary>
         /// Gets or sets the OutSideProxy for file access.
         /// </summary>
         protected OutSideProxy Proxy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the YAML instance.
-        /// </summary>
-        protected MappingYAML Body { get; set; }
 
         /// <summary>
         /// Gets the sub spec.
@@ -170,6 +170,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="body">The YAML.</param>
             internal SubSpecIndexer(OutSideProxy proxy, YAML body)
             {
+                this.proxy = proxy;
                 this.body = body;
             }
 
