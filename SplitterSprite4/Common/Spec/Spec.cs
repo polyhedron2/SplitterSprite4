@@ -62,7 +62,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 this,
                 "整数",
                 (value) => int.Parse(value),
-                (value) => value.ToString());
+                (value) => value.ToString(),
+                "Int",
+                0);
         }
 
         /// <summary>
@@ -74,7 +76,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 this,
                 "実数",
                 (value) => double.Parse(value),
-                (value) => value.ToString());
+                (value) => value.ToString(),
+                "Double",
+                0.0);
         }
 
         /// <summary>
@@ -86,7 +90,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 this,
                 "真偽値",
                 (value) => bool.Parse(value),
-                (value) => value.ToString());
+                (value) => value.ToString(),
+                "Bool",
+                false);
         }
 
         /// <summary>
@@ -113,7 +119,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                             value, "yes", "no");
                     }
                 },
-                (value) => value ? "yes" : "no");
+                (value) => value ? "yes" : "no",
+                "YesNo",
+                false);
         }
 
         /// <summary>
@@ -140,7 +148,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                             value, "on", "off");
                     }
                 },
-                (value) => value ? "on" : "off");
+                (value) => value ? "on" : "off",
+                "OnOff",
+                false);
         }
 
         /// <summary>
@@ -206,6 +216,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             private string type;
             private Func<string, T> getter;
             private Func<T, string> setter;
+            private string moldingAccessCode;
+            private T moldingDefault;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="ValueIndexer{T}"/> class.
@@ -214,16 +226,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="type">The access type string.</param>
             /// <param name="getter">Translation function from string.</param>
             /// <param name="setter">Translation function to string.</param>
+            /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
+            /// <param name="moldingDefault">The default value for molding.</param>
             internal ValueIndexer(
                 Spec parent,
                 string type,
                 Func<string, T> getter,
-                Func<T, string> setter)
+                Func<T, string> setter,
+                string moldingAccessCode,
+                T moldingDefault)
             {
                 this.parent = parent;
                 this.type = type;
                 this.getter = getter;
                 this.setter = setter;
+                this.moldingAccessCode = moldingAccessCode;
+                this.moldingDefault = moldingDefault;
             }
 
             /// <summary>
@@ -237,13 +255,28 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
+                        if (this.parent.IsMolding)
+                        {
+                            this.parent.Mold[key] =
+                                new ScalarYAML(this.moldingAccessCode);
+                        }
+
                         return this.getter(
                             this.parent.Body.Scalar[key].ToString());
                     }
                     catch (Exception ex)
                     {
-                        throw new InvalidSpecAccessException(
-                            $"{this.parent.Body.ID}[{key}]", this.type, ex);
+                        if (this.parent.IsMolding)
+                        {
+                            return this.moldingDefault;
+                        }
+                        else
+                        {
+                            throw new InvalidSpecAccessException(
+                                $"{this.parent.Body.ID}[{key}]",
+                                this.type,
+                                ex);
+                        }
                     }
                 }
 
@@ -274,14 +307,34 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
+                        if (this.parent.IsMolding)
+                        {
+                            var accessCodeWithDefault =
+                                this.moldingAccessCode +
+                                ", " +
+                                this.setter(defaultVal);
+
+                            this.parent.Mold[key] =
+                                new ScalarYAML(accessCodeWithDefault);
+                        }
+
                         return this.getter(this.parent.Body.Scalar[
                             key, new ScalarYAML(this.setter(defaultVal))]
                             .ToString());
                     }
                     catch (Exception ex)
                     {
-                        throw new InvalidSpecAccessException(
-                            $"{this.parent.Body.ID}[{key}]", this.type, ex);
+                        if (this.parent.IsMolding)
+                        {
+                            return this.moldingDefault;
+                        }
+                        else
+                        {
+                            throw new InvalidSpecAccessException(
+                                $"{this.parent.Body.ID}[{key}]",
+                                this.type,
+                                ex);
+                        }
                     }
                 }
             }

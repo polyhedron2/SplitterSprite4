@@ -6,6 +6,7 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.Test
 {
+    using System;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
@@ -545,6 +546,208 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  second: off",
                     "  third: on"),
                 reloadedSpec.ToString());
+        }
+
+        /// <summary>
+        /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
+        /// Test the MoldSpec method.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void MoldSpecTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath, true);
+            Action<Spec> action = (Spec sp) =>
+            {
+                _ = sp.Int["foo"];
+                _ = sp.Double["bar"];
+                _ = sp.Bool["baz"];
+                _ = sp.YesNo["qux"];
+                _ = sp.OnOff["quux"];
+                _ = sp["inner"].Int["inner int"];
+                _ = sp.Int["after inner"];
+                _ = sp["inner"].Double["inner double"];
+                _ = sp["inner"]["inner inner"].Int["inner inner int"];
+                _ = sp.Int["日本語キー"];
+            };
+            var mold = spec.MoldSpec(action);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "foo: Int",
+                    "bar: Double",
+                    "baz: Bool",
+                    "qux: YesNo",
+                    "quux: OnOff",
+                    "inner:",
+                    "  inner int: Int",
+                    "  inner double: Double",
+                    "  inner inner:",
+                    "    inner inner int: Int",
+                    "after inner: Int",
+                    "日本語キー: Int"),
+                mold.ToString());
+        }
+
+        /// <summary>
+        /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
+        /// ただし、アクセス時にデフォルト値指定を含む。
+        /// Test the MoldSpec method with default value.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void MoldSpecWithDefaultTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath, true);
+            Action<Spec> action = (Spec sp) =>
+            {
+                _ = sp.Int["foo", 10];
+                _ = sp.Double["bar", 3.14];
+                _ = sp.Bool["baz", true];
+                _ = sp.YesNo["qux", false];
+                _ = sp.OnOff["quux", true];
+                _ = sp["inner"].Int["inner int", 100];
+                _ = sp.Int["after inner", 1024];
+                _ = sp["inner"].Double["inner double", 2.71];
+                _ = sp["inner"]["inner inner"].Int["inner inner int", -1];
+                _ = sp.Int["日本語キー", 0];
+            };
+            var mold = spec.MoldSpec(action);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "foo: Int, 10",
+                    "bar: Double, 3.14",
+                    "baz: Bool, True",
+                    "qux: YesNo, no",
+                    "quux: OnOff, on",
+                    "inner:",
+                    "  inner int: Int, 100",
+                    "  inner double: Double, 2.71",
+                    "  inner inner:",
+                    "    inner inner int: Int, -1",
+                    "after inner: Int, 1024",
+                    "日本語キー: Int, 0"),
+                mold.ToString());
+        }
+
+        /// <summary>
+        /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
+        /// ただし、アクセス時にデフォルト値指定を含み、デフォルト値は別キーから取得される。
+        /// Test the MoldSpec method with default value.
+        /// The default value will be gotten from another key.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        /// <param name="dynamicDefault">The dynamic default value.</param>
+        [Theory]
+        [InlineData("foo.spec", 0)]
+        [InlineData("foo.spec", -10)]
+        [InlineData("foo.spec", 100)]
+        [InlineData("dir/bar.spec", 0)]
+        [InlineData("dir/bar.spec", -10)]
+        [InlineData("dir/bar.spec", 100)]
+        [InlineData("dir1/dir2/baz.spec", 0)]
+        [InlineData("dir1/dir2/baz.spec", -10)]
+        [InlineData("dir1/dir2/baz.spec", 100)]
+        public void MoldSpecWithDynamicDefaultTest(string path, int dynamicDefault)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                $"default: {dynamicDefault}"));
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath, true);
+            Action<Spec> action = (Spec sp) =>
+            {
+                var def = sp.Int["default"];
+                _ = sp.Int["foo", def];
+            };
+            var mold = spec.MoldSpec(action);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "default: Int",
+                    $"foo: Int, {dynamicDefault}"),
+                mold.ToString());
+        }
+
+        /// <summary>
+        /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
+        /// ただし、アクセス時にif分岐を含み、分岐は別キーのフラグで行われる。
+        /// Test the MoldSpec method with if-clause.
+        /// The flag will be gotten from another key.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        /// <param name="dynamicSwitch">The dynamic switching flag.</param>
+        [Theory]
+        [InlineData("foo.spec", true)]
+        [InlineData("foo.spec", false)]
+        [InlineData("dir/bar.spec", true)]
+        [InlineData("dir/bar.spec", false)]
+        [InlineData("dir1/dir2/baz.spec", true)]
+        [InlineData("dir1/dir2/baz.spec", false)]
+        public void MoldSpecWithDynamicSwitchTest(string path, bool dynamicSwitch)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                $"flag: {dynamicSwitch}"));
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath, true);
+            Action<Spec> action = (Spec sp) =>
+            {
+                var flag = sp.Bool["flag"];
+                if (flag)
+                {
+                    _ = sp.Int["foo"];
+                }
+                else
+                {
+                    _ = sp.Double["bar"];
+                }
+            };
+            var mold = spec.MoldSpec(action);
+
+            // assert
+            if (dynamicSwitch)
+            {
+                Assert.Equal(
+                    Utility.JoinLines(
+                        "flag: Bool",
+                        "foo: Int"),
+                    mold.ToString());
+            }
+            else
+            {
+                Assert.Equal(
+                    Utility.JoinLines(
+                        "flag: Bool",
+                        "bar: Double"),
+                    mold.ToString());
+            }
         }
 
         private SpecRoot SetupSpecFile(
