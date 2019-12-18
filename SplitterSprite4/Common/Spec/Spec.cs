@@ -18,6 +18,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     public abstract class Spec
     {
         /// <summary>
+        /// Gets a YAML for analyze access key and type in a spawner.
+        /// If this is not molding, it returns null.
+        /// </summary>
+        public abstract MappingYAML Mold { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this spec is molding or not.
+        /// </summary>
+        public bool IsMolding
+        {
+            get => this.Mold != null;
+        }
+
+        /// <summary>
         /// Gets the Spec ID which shows show to access this instance.
         /// </summary>
         public string ID
@@ -36,7 +50,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public SubSpecIndexer SubSpec
         {
-            get => new SubSpecIndexer(this.Proxy, this.Body);
+            get => new SubSpecIndexer(this);
         }
 
         /// <summary>
@@ -45,7 +59,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ValueIndexer<int> Int
         {
             get => new ValueIndexer<int>(
-                this.Body,
+                this,
                 "整数",
                 (value) => int.Parse(value),
                 (value) => value.ToString());
@@ -57,7 +71,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ValueIndexer<double> Double
         {
             get => new ValueIndexer<double>(
-                this.Body,
+                this,
                 "実数",
                 (value) => double.Parse(value),
                 (value) => value.ToString());
@@ -69,7 +83,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ValueIndexer<bool> Bool
         {
             get => new ValueIndexer<bool>(
-                this.Body,
+                this,
                 "真偽値",
                 (value) => bool.Parse(value),
                 (value) => value.ToString());
@@ -81,7 +95,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ValueIndexer<bool> YesNo
         {
             get => new ValueIndexer<bool>(
-                this.Body,
+                this,
                 "YES/NO",
                 (value) =>
                 {
@@ -108,7 +122,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ValueIndexer<bool> OnOff
         {
             get => new ValueIndexer<bool>(
-                this.Body,
+                this,
                 "ON/OFF",
                 (value) =>
                 {
@@ -130,14 +144,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Gets or sets the YAML instance.
+        /// Gets the YAML instance.
         /// </summary>
-        public MappingYAML Body { get; protected set; }
+        public abstract MappingYAML Body { get; }
 
         /// <summary>
-        /// Gets or sets the OutSideProxy for file access.
+        /// Gets the OutSideProxy for file access.
         /// </summary>
-        protected OutSideProxy Proxy { get; set; }
+        public abstract OutSideProxy Proxy { get; }
 
         /// <summary>
         /// Gets the sub spec.
@@ -152,7 +166,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <inheritdoc/>
         public override string ToString()
         {
-            return this.Body.ToString();
+            return this.Body.ToString(true);
         }
 
         /// <summary>
@@ -160,18 +174,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public class SubSpecIndexer
         {
-            private OutSideProxy proxy;
-            private YAML body;
+            private Spec parent;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SubSpecIndexer"/> class.
             /// </summary>
-            /// <param name="proxy">OutSideProxy for file access.</param>
-            /// <param name="body">The YAML.</param>
-            internal SubSpecIndexer(OutSideProxy proxy, YAML body)
+            /// <param name="parent">The parent spec instance.</param>
+            internal SubSpecIndexer(Spec parent)
             {
-                this.proxy = proxy;
-                this.body = body;
+                this.parent = parent;
             }
 
             /// <summary>
@@ -181,12 +192,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <returns>The sub spec.</returns>
             public SpecChild this[string key]
             {
-                get
-                {
-                    var childYaml = this.body.Mapping[key, new MappingYAML()];
-                    childYaml.ID = $"{this.body.ID}[{key}]";
-                    return new SpecChild(this.proxy, childYaml);
-                }
+                get => new SpecChild(this.parent, key);
             }
         }
 
@@ -196,7 +202,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <typeparam name="T">Type of value.</typeparam>
         public class ValueIndexer<T>
         {
-            private YAML body;
+            private Spec parent;
             private string type;
             private Func<string, T> getter;
             private Func<T, string> setter;
@@ -204,17 +210,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <summary>
             /// Initializes a new instance of the <see cref="ValueIndexer{T}"/> class.
             /// </summary>
-            /// <param name="body">The YAML.</param>
+            /// <param name="parent">The parent spec.</param>
             /// <param name="type">The access type string.</param>
             /// <param name="getter">Translation function from string.</param>
             /// <param name="setter">Translation function to string.</param>
             internal ValueIndexer(
-                YAML body,
+                Spec parent,
                 string type,
                 Func<string, T> getter,
                 Func<T, string> setter)
             {
-                this.body = body;
+                this.parent = parent;
                 this.type = type;
                 this.getter = getter;
                 this.setter = setter;
@@ -231,12 +237,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        return this.getter(this.body.Scalar[key].ToString());
+                        return this.getter(
+                            this.parent.Body.Scalar[key].ToString());
                     }
                     catch (Exception ex)
                     {
                         throw new InvalidSpecAccessException(
-                            $"{this.body.ID}[{key}]", this.type, ex);
+                            $"{this.parent.Body.ID}[{key}]", this.type, ex);
                     }
                 }
 
@@ -244,12 +251,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        this.body[key] = new ScalarYAML(this.setter(value));
+                        this.parent.Body[key] =
+                            new ScalarYAML(this.setter(value));
                     }
                     catch (Exception ex)
                     {
                         throw new InvalidSpecAccessException(
-                            $"{this.body.ID}[{key}]", this.type, ex);
+                            $"{this.parent.Body.ID}[{key}]", this.type, ex);
                     }
                 }
             }
@@ -266,14 +274,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        return this.getter(this.body.Scalar[
+                        return this.getter(this.parent.Body.Scalar[
                             key, new ScalarYAML(this.setter(defaultVal))]
                             .ToString());
                     }
                     catch (Exception ex)
                     {
                         throw new InvalidSpecAccessException(
-                            $"{this.body.ID}[{key}]", this.type, ex);
+                            $"{this.parent.Body.ID}[{key}]", this.type, ex);
                     }
                 }
             }

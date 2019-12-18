@@ -341,7 +341,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.False(spec["story flag"].Bool["second"]);
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec["square root"].Bool["third"];
+                _ = spec["story flag"].Bool["third"];
             });
 
             // get value with default value.
@@ -421,7 +421,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.False(spec["story flag"].YesNo["second"]);
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec["square root"].YesNo["third"];
+                _ = spec["story flag"].YesNo["third"];
             });
 
             // get value with default value.
@@ -501,7 +501,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.False(spec["story flag"].OnOff["second"]);
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec["square root"].OnOff["third"];
+                _ = spec["story flag"].OnOff["third"];
             });
 
             // get value with default value.

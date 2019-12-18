@@ -6,6 +6,7 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
+    using System;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
@@ -15,6 +16,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     /// </summary>
     public class SpecRoot : Spec
     {
+        private MappingYAML mold;
+        private RootYAML body;
+        private OutSideProxy proxy;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SpecRoot"/> class.
         /// </summary>
@@ -26,7 +31,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 AgnosticPath layeredPath,
                 bool acceptAbsence = false)
         {
-            this.Proxy = proxy;
+            this.proxy = proxy;
             this.LayeredFile = new LayeredFile(proxy, layeredPath, acceptAbsence);
 
             AgnosticPath yamlPath;
@@ -40,7 +45,25 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     new Layer(proxy, "save", true));
             }
 
-            this.Body = new RootYAML(proxy, yamlPath, acceptAbsence);
+            this.body = new RootYAML(proxy, yamlPath, acceptAbsence);
+        }
+
+        /// <inheritdoc/>
+        public override MappingYAML Mold
+        {
+            get => this.mold;
+        }
+
+        /// <inheritdoc/>
+        public override MappingYAML Body
+        {
+            get => this.body;
+        }
+
+        /// <inheritdoc/>
+        public override OutSideProxy Proxy
+        {
+            get => this.proxy;
         }
 
         private LayeredFile LayeredFile { get; }
@@ -76,7 +99,31 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 this.Proxy, layeredPath, true).FetchWritePath(layer);
 
             this.Proxy.FileIO.CreateDirectory(writePath.Parent);
-            (this.Body as RootYAML).SaveAs(writePath, true);
+            this.body.SaveAs(writePath, true);
+        }
+
+        /// <summary>
+        /// Specを利用する処理の設定値アクセスキーと型を取得。
+        /// Analyze access key and type in an action for spec.
+        /// </summary>
+        /// <param name="action">Analysis target action.</param>
+        /// <returns>The analysis result yaml.</returns>
+        public MappingYAML MoldSpec(Action<SpecRoot> action)
+        {
+            var prevMold = this.mold;
+            var ret = new MappingYAML();
+
+            try
+            {
+                this.mold = ret;
+                action(this);
+            }
+            finally
+            {
+                this.mold = prevMold;
+            }
+
+            return ret;
         }
     }
 }
