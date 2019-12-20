@@ -51,13 +51,37 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <inheritdoc/>
         public override MappingYAML Mold
         {
-            get => this.mold;
+            get
+            {
+                if (this.mold == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    var ret = this.mold.Mapping["properties", new MappingYAML()];
+                    this.mold.Mapping["properties"] = ret;
+                    return ret;
+                }
+            }
         }
 
         /// <inheritdoc/>
         public override MappingYAML Body
         {
             get => this.body;
+        }
+
+        /// <inheritdoc/>
+        public override MappingYAML Properties
+        {
+            get
+            {
+                var ret = this.Body.Mapping["properties", new MappingYAML()];
+                ret.ID = $"{this.Body.ID}[properties]";
+                this.Body.Mapping["properties"] = ret;
+                return ret;
+            }
         }
 
         /// <inheritdoc/>

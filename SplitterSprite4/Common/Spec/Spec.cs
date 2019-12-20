@@ -154,9 +154,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Gets the YAML instance.
+        /// Gets the YAML instance of the spec.
         /// </summary>
         public abstract MappingYAML Body { get; }
+
+        /// <summary>
+        /// Gets the YAML instance of properties.
+        /// </summary>
+        public abstract MappingYAML Properties { get; }
 
         /// <summary>
         /// Gets the OutSideProxy for file access.
@@ -262,7 +267,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         }
 
                         return this.getter(
-                            this.parent.Body.Scalar[key].ToString());
+                            this.parent.Properties.Scalar[key].ToString());
                     }
                     catch (Exception ex)
                     {
@@ -273,7 +278,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         else
                         {
                             throw new InvalidSpecAccessException(
-                                $"{this.parent.Body.ID}[{key}]",
+                                $"{this.parent.Properties.ID}[{key}]",
                                 this.type,
                                 ex);
                         }
@@ -284,13 +289,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        this.parent.Body[key] =
+                        this.parent.Properties[key] =
                             new ScalarYAML(this.setter(value));
                     }
                     catch (Exception ex)
                     {
                         throw new InvalidSpecAccessException(
-                            $"{this.parent.Body.ID}[{key}]", this.type, ex);
+                            $"{this.parent.Properties.ID}[{key}]",
+                            this.type,
+                            ex);
                     }
                 }
             }
@@ -318,7 +325,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                                 new ScalarYAML(accessCodeWithDefault);
                         }
 
-                        return this.getter(this.parent.Body.Scalar[
+                        return this.getter(this.parent.Properties.Scalar[
                             key, new ScalarYAML(this.setter(defaultVal))]
                             .ToString());
                     }
@@ -331,7 +338,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         else
                         {
                             throw new InvalidSpecAccessException(
-                                $"{this.parent.Body.ID}[{key}]",
+                                $"{this.parent.Properties.ID}[{key}]",
                                 this.type,
                                 ex);
                         }
