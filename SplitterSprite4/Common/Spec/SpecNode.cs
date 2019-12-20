@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="SpecChild.cs" company="MagicKitchen">
+// <copyright file="SpecNode.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -13,17 +13,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     /// Specファイルの子孫Specを表現するSpecクラス
     /// The accessor class for descendant spec.
     /// </summary>
-    public class SpecChild : Spec
+    public class SpecNode : Spec
     {
         private Spec parent;
         private string accessKey;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SpecChild"/> class.
+        /// Initializes a new instance of the <see cref="SpecNode"/> class.
         /// </summary>
         /// <param name="parent">The parent spec instance.</param>
         /// <param name="key">The string key for this child spec.</param>
-        internal SpecChild(Spec parent, string key)
+        internal SpecNode(Spec parent, string key)
         {
             this.parent = parent;
             this.accessKey = key;

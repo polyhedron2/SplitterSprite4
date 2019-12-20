@@ -173,7 +173,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         /// <param name="key">The string key for the sub spec.</param>
         /// <returns>The sub spec.</returns>
-        public SpecChild this[string key]
+        public SpecNode this[string key]
         {
             get => this.SubSpec[key];
         }
@@ -205,9 +205,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// </summary>
             /// <param name="key">The string key for the sub spec.</param>
             /// <returns>The sub spec.</returns>
-            public SpecChild this[string key]
+            public SpecNode this[string key]
             {
-                get => new SpecChild(this.parent, key);
+                get => new SpecNode(this.parent, key);
             }
         }
 
