@@ -49,6 +49,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
+        public override Spec Base
+        {
+            get
+            {
+                try
+                {
+                    var baseRelativePath = AgnosticPath.FromAgnosticPathString(
+                        this.Body.Scalar["base"].ToString());
+                    var baseLayeredPath =
+                        this.LayeredFile.Path.Parent + baseRelativePath;
+                    return new SpecRoot(this.Proxy, baseLayeredPath);
+                }
+                catch (YAML.YAMLKeyUndefinedException)
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
         public override MappingYAML Mold
         {
             get
@@ -60,6 +80,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 else
                 {
                     var ret = this.mold.Mapping["properties", new MappingYAML()];
+                    this.mold.Scalar["base"] = new ScalarYAML("Spec");
                     this.mold.Mapping["properties"] = ret;
                     return ret;
                 }

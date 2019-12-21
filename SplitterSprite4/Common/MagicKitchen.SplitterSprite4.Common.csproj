@@ -10,6 +10,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
     <PackageReference Include="YamlDotNet" Version="6.1.2" />
   </ItemGroup>
 

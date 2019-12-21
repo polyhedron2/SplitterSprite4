@@ -30,6 +30,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
+        public override Spec Base
+        {
+            get => this.parent.Base?[this.accessKey];
+        }
+
+        /// <inheritdoc/>
         public override MappingYAML Mold
         {
             get

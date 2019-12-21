@@ -569,6 +569,410 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Base Specからの設定値の継承をテスト。
+        /// Test property inheritance from base specs.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="intermediateSpecLayerName">
+        /// A intermediate spec's layer name.
+        /// </param>
+        /// <param name="intermediateSpecPathStr">
+        /// A spec's os-agnostic path which is base of derived spec.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A spec's os-agnostic path which is base of intermediate spec.
+        /// </param>
+        /// <param name="relativePathFromDerivedToIntermadiateStr">
+        /// The relative path string from the derived spec to the intermediate spec.
+        /// </param>
+        /// <param name="relativePathFromIntermediateToBaseStr">
+        /// The relative path string from the intermediate spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "intermediate.spec",
+            "layer",
+            "base.spec",
+            "intermediate.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/intermediate.spec",
+            "layer",
+            "dir/dir2/base.spec",
+            "dir/intermediate.spec",
+            "dir2/base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/dir2/intermediate.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/dir2/intermediate.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/dir2/intermediate.spec",
+            "layer3",
+            "dir/base.spec",
+            "dir/dir2/intermediate.spec",
+            "../base.spec")]
+        public void BaseSpecTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string intermediateSpecLayerName,
+            string intermediateSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToIntermadiateStr,
+            string relativePathFromIntermediateToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            // Spec key means, which spec has the value.
+            // For example,
+            //   "100" means only derived spec has the value.
+            //   "101" means derived spec and base spec have the value.
+            //   "111" means derived and intermediate and base spec have the value.
+            // Spec value means, which spec the value come from.
+            // "0" means the value come from derived spec.
+            // "1" means the value come from intermediate spec.
+            // "2" means the value come from base spec.
+            this.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"base: {relativePathFromDerivedToIntermadiateStr}",
+                    "properties:",
+                    "  100: 0",
+                    "  101: 0",
+                    "  110: 0",
+                    "  111: 0",
+                    "  inner:",
+                    "    100: 0",
+                    "    101: 0",
+                    "    110: 0",
+                    "    111: 0"));
+            this.SetupSpecFile(
+                proxy,
+                intermediateSpecLayerName,
+                intermediateSpecPathStr,
+                Utility.JoinLines(
+                    $"base: {relativePathFromIntermediateToBaseStr}",
+                    "properties:",
+                    "  010: 1",
+                    "  011: 1",
+                    "  110: 1",
+                    "  111: 1",
+                    "  inner:",
+                    "    010: 1",
+                    "    011: 1",
+                    "    110: 1",
+                    "    111: 1"));
+            this.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "properties:",
+                    "  001: 2",
+                    "  011: 2",
+                    "  101: 2",
+                    "  111: 2",
+                    "  inner:",
+                    "    001: 2",
+                    "    011: 2",
+                    "    101: 2",
+                    "    111: 2"));
+
+            // act
+            var derivedSpec = new SpecRoot(proxy, derivedSpecPath);
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Int["000"];
+            });
+            Assert.Equal(2, derivedSpec.Int["001"]);
+            Assert.Equal(1, derivedSpec.Int["010"]);
+            Assert.Equal(1, derivedSpec.Int["011"]);
+            Assert.Equal(0, derivedSpec.Int["100"]);
+            Assert.Equal(0, derivedSpec.Int["101"]);
+            Assert.Equal(0, derivedSpec.Int["110"]);
+            Assert.Equal(0, derivedSpec.Int["111"]);
+
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["inner"].Int["000"];
+            });
+            Assert.Equal(2, derivedSpec["inner"].Int["001"]);
+            Assert.Equal(1, derivedSpec["inner"].Int["010"]);
+            Assert.Equal(1, derivedSpec["inner"].Int["011"]);
+            Assert.Equal(0, derivedSpec["inner"].Int["100"]);
+            Assert.Equal(0, derivedSpec["inner"].Int["101"]);
+            Assert.Equal(0, derivedSpec["inner"].Int["110"]);
+            Assert.Equal(0, derivedSpec["inner"].Int["111"]);
+
+            Assert.Equal(-1, derivedSpec.Int["000", -1]);
+            Assert.Equal(2, derivedSpec.Int["001", -1]);
+            Assert.Equal(1, derivedSpec.Int["010", -1]);
+            Assert.Equal(1, derivedSpec.Int["011", -1]);
+            Assert.Equal(0, derivedSpec.Int["100", -1]);
+            Assert.Equal(0, derivedSpec.Int["101", -1]);
+            Assert.Equal(0, derivedSpec.Int["110", -1]);
+            Assert.Equal(0, derivedSpec.Int["111", -1]);
+
+            Assert.Equal(-1, derivedSpec["inner"].Int["000", -1]);
+            Assert.Equal(2, derivedSpec["inner"].Int["001", -1]);
+            Assert.Equal(1, derivedSpec["inner"].Int["010", -1]);
+            Assert.Equal(1, derivedSpec["inner"].Int["011", -1]);
+            Assert.Equal(0, derivedSpec["inner"].Int["100", -1]);
+            Assert.Equal(0, derivedSpec["inner"].Int["101", -1]);
+            Assert.Equal(0, derivedSpec["inner"].Int["110", -1]);
+            Assert.Equal(0, derivedSpec["inner"].Int["111", -1]);
+        }
+
+        /// <summary>
+        /// Base Specの設定値のループした継承関係をテスト。
+        /// Test property inheritance of looped base specs.
+        /// </summary>
+        /// <param name="firstSpecLayerName">
+        /// The first spec's layer name.
+        /// </param>
+        /// <param name="firstSpecPathStr">
+        /// The first spec's os-agnostic path. This is derived from the second spec.
+        /// </param>
+        /// <param name="secondSpecLayerName">
+        /// The second spec's layer name.
+        /// </param>
+        /// <param name="secondSpecPathStr">
+        /// The second spec's os-agnostic path. This is derived from the third spec.
+        /// </param>
+        /// <param name="thirdSpecLayerName">
+        /// The third spec's layer name.
+        /// </param>
+        /// <param name="thirdSpecPathStr">
+        /// The third spec's os-agnostic path. This is derived from the first spec.
+        /// </param>
+        /// <param name="relativePathFromFirstToSecondStr">
+        /// The relative path string from the first spec to the second spec.
+        /// </param>
+        /// <param name="relativePathFromSecondToThirdStr">
+        /// The relative path string from the second spec to the third spec.
+        /// </param>
+        /// <param name="relativePathFromThirdToFirstStr">
+        /// The relative path string from the third spec to the first spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "first.spec",
+            "layer",
+            "second.spec",
+            "layer",
+            "third.spec",
+            "second.spec",
+            "third.spec",
+            "first.spec")]
+        [InlineData(
+            "layer",
+            "first.spec",
+            "layer",
+            "dir/second.spec",
+            "layer",
+            "dir/dir2/third.spec",
+            "dir/second.spec",
+            "dir2/third.spec",
+            "../../first.spec")]
+        [InlineData(
+            "layer1",
+            "first.spec",
+            "layer2",
+            "dir/second.spec",
+            "layer3",
+            "dir/dir2/third.spec",
+            "dir/second.spec",
+            "dir2/third.spec",
+            "../../first.spec")]
+        public void LoopedBaseSpecTest(
+            string firstSpecLayerName,
+            string firstSpecPathStr,
+            string secondSpecLayerName,
+            string secondSpecPathStr,
+            string thirdSpecLayerName,
+            string thirdSpecPathStr,
+            string relativePathFromFirstToSecondStr,
+            string relativePathFromSecondToThirdStr,
+            string relativePathFromThirdToFirstStr)
+        {
+            // arrange
+            var firstSpecPath = AgnosticPath.FromAgnosticPathString(
+                firstSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            // Spec key means, which spec has the value.
+            // For example,
+            //   "100" means only first spec has the value.
+            //   "101" means first spec and third spec have the value.
+            //   "111" means all of the three specs have the value.
+            // Spec value means, which spec the value come from.
+            // "0" means the value come from the first spec.
+            // "1" means the value come from the second spec.
+            // "2" means the value come from the third spec.
+            this.SetupSpecFile(
+                proxy,
+                firstSpecLayerName,
+                firstSpecPathStr,
+                Utility.JoinLines(
+                    $"base: {relativePathFromFirstToSecondStr}",
+                    "properties:",
+                    "  100: 0",
+                    "  101: 0",
+                    "  110: 0",
+                    "  111: 0",
+                    "  inner:",
+                    "    100: 0",
+                    "    101: 0",
+                    "    110: 0",
+                    "    111: 0"));
+            this.SetupSpecFile(
+                proxy,
+                secondSpecLayerName,
+                secondSpecPathStr,
+                Utility.JoinLines(
+                    $"base: {relativePathFromSecondToThirdStr}",
+                    "properties:",
+                    "  010: 1",
+                    "  011: 1",
+                    "  110: 1",
+                    "  111: 1",
+                    "  inner:",
+                    "    010: 1",
+                    "    011: 1",
+                    "    110: 1",
+                    "    111: 1"));
+            this.SetupSpecFile(
+                proxy,
+                thirdSpecLayerName,
+                thirdSpecPathStr,
+                Utility.JoinLines(
+                    $"base: {relativePathFromThirdToFirstStr}",
+                    "properties:",
+                    "  001: 2",
+                    "  011: 2",
+                    "  101: 2",
+                    "  111: 2",
+                    "  inner:",
+                    "    001: 2",
+                    "    011: 2",
+                    "    101: 2",
+                    "    111: 2"));
+
+            // act
+            var firstSpec = new SpecRoot(proxy, firstSpecPath);
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = firstSpec.Int["000"];
+            });
+            Assert.Equal(2, firstSpec.Int["001"]);
+            Assert.Equal(1, firstSpec.Int["010"]);
+            Assert.Equal(1, firstSpec.Int["011"]);
+            Assert.Equal(0, firstSpec.Int["100"]);
+            Assert.Equal(0, firstSpec.Int["101"]);
+            Assert.Equal(0, firstSpec.Int["110"]);
+            Assert.Equal(0, firstSpec.Int["111"]);
+
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = firstSpec["inner"].Int["000"];
+            });
+            Assert.Equal(2, firstSpec["inner"].Int["001"]);
+            Assert.Equal(1, firstSpec["inner"].Int["010"]);
+            Assert.Equal(1, firstSpec["inner"].Int["011"]);
+            Assert.Equal(0, firstSpec["inner"].Int["100"]);
+            Assert.Equal(0, firstSpec["inner"].Int["101"]);
+            Assert.Equal(0, firstSpec["inner"].Int["110"]);
+            Assert.Equal(0, firstSpec["inner"].Int["111"]);
+
+            Assert.Equal(-1, firstSpec.Int["000", -1]);
+            Assert.Equal(2, firstSpec.Int["001", -1]);
+            Assert.Equal(1, firstSpec.Int["010", -1]);
+            Assert.Equal(1, firstSpec.Int["011", -1]);
+            Assert.Equal(0, firstSpec.Int["100", -1]);
+            Assert.Equal(0, firstSpec.Int["101", -1]);
+            Assert.Equal(0, firstSpec.Int["110", -1]);
+            Assert.Equal(0, firstSpec.Int["111", -1]);
+
+            Assert.Equal(-1, firstSpec["inner"].Int["000", -1]);
+            Assert.Equal(2, firstSpec["inner"].Int["001", -1]);
+            Assert.Equal(1, firstSpec["inner"].Int["010", -1]);
+            Assert.Equal(1, firstSpec["inner"].Int["011", -1]);
+            Assert.Equal(0, firstSpec["inner"].Int["100", -1]);
+            Assert.Equal(0, firstSpec["inner"].Int["101", -1]);
+            Assert.Equal(0, firstSpec["inner"].Int["110", -1]);
+            Assert.Equal(0, firstSpec["inner"].Int["111", -1]);
+        }
+
+        /// <summary>
+        /// Base Specの設定先ファイルが存在しないときの挙動をテスト。
+        /// Test the spec's behavior when the base spec is absence.
+        /// </summary>
+        /// <param name="derivedSpecPathStr">The tested spec file's path.</param>
+        /// <param name="relativeBasePathStr">The absence base spec file's path.</param>
+        [Theory]
+        [InlineData("foo.spec", "bar.spec")]
+        [InlineData("foo.spec", "dir/bar.spec")]
+        [InlineData("dir/foo.spec", "bar.spec")]
+        [InlineData("dir1/foo.spec", "dir2/bar.spec")]
+        public void AbsenceBaseSpecTest(
+            string derivedSpecPathStr, string relativeBasePathStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+            this.SetupSpecFile(
+                proxy,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"base: {relativeBasePathStr}",
+                    "properties:",
+                    "  defined: 0"));
+
+            // act
+            var spec = new SpecRoot(proxy, derivedSpecPath);
+
+            // assert
+            Assert.Equal(0, spec.Int["defined"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int["undefined"];
+            });
+        }
+
+        /// <summary>
         /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
         /// Test the MoldSpec method.
         /// </summary>
@@ -603,6 +1007,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
+                    "base: Spec",
                     "properties:",
                     "  foo: Int",
                     "  bar: Double",
@@ -655,6 +1060,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
+                    "base: Spec",
                     "properties:",
                     "  foo: Int, 10",
                     "  bar: Double, 3.14",
@@ -710,6 +1116,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
+                    "base: Spec",
                     "properties:",
                     "  default: Int",
                     $"  foo: Int, {dynamicDefault}"),
@@ -761,6 +1168,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             {
                 Assert.Equal(
                     Utility.JoinLines(
+                        "base: Spec",
                         "properties:",
                         "  flag: Bool",
                         "  foo: Int"),
@@ -770,6 +1178,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             {
                 Assert.Equal(
                     Utility.JoinLines(
+                        "base: Spec",
                         "properties:",
                         "  flag: Bool",
                         "  bar: Double"),
@@ -777,10 +1186,67 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             }
         }
 
-        private SpecRoot SetupSpecFile(
-            OutSideProxy proxy, string layeredPathStr, string body)
+        /// <summary>
+        /// MoldSpecメソッドのBase Specによる挙動の変化をテスト。
+        /// Test the MoldSpec method with base spec.
+        /// </summary>
+        /// <param name="derivedPathStr">The derived spec's path.</param>
+        /// <param name="basePathStr">The base spec's path.</param>
+        /// <param name="relativeBasePathStr">The base spec's relative path.</param>
+        /// <param name="derivedValue">The derived spec's value.</param>
+        /// <param name="baseValue">The base spec's value.</param>
+        [Theory]
+        [InlineData("foo.spec", "bar.spec", "bar.spec", 0, 1)]
+        [InlineData("foo.spec", "bar.spec", "bar.spec", 100, 200)]
+        [InlineData("foo.spec", "dir/bar.spec", "dir/bar.spec", 100, 200)]
+        [InlineData("dir/foo.spec", "bar.spec", "../bar.spec", 100, 200)]
+        public void MoldSpecWithBaseSpecTest(
+            string derivedPathStr,
+            string basePathStr,
+            string relativeBasePathStr,
+            int derivedValue,
+            int baseValue)
         {
-            var layer = new Layer(proxy, "layer", true);
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var derivedPath =
+                AgnosticPath.FromAgnosticPathString(derivedPathStr);
+            this.SetupSpecFile(proxy, derivedPathStr, Utility.JoinLines(
+                $"base: {relativeBasePathStr}",
+                "properties:",
+                $"  derived: {derivedValue}"));
+            this.SetupSpecFile(proxy, basePathStr, Utility.JoinLines(
+                "properties:",
+                $"  base: {baseValue}"));
+
+            // act
+            var derivedSpec = new SpecRoot(proxy, derivedPath, true);
+            Action<Spec> action = (Spec sp) =>
+            {
+                _ = sp.Int["derived"];
+                var referredBase = sp.Int["base"];
+                _ = sp.Int["dynamic", referredBase];
+            };
+            var mold = derivedSpec.MoldSpec(action);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "base: Spec",
+                    "properties:",
+                    "  derived: Int",
+                    "  base: Int",
+                    $"  dynamic: Int, {baseValue}"),
+                mold.ToString());
+        }
+
+        private SpecRoot SetupSpecFile(
+            OutSideProxy proxy,
+            string layerName,
+            string layeredPathStr,
+            string body)
+        {
+            var layer = new Layer(proxy, layerName, true);
             layer.Save();
 
             var layeredPath =
@@ -796,6 +1262,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             return new SpecRoot(proxy, layeredPath);
+        }
+
+        private SpecRoot SetupSpecFile(
+            OutSideProxy proxy, string layeredPathStr, string body)
+        {
+            return this.SetupSpecFile(proxy, "layer", layeredPathStr, body);
         }
     }
 }

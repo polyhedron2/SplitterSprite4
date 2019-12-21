@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
+    using System.Collections.Immutable;
     using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.YAML;
@@ -17,6 +18,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     /// </summary>
     public abstract class Spec
     {
+        /// <summary>
+        /// Gets a Spec for inheritance.
+        /// If a property is not defined in this spec,
+        /// the base spec's property is referred.
+        /// If the base spec is not defined, this property is null.
+        /// </summary>
+        public abstract Spec Base { get; }
+
         /// <summary>
         /// Gets a YAML for analyze access key and type in a spawner.
         /// If this is not molding, it returns null.
@@ -64,7 +73,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 (value) => int.Parse(value),
                 (value) => value.ToString(),
                 "Int",
-                0);
+                0,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -78,7 +88,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 (value) => double.Parse(value),
                 (value) => value.ToString(),
                 "Double",
-                0.0);
+                0.0,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -92,7 +103,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 (value) => bool.Parse(value),
                 (value) => value.ToString(),
                 "Bool",
-                false);
+                false,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -121,7 +133,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 },
                 (value) => value ? "yes" : "no",
                 "YesNo",
-                false);
+                false,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -150,7 +163,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 },
                 (value) => value ? "on" : "off",
                 "OnOff",
-                false);
+                false,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -223,6 +237,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             private Func<T, string> setter;
             private string moldingAccessCode;
             private T moldingDefault;
+            private ImmutableList<string> referredSpecs;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="ValueIndexer{T}"/> class.
@@ -233,13 +248,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="setter">Translation function to string.</param>
             /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
             /// <param name="moldingDefault">The default value for molding.</param>
+            /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
             internal ValueIndexer(
                 Spec parent,
                 string type,
                 Func<string, T> getter,
                 Func<T, string> setter,
                 string moldingAccessCode,
-                T moldingDefault)
+                T moldingDefault,
+                ImmutableList<string> referredSpecs)
             {
                 this.parent = parent;
                 this.type = type;
@@ -247,6 +264,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 this.setter = setter;
                 this.moldingAccessCode = moldingAccessCode;
                 this.moldingDefault = moldingDefault;
+                this.referredSpecs = referredSpecs;
             }
 
             /// <summary>
@@ -266,8 +284,32 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                                 new ScalarYAML(this.moldingAccessCode);
                         }
 
-                        return this.getter(
-                            this.parent.Properties.Scalar[key].ToString());
+                        try
+                        {
+                            return this.getter(
+                                this.parent.Properties.Scalar[key].ToString());
+                        }
+                        catch (YAML.YAMLKeyUndefinedException ex)
+                        {
+                            var isLooped =
+                                this.referredSpecs.Contains(this.parent.ID);
+                            if (this.parent.Base == null || isLooped)
+                            {
+                                throw ex;
+                            }
+
+                            // Only if base spec is defined and not looped,
+                            // base spec is referred.
+                            return new ValueIndexer<T>(
+                                this.parent.Base,
+                                this.type,
+                                this.getter,
+                                this.setter,
+                                this.moldingAccessCode,
+                                this.moldingDefault,
+                                this.referredSpecs.Add(this.parent.ID))[
+                                key];
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -325,9 +367,32 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                                 new ScalarYAML(accessCodeWithDefault);
                         }
 
-                        return this.getter(this.parent.Properties.Scalar[
-                            key, new ScalarYAML(this.setter(defaultVal))]
-                            .ToString());
+                        try
+                        {
+                            return this.getter(
+                                this.parent.Properties.Scalar[key].ToString());
+                        }
+                        catch (YAML.YAMLKeyUndefinedException)
+                        {
+                            var isLooped =
+                                this.referredSpecs.Contains(this.parent.ID);
+                            if (this.parent.Base == null || isLooped)
+                            {
+                                return defaultVal;
+                            }
+
+                            // Only if base spec is defined and not looped,
+                            // base spec is referred.
+                            return new ValueIndexer<T>(
+                                this.parent.Base,
+                                this.type,
+                                this.getter,
+                                this.setter,
+                                this.moldingAccessCode,
+                                this.moldingDefault,
+                                this.referredSpecs.Add(this.parent.ID))[
+                                key, defaultVal];
+                        }
                     }
                     catch (Exception ex)
                     {
