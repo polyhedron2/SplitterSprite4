@@ -104,7 +104,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     {
                         var emptyValue = this.Body[key].ToString(
                             ignoreEmptyMappingChild);
-                        yield return $"{key}: {emptyValue}";
+                        yield return $"\"{key}\": {emptyValue}";
                     }
                 }
                 else
@@ -119,7 +119,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                         // key is dumped at first.
                         if (i == 0)
                         {
-                            yield return $"{key}:";
+                            yield return $"\"{key}\":";
                         }
 
                         yield return $"  {line}";
@@ -135,7 +135,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 {
                     // 複数行であれば、"|+"から始める
                     // In multi-line case, start with "|+".
-                    yield return $"{key}: |+";
+                    yield return $"\"{key}\": |+";
                     foreach (string line in
                         scalar.ToStringLines(ignoreEmptyMappingChild))
                     {
@@ -147,7 +147,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     foreach (string line in
                         this.Body[key].ToStringLines(ignoreEmptyMappingChild))
                     {
-                        yield return $"{key}: {line}";
+                        yield return $"\"{key}\": {line}";
                     }
                 }
             }

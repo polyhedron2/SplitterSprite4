@@ -116,8 +116,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var loadBody = Utility.JoinLines(
-                "scalar_key: scalar_value",
-                "list_key:",
+                "\"scalar_key\": scalar_value",
+                "\"list_key\":",
                 "  - foo",
                 "  - []",
                 "  - {}",
@@ -125,23 +125,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    - []",
                 "  -",
                 "    - {}",
-                "  - first: []",
-                "  - second: {}",
-                "mapping_key:",
-                "  first: bar",
-                "  second: []",
-                "  third: {}",
-                "  fourth:",
+                "  - \"first\": []",
+                "  - \"second\": {}",
+                "\"mapping_key\":",
+                "  \"first\": bar",
+                "  \"second\": []",
+                "  \"third\": {}",
+                "  \"fourth\":",
                 "    - []",
-                "  fifth:",
+                "  \"fifth\":",
                 "    - {}",
-                "  sixth:",
-                "    first: []",
-                "  seventh:",
-                "    first: {}");
+                "  \"sixth\":",
+                "    \"first\": []",
+                "  \"seventh\":",
+                "    \"first\": {}");
             var saveBody = Utility.JoinLines(
-                "scalar_key: scalar_value",
-                "list_key:",
+                "\"scalar_key\": scalar_value",
+                "\"list_key\":",
                 "  - foo",
                 "  - []",
                 "  - {}",
@@ -151,11 +151,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    - {}",
                 "  - {}",
                 "  - {}",
-                "mapping_key:",
-                "  first: bar",
-                "  fourth:",
+                "\"mapping_key\":",
+                "  \"first\": bar",
+                "  \"fourth\":",
                 "    - []",
-                "  fifth:",
+                "  \"fifth\":",
                 "    - {}");
             RootYAML yaml = this.SetupYamlFile(proxy, path, loadBody);
 
@@ -190,9 +190,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 yaml["simple_sequence_field"].ToString());
             Assert.Equal(
                 Utility.JoinLines(
-                    "simple_mapping_key_0: simple_mapping_value_0",
-                    "simple_mapping_key_1: simple_mapping_value_1",
-                    "simple_mapping_key_2: simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": simple_mapping_value_0",
+                    "\"simple_mapping_key_1\": simple_mapping_value_1",
+                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
                 yaml["simple_mapping_field"].ToString());
 
             // act
@@ -207,8 +207,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 yaml["simple_sequence_field"].ToString());
             Assert.Equal(
                 Utility.JoinLines(
-                    "simple_mapping_key_0: simple_mapping_value_0",
-                    "simple_mapping_key_2: simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": simple_mapping_value_0",
+                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
                 yaml["simple_mapping_field"].ToString());
         }
 
@@ -324,9 +324,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             Assert.Equal(
                 Utility.JoinLines(
-                    "simple_mapping_key_0: simple_mapping_value_0",
-                    "simple_mapping_key_1: simple_mapping_value_1",
-                    "simple_mapping_key_2: simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": simple_mapping_value_0",
+                    "\"simple_mapping_key_1\": simple_mapping_value_1",
+                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
                 yaml.Mapping["simple_mapping_field"].ToString());
 
             Assert.Equal(
@@ -478,9 +478,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             Assert.Equal(
                 Utility.JoinLines(
-                    "simple_mapping_key_0: simple_mapping_value_0",
-                    "simple_mapping_key_1: simple_mapping_value_1",
-                    "simple_mapping_key_2: simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": simple_mapping_value_0",
+                    "\"simple_mapping_key_1\": simple_mapping_value_1",
+                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
                 yaml.Mapping["simple_mapping_field", defaultValue].ToString());
 
             Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
@@ -494,7 +494,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             Assert.Equal(
-                "dummy_key: dummy_value",
+                "\"dummy_key\": dummy_value",
                 yaml["undefined_field", defaultValue].ToString());
         }
 
@@ -655,13 +655,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
                 Assert.Equal(
                     Utility.JoinLines(
-                        "new_key_1_1: new_value_1_1",
-                        "new_key_1_2: new_value_1_2"),
+                        "\"new_key_1_1\": new_value_1_1",
+                        "\"new_key_1_2\": new_value_1_2"),
                     yaml.Mapping["simple_mapping_field"].ToString());
                 Assert.Equal(
                     Utility.JoinLines(
-                        "new_key_2_1: new_value_2_1",
-                        "new_key_2_2: new_value_2_2"),
+                        "\"new_key_2_1\": new_value_2_1",
+                        "\"new_key_2_2\": new_value_2_2"),
                     yaml.Mapping["undefined_field"].ToString());
             }
 
@@ -711,9 +711,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // Mappingは自動でMappingとして読まれる
             Assert.Equal(
                 Utility.JoinLines(
-                    "simple_mapping_key_0: simple_mapping_value_0",
-                    "simple_mapping_key_1: simple_mapping_value_1",
-                    "simple_mapping_key_2: simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": simple_mapping_value_0",
+                    "\"simple_mapping_key_1\": simple_mapping_value_1",
+                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
                 yaml["simple_mapping_field"].ToString());
 
             // 文字列インデクサでの個別アクセスも可能
@@ -766,7 +766,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         { "new key", new ScalarYAML("new value") },
                 };
             Assert.Equal(
-                "new key: new value",
+                "\"new key\": new value",
                 yaml["simple_sequence_field"][0].ToString());
 
             // 文字列インデクサでの上書きも可能
@@ -809,48 +809,49 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         private string TestYAMLBody() => Utility.JoinLines(
-            "scalar_field: scalar_value",
-            "multiline_text_field: |+",
+            "\"scalar_field\": scalar_value",
+            "\"multiline_text_field\": |+",
             "  line 0",
             "  line 1",
             "  line 2",
-            "simple_sequence_field:",
+            "\"simple_sequence_field\":",
             "  - sqeuence_member_0",
             "  - sqeuence_member_1",
             "  - sqeuence_member_2",
-            "simple_mapping_field:",
-            "  simple_mapping_key_0: simple_mapping_value_0",
-            "  simple_mapping_key_1: simple_mapping_value_1",
-            "  simple_mapping_key_2: simple_mapping_value_2",
-            "nested_sequence_field:",
+            "\"simple_mapping_field\":",
+            "  \"simple_mapping_key_0\": simple_mapping_value_0",
+            "  \"simple_mapping_key_1\": simple_mapping_value_1",
+            "  \"simple_mapping_key_2\": simple_mapping_value_2",
+            "\"nested_sequence_field\":",
             "  - |+",
             "    nested line 0",
             "    nested line 1",
             "    nested line 2",
-            "  - nested_mapping_key_0: nested_mapping_value_0",
-            "    nested_mapping_key_1: nested_mapping_value_1",
-            "    nested_mapping_key_2: nested_mapping_value_2",
+            "  - \"nested_mapping_key_0\": nested_mapping_value_0",
+            "    \"nested_mapping_key_1\": nested_mapping_value_1",
+            "    \"nested_mapping_key_2\": nested_mapping_value_2",
             "  -",
             "    - nested_sequence_member_0",
             "    - nested_sequence_member_1",
             "    - nested_sequence_member_2",
             "  - []",
             "  - {}",
-            "nested_mapping_field:",
-            "  deep_nested_multiline_text_field: |+",
+            "\"nested_mapping_field\":",
+            "  \"deep_nested_multiline_text_field\": |+",
             "    nested line 3",
             "    nested line 4",
             "    nested line 5",
-            "  deep_nested_mapping_field:",
-            "    nested_mapping_key_3: nested_mapping_value_3",
-            "    nested_mapping_key_4: nested_mapping_value_4",
-            "    nested_mapping_key_5: nested_mapping_value_5",
-            "  deep_nested_sequence_field:",
+            "  \"deep_nested_mapping_field\":",
+            "    \"nested_mapping_key_3\": nested_mapping_value_3",
+            "    \"nested_mapping_key_4\": nested_mapping_value_4",
+            "    \"nested_mapping_key_5\": nested_mapping_value_5",
+            "  \"deep_nested_sequence_field\":",
             "    - nested_sequence_member_3",
             "    - nested_sequence_member_4",
             "    - nested_sequence_member_5",
-            "  deep_nested_empty_sequence: []",
-            "  deep_nested_empty_mapping: {}");
+            "  \"deep_nested_empty_sequence\": []",
+            "  \"deep_nested_empty_mapping\": {}",
+            "\" key:with[some}special]tokens{ \": value:with[some}special]tokens{");
 
         private RootYAML SetupYamlFile(OutSideProxy proxy, string path)
         {
