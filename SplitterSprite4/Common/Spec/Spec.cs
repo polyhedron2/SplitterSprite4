@@ -192,6 +192,161 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             get => this.SubSpec[key];
         }
 
+        /// <summary>
+        /// Gets indexer for ranged integer accessor.
+        /// </summary>
+        /// <param name="parenthesisOpen">
+        /// ISO 31-11に則った区間表現の左括弧。'(', '[', ']'のいずれか。
+        /// Parenthesis open character for interval in accordance with ISO 31-11.
+        /// The character must be in '(', '[', or ']'.
+        /// </param>
+        /// <param name="leftBound">
+        /// 区間表現の下限。
+        /// The left bound of the interval.
+        /// </param>
+        /// <param name="rightBound">
+        /// 区間表現の上限。
+        /// The right bound of the interval.
+        /// </param>
+        /// <param name="parenthesisClose">
+        /// ISO 31-11に則った区間表現の右括弧。')', ']', '['のいずれか。
+        /// Parenthesis close character for interval in accordance with ISO 31-11.
+        /// The character must be in ')', ']', or '['.
+        /// </param>
+        /// <returns>Indexer for ranged interger accessor.</returns>
+        public ValueIndexer<int> Range(
+            char parenthesisOpen,
+            double leftBound,
+            double rightBound,
+            char parenthesisClose)
+        {
+            if (parenthesisOpen != '(' &&
+                parenthesisOpen != '[' &&
+                parenthesisOpen != ']')
+            {
+                throw new InvalidSpecDefinitionException(
+                    "Rangeアクセスの開き括弧に'(', '[', ']'以外の文字" +
+                    $"'{parenthesisOpen}'が用いられています。");
+            }
+
+            if (parenthesisClose != ')' &&
+                parenthesisClose != ']' &&
+                parenthesisClose != '[')
+            {
+                throw new InvalidSpecDefinitionException(
+                    "Rangeアクセスの閉じ括弧に')', ']', '['以外の文字" +
+                    $"'{parenthesisClose}'が用いられています。");
+            }
+
+            var leftInequality = (parenthesisOpen == '[') ? "≦" : "＜";
+            var rightInequality = (parenthesisClose == ']') ? "≦" : "＜";
+            var rangeText =
+                $"{leftBound}{leftInequality}x{rightInequality}{rightBound}";
+
+            // "leftBoundInt <= x < rightBoundInt" is equivalent condition for interger.
+            var leftBoundInt =
+                (parenthesisOpen == '[') ?
+                Math.Ceiling(leftBound) :
+                (Math.Floor(leftBound) + 1);
+            var rightBoundInt =
+                (parenthesisClose == ']') ?
+                (Math.Floor(rightBound) + 1) :
+                Math.Ceiling(rightBound);
+
+            if (leftBoundInt >= rightBoundInt)
+            {
+                throw new InvalidSpecDefinitionException(
+                    $"Rangeアクセス範囲({rangeText})に" +
+                    $"含まれる要素がありません。");
+            }
+
+            var moldingAccessCode =
+                $"Range, {parenthesisOpen}, {leftBound}," +
+                $" {rightBound}, {parenthesisClose}";
+
+            // 最小絶対値でMold用の値を作成
+            // moldingDefault has minimum absolute value.
+            var moldingDefault =
+                (leftBoundInt <= 0 && rightBoundInt > 0) ?
+                0 :
+                (leftBoundInt > 0) ?
+                ((int)leftBoundInt) :
+                ((int)(rightBoundInt - 1));
+
+            Func<int, bool> validator = (int val) =>
+            {
+                var leftBoundCheck =
+                    (parenthesisOpen == '[') ?
+                    (leftBound <= val) :
+                    (leftBound < val);
+                var rightBoundCheck =
+                    (parenthesisClose == ']') ?
+                    (val <= rightBound) :
+                    (val < rightBound);
+
+                return leftBoundCheck && rightBoundCheck;
+            };
+
+            return new ValueIndexer<int>(
+                this,
+                $"整数({rangeText})",
+                (value) =>
+                {
+                    var ret = int.Parse(value);
+
+                    if (!validator(ret))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return ret;
+                },
+                (value) =>
+                {
+                    if (!validator(value))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return value.ToString();
+                },
+                moldingAccessCode,
+                moldingDefault,
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
+        /// Gets indexer for ranged integer accessor.
+        /// </summary>
+        /// <param name="leftBound">
+        /// 区間表現の下限。
+        /// The left bound of the interval.
+        /// </param>
+        /// <param name="rightBound">
+        /// 区間表現の上限。
+        /// The right bound of the interval.
+        /// </param>
+        /// <returns>Indexer for ranged interger accessor.</returns>
+        public ValueIndexer<int> Range(
+            double leftBound,
+            double rightBound)
+        {
+            return this.Range('[', leftBound, rightBound, ')');
+        }
+
+        /// <summary>
+        /// Gets indexer for ranged integer accessor.
+        /// </summary>
+        /// <param name="rightBound">
+        /// 区間表現の上限。
+        /// The right bound of the interval.
+        /// </param>
+        /// <returns>Indexer for ranged interger accessor.</returns>
+        public ValueIndexer<int> Range(double rightBound)
+        {
+            return this.Range(0.0, rightBound);
+        }
+
         /// <inheritdoc/>
         public override string ToString()
         {
@@ -427,6 +582,39 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="cause">The innerException.</param>
             internal InvalidSpecAccessException(string id, string type, Exception cause)
                 : base($"{id}での{type}アクセス時に問題が発生しました。", cause)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Specアクセス時の型定義が不正である場合の例外。
+        /// The exception that is thrown when an attempt to
+        /// define a invalid spec type.
+        /// </summary>
+        public class InvalidSpecDefinitionException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidSpecDefinitionException"/> class.
+            /// </summary>
+            /// <param name="message">The exception message.</param>
+            internal InvalidSpecDefinitionException(string message)
+                : base(message)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Spec上の文字列を指定の型に変更する際の正当性チェックが失敗した際の例外。
+        /// The exception that is thrown when an attempt to
+        /// validate a invalid spec string.
+        /// </summary>
+        public class ValidationError : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ValidationError"/> class.
+            /// </summary>
+            internal ValidationError()
+                : base()
             {
             }
         }
