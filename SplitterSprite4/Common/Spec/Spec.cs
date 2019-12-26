@@ -316,6 +316,122 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets indexer for double presicion floating point number accessor
+        /// in an interval.
+        /// </summary>
+        /// <param name="parenthesisOpen">
+        /// ISO 31-11に則った区間表現の左括弧。'(', '[', ']'のいずれか。
+        /// Parenthesis open character for interval in accordance with ISO 31-11.
+        /// The character must be in '(', '[', or ']'.
+        /// </param>
+        /// <param name="leftBound">
+        /// 区間表現の下限。
+        /// The left bound of the interval.
+        /// </param>
+        /// <param name="rightBound">
+        /// 区間表現の上限。
+        /// The right bound of the interval.
+        /// </param>
+        /// <param name="parenthesisClose">
+        /// ISO 31-11に則った区間表現の右括弧。')', ']', '['のいずれか。
+        /// Parenthesis close character for interval in accordance with ISO 31-11.
+        /// The character must be in ')', ']', or '['.
+        /// </param>
+        /// <returns>Indexer for floating point number accesssor in an interval.</returns>
+        public ValueIndexer<double> Interval(
+            char parenthesisOpen,
+            double leftBound,
+            double rightBound,
+            char parenthesisClose)
+        {
+            if (parenthesisOpen != '(' &&
+                parenthesisOpen != '[' &&
+                parenthesisOpen != ']')
+            {
+                throw new InvalidSpecDefinitionException(
+                    "Intervalアクセスの開き括弧に'(', '[', ']'以外の文字" +
+                    $"'{parenthesisOpen}'が用いられています。");
+            }
+
+            if (parenthesisClose != ')' &&
+                parenthesisClose != ']' &&
+                parenthesisClose != '[')
+            {
+                throw new InvalidSpecDefinitionException(
+                    "Intervalアクセスの閉じ括弧に')', ']', '['以外の文字" +
+                    $"'{parenthesisClose}'が用いられています。");
+            }
+
+            var leftInequality = (parenthesisOpen == '[') ? "≦" : "＜";
+            var rightInequality = (parenthesisClose == ']') ? "≦" : "＜";
+            var rangeText =
+                $"{leftBound}{leftInequality}x{rightInequality}{rightBound}";
+
+            if (leftBound >= rightBound)
+            {
+                throw new InvalidSpecDefinitionException(
+                    $"Intervalアクセス範囲({rangeText})に" +
+                    $"含まれる要素がありません。");
+            }
+
+            var moldingAccessCode =
+                $"Interval, {parenthesisOpen}, {leftBound}," +
+                $" {rightBound}, {parenthesisClose}";
+
+            // 最小絶対値でMold用の値を作成
+            // moldingDefault has minimum absolute value.
+            var moldingDefault =
+                (leftBound < 0.0 && rightBound > 0.0) ?
+                0.0 :
+                double.IsNegativeInfinity(leftBound) ?
+                rightBound - 1.0 :
+                double.IsPositiveInfinity(rightBound) ?
+                leftBound + 1.0 :
+                (leftBound + rightBound) / 2.0;
+
+            Func<double, bool> validator = (double val) =>
+            {
+                var leftBoundCheck =
+                    (parenthesisOpen == '[') ?
+                    (leftBound <= val) :
+                    (leftBound < val);
+                var rightBoundCheck =
+                    (parenthesisClose == ']') ?
+                    (val <= rightBound) :
+                    (val < rightBound);
+
+                return leftBoundCheck && rightBoundCheck;
+            };
+
+            return new ValueIndexer<double>(
+                this,
+                $"実数({rangeText})",
+                (value) =>
+                {
+                    var ret = double.Parse(value);
+
+                    if (!validator(ret))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return ret;
+                },
+                (value) =>
+                {
+                    if (!validator(value))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return value.ToString();
+                },
+                moldingAccessCode,
+                moldingDefault,
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
         /// Gets indexer for ranged integer accessor.
         /// </summary>
         /// <param name="leftBound">
