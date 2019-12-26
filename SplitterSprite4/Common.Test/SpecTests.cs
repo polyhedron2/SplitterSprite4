@@ -68,13 +68,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines("key: value"));
+            this.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
 
             // assert
-            Assert.Equal("\"key\": value", spec.ToString());
+            Assert.Equal("\"key\": \"value\"", spec.ToString());
             Assert.Equal(path, spec.ID);
             Assert.Equal(expectedChildID, spec["child"].ID);
             Assert.Equal(expectedDeepChildID, spec["first"]["second"].ID);
@@ -91,7 +91,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString("foo.spec");
             this.SetupSpecFile(proxy, "foo.spec", Utility.JoinLines(
                 "\"properties\":",
-                "  \"key\": value"));
+                "  \"key\": \"value\""));
             var newLayer = new Layer(proxy, "new_layer", true);
             newLayer.Dependencies = new string[] { "layer" };
             newLayer.Save();
@@ -110,8 +110,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"key\": value",
-                    "  \"int0\": 0"),
+                    "  \"key\": \"value\"",
+                    "  \"int0\": \"0\""),
                 new SpecRoot(proxy, newPath).ToString());
 
             // act
@@ -126,9 +126,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"key\": value",
-                    "  \"int0\": 0",
-                    "  \"int1\": 1"),
+                    "  \"key\": \"value\"",
+                    "  \"int0\": \"0\"",
+                    "  \"int1\": \"1\""),
                 new SpecRoot(proxy, agnosticPath).ToString());
 
             // act
@@ -146,10 +146,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"key\": value",
-                    "  \"int0\": 0",
-                    "  \"int1\": 1",
-                    "  \"int2\": 2"),
+                    "  \"key\": \"value\"",
+                    "  \"int0\": \"0\"",
+                    "  \"int1\": \"1\"",
+                    "  \"int2\": \"2\""),
                 new SpecRoot(proxy, agnosticPath).ToString());
         }
 
@@ -168,11 +168,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"invalid\": dummy",
-                "  \"Answer to the Ultimate Question\": 42",
+                "  \"invalid\": \"dummy\"",
+                "  \"Answer to the Ultimate Question\": \"42\"",
                 "  \"taxi number\":",
-                "    \"first\": 2",
-                "    \"second\": 1729"));
+                "    \"first\": \"2\"",
+                "    \"second\": \"1729\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
@@ -211,12 +211,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": dummy",
-                    "  \"Answer to the Ultimate Question\": 24",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"Answer to the Ultimate Question\": \"24\"",
                     "  \"taxi number\":",
-                    "    \"first\": 2",
-                    "    \"second\": 1729",
-                    "    \"third\": 87539319"),
+                    "    \"first\": \"2\"",
+                    "    \"second\": \"1729\"",
+                    "    \"third\": \"87539319\""),
                 spec.ToString());
 
             // act
@@ -227,12 +227,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": dummy",
-                    "  \"Answer to the Ultimate Question\": 24",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"Answer to the Ultimate Question\": \"24\"",
                     "  \"taxi number\":",
-                    "    \"first\": 2",
-                    "    \"second\": 1729",
-                    "    \"third\": 87539319"),
+                    "    \"first\": \"2\"",
+                    "    \"second\": \"1729\"",
+                    "    \"third\": \"87539319\""),
                 reloadedSpec.ToString());
         }
 
@@ -251,11 +251,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"invalid\": dummy",
-                "  \"pi\": 3.14159265",
+                "  \"invalid\": \"dummy\"",
+                "  \"pi\": \"3.14159265\"",
                 "  \"square root\":",
-                "    \"first\": 1.00000000",
-                "    \"second\": 1.41421356"));
+                "    \"first\": \"1.00000000\"",
+                "    \"second\": \"1.41421356\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
@@ -294,12 +294,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": dummy",
-                    "  \"pi\": 3",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"pi\": \"3\"",
                     "  \"square root\":",
-                    "    \"first\": 1.00000000",
-                    "    \"second\": 1.41421356",
-                    "    \"third\": 1.73050807"),
+                    "    \"first\": \"1.00000000\"",
+                    "    \"second\": \"1.41421356\"",
+                    "    \"third\": \"1.73050807\""),
                 spec.ToString());
 
             // act
@@ -310,12 +310,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": dummy",
-                    "  \"pi\": 3",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"pi\": \"3\"",
                     "  \"square root\":",
-                    "    \"first\": 1.00000000",
-                    "    \"second\": 1.41421356",
-                    "    \"third\": 1.73050807"),
+                    "    \"first\": \"1.00000000\"",
+                    "    \"second\": \"1.41421356\"",
+                    "    \"third\": \"1.73050807\""),
                 reloadedSpec.ToString());
         }
 
@@ -334,11 +334,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"invalid\": dummy",
-                "  \"special\": True",
+                "  \"invalid\": \"dummy\"",
+                "  \"special\": \"True\"",
                 "  \"story flag\":",
-                "    \"first\": True",
-                "    \"second\": False"));
+                "    \"first\": \"True\"",
+                "    \"second\": \"False\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
@@ -377,12 +377,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": dummy",
-                    "  \"special\": False",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"special\": \"False\"",
                     "  \"story flag\":",
-                    "    \"first\": True",
-                    "    \"second\": False",
-                    "    \"third\": True"),
+                    "    \"first\": \"True\"",
+                    "    \"second\": \"False\"",
+                    "    \"third\": \"True\""),
                 spec.ToString());
 
             // act
@@ -393,12 +393,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": dummy",
-                    "  \"special\": False",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"special\": \"False\"",
                     "  \"story flag\":",
-                    "    \"first\": True",
-                    "    \"second\": False",
-                    "    \"third\": True"),
+                    "    \"first\": \"True\"",
+                    "    \"second\": \"False\"",
+                    "    \"third\": \"True\""),
                 reloadedSpec.ToString());
         }
 
@@ -417,11 +417,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"invalid\": True",
-                "  \"special\": YES",
+                "  \"invalid\": \"True\"",
+                "  \"special\": \"YES\"",
                 "  \"story flag\":",
-                "    \"first\": Yes",
-                "    \"second\": no"));
+                "    \"first\": \"Yes\"",
+                "    \"second\": \"no\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
@@ -460,12 +460,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": True",
-                    "  \"special\": no",
+                    "  \"invalid\": \"True\"",
+                    "  \"special\": \"no\"",
                     "  \"story flag\":",
-                    "    \"first\": Yes",
-                    "    \"second\": no",
-                    "    \"third\": yes"),
+                    "    \"first\": \"Yes\"",
+                    "    \"second\": \"no\"",
+                    "    \"third\": \"yes\""),
                 spec.ToString());
 
             // act
@@ -476,12 +476,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": True",
-                    "  \"special\": no",
+                    "  \"invalid\": \"True\"",
+                    "  \"special\": \"no\"",
                     "  \"story flag\":",
-                    "    \"first\": Yes",
-                    "    \"second\": no",
-                    "    \"third\": yes"),
+                    "    \"first\": \"Yes\"",
+                    "    \"second\": \"no\"",
+                    "    \"third\": \"yes\""),
                 reloadedSpec.ToString());
         }
 
@@ -500,11 +500,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"invalid\": True",
-                "  \"special\": ON",
+                "  \"invalid\": \"True\"",
+                "  \"special\": \"ON\"",
                 "  \"story flag\":",
-                "    \"first\": On",
-                "    \"second\": off"));
+                "    \"first\": \"On\"",
+                "    \"second\": \"off\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
@@ -543,12 +543,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": True",
-                    "  \"special\": off",
+                    "  \"invalid\": \"True\"",
+                    "  \"special\": \"off\"",
                     "  \"story flag\":",
-                    "    \"first\": On",
-                    "    \"second\": off",
-                    "    \"third\": on"),
+                    "    \"first\": \"On\"",
+                    "    \"second\": \"off\"",
+                    "    \"third\": \"on\""),
                 spec.ToString());
 
             // act
@@ -559,12 +559,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"invalid\": True",
-                    "  \"special\": off",
+                    "  \"invalid\": \"True\"",
+                    "  \"special\": \"off\"",
                     "  \"story flag\":",
-                    "    \"first\": On",
-                    "    \"second\": off",
-                    "    \"third\": on"),
+                    "    \"first\": \"On\"",
+                    "    \"second\": \"off\"",
+                    "    \"third\": \"on\""),
                 reloadedSpec.ToString());
         }
 
@@ -583,31 +583,31 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"left outer (-10, 10)\": -10",
-                "  \"left inner (-10, 10)\": -9",
-                "  \"middle (-10, 10)\": 0",
-                "  \"right inner (-10, 10)\": 9",
-                "  \"right outer (-10, 10)\": 10",
-                "  \"left outer [-20, 20]\": -21",
-                "  \"left inner [-20, 20]\": -20",
-                "  \"middle [-20, 20]\": 0",
-                "  \"right inner [-20, 20]\": 20",
-                "  \"right outer [-20, 20]\": 21",
-                "  \"left outer ]-30, 30[\": -30",
-                "  \"left inner ]-30, 30[\": -29",
-                "  \"middle ]-30, 30[\": 0",
-                "  \"right inner ]-30, 30[\": 29",
-                "  \"right outer ]-30, 30[\": 30",
-                "  \"[-∞, 0)\": -10000",
-                "  \"[0, ∞)\": 10000",
-                "  \"<-5, 5)\": 0",
-                "  \"[-5, 5>\": 0",
-                "  \"[5, -5]\": 0",
-                "  \"[0.25, 0.75]\": 0",
-                "  \"left outer [0, 10)\": -1",
-                "  \"left inner [0, 10)\": 0",
-                "  \"right inner [0, 10)\": 9",
-                "  \"right outer [0, 10)\": 10"));
+                "  \"left outer (-10, 10)\": \"-10\"",
+                "  \"left inner (-10, 10)\": \"-9\"",
+                "  \"middle (-10, 10)\": \"0\"",
+                "  \"right inner (-10, 10)\": \"9\"",
+                "  \"right outer (-10, 10)\": \"10\"",
+                "  \"left outer [-20, 20]\": \"-21\"",
+                "  \"left inner [-20, 20]\": \"-20\"",
+                "  \"middle [-20, 20]\": \"0\"",
+                "  \"right inner [-20, 20]\": \"20\"",
+                "  \"right outer [-20, 20]\": \"21\"",
+                "  \"left outer ]-30, 30[\": \"-30\"",
+                "  \"left inner ]-30, 30[\": \"-29\"",
+                "  \"middle ]-30, 30[\": \"0\"",
+                "  \"right inner ]-30, 30[\": \"29\"",
+                "  \"right outer ]-30, 30[\": \"30\"",
+                "  \"[-∞, 0)\": \"-10000\"",
+                "  \"[0, ∞)\": \"10000\"",
+                "  \"<-5, 5)\": \"0\"",
+                "  \"[-5, 5>\": \"0\"",
+                "  \"[5, -5]\": \"0\"",
+                "  \"[0.25, 0.75]\": \"0\"",
+                "  \"left outer [0, 10)\": \"-1\"",
+                "  \"left inner [0, 10)\": \"0\"",
+                "  \"right inner [0, 10)\": \"9\"",
+                "  \"right outer [0, 10)\": \"10\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath);
@@ -727,33 +727,33 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                 "\"properties\":",
-                "  \"left outer (-10, 10)\": -10",
-                "  \"left inner (-10, 10)\": -9",
-                "  \"middle (-10, 10)\": 0",
-                "  \"right inner (-10, 10)\": 9",
-                "  \"right outer (-10, 10)\": 10",
-                "  \"left outer [-20, 20]\": -21",
-                "  \"left inner [-20, 20]\": -20",
-                "  \"middle [-20, 20]\": 0",
-                "  \"right inner [-20, 20]\": 20",
-                "  \"right outer [-20, 20]\": 21",
-                "  \"left outer ]-30, 30[\": -30",
-                "  \"left inner ]-30, 30[\": -29",
-                "  \"middle ]-30, 30[\": 0",
-                "  \"right inner ]-30, 30[\": 29",
-                "  \"right outer ]-30, 30[\": 30",
-                "  \"[-∞, 0)\": -10000",
-                "  \"[0, ∞)\": 10000",
-                "  \"<-5, 5)\": 0",
-                "  \"[-5, 5>\": 0",
-                "  \"[5, -5]\": 0",
-                "  \"[0.25, 0.75]\": 0",
-                "  \"left outer [0, 10)\": -1",
-                "  \"left inner [0, 10)\": 0",
-                "  \"right inner [0, 10)\": 9",
-                "  \"right outer [0, 10)\": 10",
-                "  \"new value left\": 0",
-                "  \"new value right\": 9"),
+                "  \"left outer (-10, 10)\": \"-10\"",
+                "  \"left inner (-10, 10)\": \"-9\"",
+                "  \"middle (-10, 10)\": \"0\"",
+                "  \"right inner (-10, 10)\": \"9\"",
+                "  \"right outer (-10, 10)\": \"10\"",
+                "  \"left outer [-20, 20]\": \"-21\"",
+                "  \"left inner [-20, 20]\": \"-20\"",
+                "  \"middle [-20, 20]\": \"0\"",
+                "  \"right inner [-20, 20]\": \"20\"",
+                "  \"right outer [-20, 20]\": \"21\"",
+                "  \"left outer ]-30, 30[\": \"-30\"",
+                "  \"left inner ]-30, 30[\": \"-29\"",
+                "  \"middle ]-30, 30[\": \"0\"",
+                "  \"right inner ]-30, 30[\": \"29\"",
+                "  \"right outer ]-30, 30[\": \"30\"",
+                "  \"[-∞, 0)\": \"-10000\"",
+                "  \"[0, ∞)\": \"10000\"",
+                "  \"<-5, 5)\": \"0\"",
+                "  \"[-5, 5>\": \"0\"",
+                "  \"[5, -5]\": \"0\"",
+                "  \"[0.25, 0.75]\": \"0\"",
+                "  \"left outer [0, 10)\": \"-1\"",
+                "  \"left inner [0, 10)\": \"0\"",
+                "  \"right inner [0, 10)\": \"9\"",
+                "  \"right outer [0, 10)\": \"10\"",
+                "  \"new value left\": \"0\"",
+                "  \"new value right\": \"9\""),
                 spec.ToString());
 
             // act
@@ -764,33 +764,33 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                 "\"properties\":",
-                "  \"left outer (-10, 10)\": -10",
-                "  \"left inner (-10, 10)\": -9",
-                "  \"middle (-10, 10)\": 0",
-                "  \"right inner (-10, 10)\": 9",
-                "  \"right outer (-10, 10)\": 10",
-                "  \"left outer [-20, 20]\": -21",
-                "  \"left inner [-20, 20]\": -20",
-                "  \"middle [-20, 20]\": 0",
-                "  \"right inner [-20, 20]\": 20",
-                "  \"right outer [-20, 20]\": 21",
-                "  \"left outer ]-30, 30[\": -30",
-                "  \"left inner ]-30, 30[\": -29",
-                "  \"middle ]-30, 30[\": 0",
-                "  \"right inner ]-30, 30[\": 29",
-                "  \"right outer ]-30, 30[\": 30",
-                "  \"[-∞, 0)\": -10000",
-                "  \"[0, ∞)\": 10000",
-                "  \"<-5, 5)\": 0",
-                "  \"[-5, 5>\": 0",
-                "  \"[5, -5]\": 0",
-                "  \"[0.25, 0.75]\": 0",
-                "  \"left outer [0, 10)\": -1",
-                "  \"left inner [0, 10)\": 0",
-                "  \"right inner [0, 10)\": 9",
-                "  \"right outer [0, 10)\": 10",
-                "  \"new value left\": 0",
-                "  \"new value right\": 9"),
+                "  \"left outer (-10, 10)\": \"-10\"",
+                "  \"left inner (-10, 10)\": \"-9\"",
+                "  \"middle (-10, 10)\": \"0\"",
+                "  \"right inner (-10, 10)\": \"9\"",
+                "  \"right outer (-10, 10)\": \"10\"",
+                "  \"left outer [-20, 20]\": \"-21\"",
+                "  \"left inner [-20, 20]\": \"-20\"",
+                "  \"middle [-20, 20]\": \"0\"",
+                "  \"right inner [-20, 20]\": \"20\"",
+                "  \"right outer [-20, 20]\": \"21\"",
+                "  \"left outer ]-30, 30[\": \"-30\"",
+                "  \"left inner ]-30, 30[\": \"-29\"",
+                "  \"middle ]-30, 30[\": \"0\"",
+                "  \"right inner ]-30, 30[\": \"29\"",
+                "  \"right outer ]-30, 30[\": \"30\"",
+                "  \"[-∞, 0)\": \"-10000\"",
+                "  \"[0, ∞)\": \"10000\"",
+                "  \"<-5, 5)\": \"0\"",
+                "  \"[-5, 5>\": \"0\"",
+                "  \"[5, -5]\": \"0\"",
+                "  \"[0.25, 0.75]\": \"0\"",
+                "  \"left outer [0, 10)\": \"-1\"",
+                "  \"left inner [0, 10)\": \"0\"",
+                "  \"right inner [0, 10)\": \"9\"",
+                "  \"right outer [0, 10)\": \"10\"",
+                "  \"new value left\": \"0\"",
+                "  \"new value right\": \"9\""),
                 reloadedSpec.ToString());
         }
 
@@ -890,15 +890,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromDerivedToIntermadiateStr}",
                     "\"properties\":",
-                    "  \"100\": 0",
-                    "  \"101\": 0",
-                    "  \"110\": 0",
-                    "  \"111\": 0",
+                    "  \"100\": \"0\"",
+                    "  \"101\": \"0\"",
+                    "  \"110\": \"0\"",
+                    "  \"111\": \"0\"",
                     "  \"inner\":",
-                    "    \"100\": 0",
-                    "    \"101\": 0",
-                    "    \"110\": 0",
-                    "    \"111\": 0"));
+                    "    \"100\": \"0\"",
+                    "    \"101\": \"0\"",
+                    "    \"110\": \"0\"",
+                    "    \"111\": \"0\""));
             this.SetupSpecFile(
                 proxy,
                 intermediateSpecLayerName,
@@ -906,30 +906,30 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromIntermediateToBaseStr}",
                     "\"properties\":",
-                    "  \"010\": 1",
-                    "  \"011\": 1",
-                    "  \"110\": 1",
-                    "  \"111\": 1",
+                    "  \"010\": \"1\"",
+                    "  \"011\": \"1\"",
+                    "  \"110\": \"1\"",
+                    "  \"111\": \"1\"",
                     "  \"inner\":",
-                    "    \"010\": 1",
-                    "    \"011\": 1",
-                    "    \"110\": 1",
-                    "    \"111\": 1"));
+                    "    \"010\": \"1\"",
+                    "    \"011\": \"1\"",
+                    "    \"110\": \"1\"",
+                    "    \"111\": \"1\""));
             this.SetupSpecFile(
                 proxy,
                 baseSpecLayerName,
                 baseSpecPathStr,
                 Utility.JoinLines(
                     "\"properties\":",
-                    "  \"001\": 2",
-                    "  \"011\": 2",
-                    "  \"101\": 2",
-                    "  \"111\": 2",
+                    "  \"001\": \"2\"",
+                    "  \"011\": \"2\"",
+                    "  \"101\": \"2\"",
+                    "  \"111\": \"2\"",
                     "  \"inner\":",
-                    "    \"001\": 2",
-                    "    \"011\": 2",
-                    "    \"101\": 2",
-                    "    \"111\": 2"));
+                    "    \"001\": \"2\"",
+                    "    \"011\": \"2\"",
+                    "    \"101\": \"2\"",
+                    "    \"111\": \"2\""));
 
             // act
             var derivedSpec = new SpecRoot(proxy, derivedSpecPath);
@@ -1072,15 +1072,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromFirstToSecondStr}",
                     "\"properties\":",
-                    "  \"100\": 0",
-                    "  \"101\": 0",
-                    "  \"110\": 0",
-                    "  \"111\": 0",
+                    "  \"100\": \"0\"",
+                    "  \"101\": \"0\"",
+                    "  \"110\": \"0\"",
+                    "  \"111\": \"0\"",
                     "  \"inner\":",
-                    "    \"100\": 0",
-                    "    \"101\": 0",
-                    "    \"110\": 0",
-                    "    \"111\": 0"));
+                    "    \"100\": \"0\"",
+                    "    \"101\": \"0\"",
+                    "    \"110\": \"0\"",
+                    "    \"111\": \"0\""));
             this.SetupSpecFile(
                 proxy,
                 secondSpecLayerName,
@@ -1088,15 +1088,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromSecondToThirdStr}",
                     "\"properties\":",
-                    "  \"010\": 1",
-                    "  \"011\": 1",
-                    "  \"110\": 1",
-                    "  \"111\": 1",
+                    "  \"010\": \"1\"",
+                    "  \"011\": \"1\"",
+                    "  \"110\": \"1\"",
+                    "  \"111\": \"1\"",
                     "  \"inner\":",
-                    "    \"010\": 1",
-                    "    \"011\": 1",
-                    "    \"110\": 1",
-                    "    \"111\": 1"));
+                    "    \"010\": \"1\"",
+                    "    \"011\": \"1\"",
+                    "    \"110\": \"1\"",
+                    "    \"111\": \"1\""));
             this.SetupSpecFile(
                 proxy,
                 thirdSpecLayerName,
@@ -1104,15 +1104,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromThirdToFirstStr}",
                     "\"properties\":",
-                    "  \"001\": 2",
-                    "  \"011\": 2",
-                    "  \"101\": 2",
-                    "  \"111\": 2",
+                    "  \"001\": \"2\"",
+                    "  \"011\": \"2\"",
+                    "  \"101\": \"2\"",
+                    "  \"111\": \"2\"",
                     "  \"inner\":",
-                    "    \"001\": 2",
-                    "    \"011\": 2",
-                    "    \"101\": 2",
-                    "    \"111\": 2"));
+                    "    \"001\": \"2\"",
+                    "    \"011\": \"2\"",
+                    "    \"101\": \"2\"",
+                    "    \"111\": \"2\""));
 
             // act
             var firstSpec = new SpecRoot(proxy, firstSpecPath);
@@ -1185,7 +1185,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Utility.JoinLines(
                     $"\"base\": {relativeBasePathStr}",
                     "\"properties\":",
-                    "  \"defined\": 0"));
+                    "  \"defined\": \"0\""));
 
             // act
             var spec = new SpecRoot(proxy, derivedSpecPath);
@@ -1234,21 +1234,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"base\": Spec",
+                    "\"base\": \"Spec\"",
                     "\"properties\":",
-                    "  \"foo\": Int",
-                    "  \"bar\": Double",
-                    "  \"baz\": Bool",
-                    "  \"qux\": YesNo",
-                    "  \"quux\": OnOff",
-                    "  \"corge\": Range, (, -1, 5, ]",
+                    "  \"foo\": \"Int\"",
+                    "  \"bar\": \"Double\"",
+                    "  \"baz\": \"Bool\"",
+                    "  \"qux\": \"YesNo\"",
+                    "  \"quux\": \"OnOff\"",
+                    "  \"corge\": \"Range, (, -1, 5, ]\"",
                     "  \"inner\":",
-                    "    \"inner int\": Int",
-                    "    \"inner double\": Double",
+                    "    \"inner int\": \"Int\"",
+                    "    \"inner double\": \"Double\"",
                     "    \"inner inner\":",
-                    "      \"inner inner int\": Int",
-                    "  \"after inner\": Int",
-                    "  \"日本語キー\": Int"),
+                    "      \"inner inner int\": \"Int\"",
+                    "  \"after inner\": \"Int\"",
+                    "  \"日本語キー\": \"Int\""),
                 mold.ToString());
         }
 
@@ -1289,21 +1289,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"base\": Spec",
+                    "\"base\": \"Spec\"",
                     "\"properties\":",
-                    "  \"foo\": Int, 10",
-                    "  \"bar\": Double, 3.14",
-                    "  \"baz\": Bool, True",
-                    "  \"qux\": YesNo, no",
-                    "  \"quux\": OnOff, on",
-                    "  \"corge\": Range, (, -1, 5, ], 3",
+                    "  \"foo\": \"Int, 10\"",
+                    "  \"bar\": \"Double, 3.14\"",
+                    "  \"baz\": \"Bool, True\"",
+                    "  \"qux\": \"YesNo, no\"",
+                    "  \"quux\": \"OnOff, on\"",
+                    "  \"corge\": \"Range, (, -1, 5, ], 3\"",
                     "  \"inner\":",
-                    "    \"inner int\": Int, 100",
-                    "    \"inner double\": Double, 2.71",
+                    "    \"inner int\": \"Int, 100\"",
+                    "    \"inner double\": \"Double, 2.71\"",
                     "    \"inner inner\":",
-                    "      \"inner inner int\": Int, -1",
-                    "  \"after inner\": Int, 1024",
-                    "  \"日本語キー\": Int, 0"),
+                    "      \"inner inner int\": \"Int, -1\"",
+                    "  \"after inner\": \"Int, 1024\"",
+                    "  \"日本語キー\": \"Int, 0\""),
                 mold.ToString());
         }
 
@@ -1332,7 +1332,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                $"  \"default\": {dynamicDefault}"));
+                $"  \"default\": \"{dynamicDefault}\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath, true);
@@ -1346,10 +1346,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"base\": Spec",
+                    "\"base\": \"Spec\"",
                     "\"properties\":",
-                    "  \"default\": Int",
-                    $"  \"foo\": Int, {dynamicDefault}"),
+                    "  \"default\": \"Int\"",
+                    $"  \"foo\": \"Int, {dynamicDefault}\""),
                 mold.ToString());
         }
 
@@ -1375,7 +1375,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             this.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                $"  \"flag\": {dynamicSwitch}"));
+                $"  \"flag\": \"{dynamicSwitch}\""));
 
             // act
             var spec = new SpecRoot(proxy, agnosticPath, true);
@@ -1398,20 +1398,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             {
                 Assert.Equal(
                     Utility.JoinLines(
-                        "\"base\": Spec",
+                        "\"base\": \"Spec\"",
                         "\"properties\":",
-                        "  \"flag\": Bool",
-                        "  \"foo\": Int"),
+                        "  \"flag\": \"Bool\"",
+                        "  \"foo\": \"Int\""),
                     mold.ToString());
             }
             else
             {
                 Assert.Equal(
                     Utility.JoinLines(
-                        "\"base\": Spec",
+                        "\"base\": \"Spec\"",
                         "\"properties\":",
-                        "  \"flag\": Bool",
-                        "  \"bar\": Double"),
+                        "  \"flag\": \"Bool\"",
+                        "  \"bar\": \"Double\""),
                     mold.ToString());
             }
         }
@@ -1442,12 +1442,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var derivedPath =
                 AgnosticPath.FromAgnosticPathString(derivedPathStr);
             this.SetupSpecFile(proxy, derivedPathStr, Utility.JoinLines(
-                $"\"base\": {relativeBasePathStr}",
+                $"\"base\": \"{relativeBasePathStr}\"",
                 "\"properties\":",
-                $"  \"derived\": {derivedValue}"));
+                $"  \"derived\": \"{derivedValue}\""));
             this.SetupSpecFile(proxy, basePathStr, Utility.JoinLines(
                 "\"properties\":",
-                $"  \"base\": {baseValue}"));
+                $"  \"base\": \"{baseValue}\""));
 
             // act
             var derivedSpec = new SpecRoot(proxy, derivedPath, true);
@@ -1462,11 +1462,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"base\": Spec",
+                    "\"base\": \"Spec\"",
                     "\"properties\":",
-                    "  \"derived\": Int",
-                    "  \"base\": Int",
-                    $"  \"dynamic\": Int, {baseValue}"),
+                    "  \"derived\": \"Int\"",
+                    "  \"base\": \"Int\"",
+                    $"  \"dynamic\": \"Int, {baseValue}\""),
                 mold.ToString());
         }
 

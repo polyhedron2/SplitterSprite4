@@ -56,7 +56,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 try
                 {
                     var baseRelativePath = AgnosticPath.FromAgnosticPathString(
-                        this.Body.Scalar["base"].ToString());
+                        this.Body.Scalar["base"].Value);
                     var baseLayeredPath =
                         this.LayeredFile.Path.Parent + baseRelativePath;
                     return new SpecRoot(this.Proxy, baseLayeredPath);

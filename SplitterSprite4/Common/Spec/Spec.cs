@@ -442,7 +442,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         try
                         {
                             return this.getter(
-                                this.parent.Properties.Scalar[key].ToString());
+                                this.parent.Properties.Scalar[key].Value);
                         }
                         catch (YAML.YAMLKeyUndefinedException ex)
                         {
@@ -525,7 +525,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         try
                         {
                             return this.getter(
-                                this.parent.Properties.Scalar[key].ToString());
+                                this.parent.Properties.Scalar[key].Value);
                         }
                         catch (YAML.YAMLKeyUndefinedException)
                         {

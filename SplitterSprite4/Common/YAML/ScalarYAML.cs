@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using YamlDotNet.RepresentationModel;
 
     /// <summary>
@@ -45,6 +46,19 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             {
                 this.Value = scalar.Value;
             }
+
+            // Scalarが複数行テキストの場合、各行の前後のダブルクォートが残るため削除
+            // In multi-line text scalar case, remove
+            // double quotation at the head and tail of the lines.
+            if (this.IsMultiLine)
+            {
+                this.Value = string.Join(
+                    "\n",
+                    this.Value.Split(
+                        new string[] { "\n" },
+                        StringSplitOptions.None).Select(
+                        line => line.Substring(1, line.Length - 2)));
+            }
         }
 
         /// <summary>
@@ -55,14 +69,18 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             get => this.Value.Contains("\n");
         }
 
-        private string Value { get; set; }
+        /// <summary>
+        /// Gets a value of this Scalar.
+        /// </summary>
+        public string Value { get; private set; }
 
         /// <inheritdoc/>
         public override IEnumerable<string> ToStringLines(
             bool ignoreEmptyMappingChild)
         {
             return this.Value.Split(
-                new string[] { "\n" }, StringSplitOptions.None);
+                new string[] { "\n" }, StringSplitOptions.None).Select(
+                line => $"\"{line}\"");
         }
     }
 }

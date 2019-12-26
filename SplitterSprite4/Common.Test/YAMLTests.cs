@@ -116,9 +116,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var loadBody = Utility.JoinLines(
-                "\"scalar_key\": scalar_value",
+                "\"scalar_key\": \"scalar_value\"",
                 "\"list_key\":",
-                "  - foo",
+                "  - \"foo\"",
                 "  - []",
                 "  - {}",
                 "  -",
@@ -128,7 +128,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "  - \"first\": []",
                 "  - \"second\": {}",
                 "\"mapping_key\":",
-                "  \"first\": bar",
+                "  \"first\": \"bar\"",
                 "  \"second\": []",
                 "  \"third\": {}",
                 "  \"fourth\":",
@@ -140,9 +140,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "  \"seventh\":",
                 "    \"first\": {}");
             var saveBody = Utility.JoinLines(
-                "\"scalar_key\": scalar_value",
+                "\"scalar_key\": \"scalar_value\"",
                 "\"list_key\":",
-                "  - foo",
+                "  - \"foo\"",
                 "  - []",
                 "  - {}",
                 "  -",
@@ -152,7 +152,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "  - {}",
                 "  - {}",
                 "\"mapping_key\":",
-                "  \"first\": bar",
+                "  \"first\": \"bar\"",
                 "  \"fourth\":",
                 "    - []",
                 "  \"fifth\":",
@@ -184,15 +184,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             RootYAML yaml = this.SetupYamlFile(proxy, path);
             Assert.Equal(
                 Utility.JoinLines(
-                    "- sqeuence_member_0",
-                    "- sqeuence_member_1",
-                    "- sqeuence_member_2"),
+                    "- \"sqeuence_member_0\"",
+                    "- \"sqeuence_member_1\"",
+                    "- \"sqeuence_member_2\""),
                 yaml["simple_sequence_field"].ToString());
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"simple_mapping_key_0\": simple_mapping_value_0",
-                    "\"simple_mapping_key_1\": simple_mapping_value_1",
-                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": \"simple_mapping_value_0\"",
+                    "\"simple_mapping_key_1\": \"simple_mapping_value_1\"",
+                    "\"simple_mapping_key_2\": \"simple_mapping_value_2\""),
                 yaml["simple_mapping_field"].ToString());
 
             // act
@@ -202,13 +202,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal(
                 Utility.JoinLines(
-                    "- sqeuence_member_0",
-                    "- sqeuence_member_2"),
+                    "- \"sqeuence_member_0\"",
+                    "- \"sqeuence_member_2\""),
                 yaml["simple_sequence_field"].ToString());
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"simple_mapping_key_0\": simple_mapping_value_0",
-                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": \"simple_mapping_value_0\"",
+                    "\"simple_mapping_key_2\": \"simple_mapping_value_2\""),
                 yaml["simple_mapping_field"].ToString());
         }
 
@@ -232,7 +232,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 yaml.Scalar["scalar_field"].ID);
 
             Assert.Equal(
-                "scalar_value",
+                "\"scalar_value\"",
                 yaml.Scalar["scalar_field"].ToString());
 
             Assert.Equal(
@@ -240,7 +240,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 yaml.Scalar["multiline_text_field"].ID);
 
             Assert.Equal(
-                Utility.JoinLines("line 0", "line 1", "line 2"),
+                Utility.JoinLines("\"line 0\"", "\"line 1\"", "\"line 2\""),
                 yaml.Scalar["multiline_text_field"].ToString());
 
             Assert.Throws<YAML.YAMLTypeSlipException<ScalarYAML>>(() =>
@@ -279,13 +279,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             Assert.Equal(
                 Utility.JoinLines(
-                    "- sqeuence_member_0",
-                    "- sqeuence_member_1",
-                    "- sqeuence_member_2"),
+                    "- \"sqeuence_member_0\"",
+                    "- \"sqeuence_member_1\"",
+                    "- \"sqeuence_member_2\""),
                 yaml.Sequence["simple_sequence_field"].ToString());
 
             Assert.Equal(
-                "sqeuence_member_0",
+                "\"sqeuence_member_0\"",
                 yaml.Sequence["simple_sequence_field"][0].ToString());
 
             Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
@@ -324,13 +324,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"simple_mapping_key_0\": simple_mapping_value_0",
-                    "\"simple_mapping_key_1\": simple_mapping_value_1",
-                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": \"simple_mapping_value_0\"",
+                    "\"simple_mapping_key_1\": \"simple_mapping_value_1\"",
+                    "\"simple_mapping_key_2\": \"simple_mapping_value_2\""),
                 yaml.Mapping["simple_mapping_field"].ToString());
 
             Assert.Equal(
-                "simple_mapping_value_0",
+                "\"simple_mapping_value_0\"",
                 yaml.Mapping[
                     "simple_mapping_field"][
                     "simple_mapping_key_0"].ToString());
@@ -370,7 +370,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 yaml["scalar_field", new ScalarYAML("dummy")].ID);
 
             Assert.Equal(
-                "scalar_value",
+                "\"scalar_value\"",
                 yaml["scalar_field", new ScalarYAML("dummy")].ToString());
 
             var multilineDefaultResult = yaml.Scalar[
@@ -381,7 +381,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 multilineDefaultResult.ID);
 
             Assert.Equal(
-                Utility.JoinLines("line 0", "line 1", "line 2"),
+                Utility.JoinLines("\"line 0\"", "\"line 1\"", "\"line 2\""),
                 multilineDefaultResult.ToString());
 
             Assert.Throws<YAML.YAMLTypeSlipException<ScalarYAML>>(() =>
@@ -398,7 +398,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             Assert.Equal(
-                "dummy",
+                "\"dummy\"",
                 yaml[
                     "undefined_field",
                     new ScalarYAML("dummy")].ToString());
@@ -432,9 +432,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             Assert.Equal(
                 Utility.JoinLines(
-                    "- sqeuence_member_0",
-                    "- sqeuence_member_1",
-                    "- sqeuence_member_2"),
+                    "- \"sqeuence_member_0\"",
+                    "- \"sqeuence_member_1\"",
+                    "- \"sqeuence_member_2\""),
                 sequenceDefaultResult.ToString());
 
             Assert.Throws<YAML.YAMLTypeSlipException<SequenceYAML>>(() =>
@@ -449,7 +449,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             Assert.Equal(
-                "- dummy",
+                "- \"dummy\"",
                 yaml["undefined_field", defaultValue].ToString());
         }
 
@@ -478,9 +478,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"simple_mapping_key_0\": simple_mapping_value_0",
-                    "\"simple_mapping_key_1\": simple_mapping_value_1",
-                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": \"simple_mapping_value_0\"",
+                    "\"simple_mapping_key_1\": \"simple_mapping_value_1\"",
+                    "\"simple_mapping_key_2\": \"simple_mapping_value_2\""),
                 yaml.Mapping["simple_mapping_field", defaultValue].ToString());
 
             Assert.Throws<YAML.YAMLTypeSlipException<MappingYAML>>(() =>
@@ -494,7 +494,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             Assert.Equal(
-                "\"dummy_key\": dummy_value",
+                "\"dummy_key\": \"dummy_value\"",
                 yaml["undefined_field", defaultValue].ToString());
         }
 
@@ -542,16 +542,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     yaml.Scalar["multiline_undefined_field"].ID);
 
                 Assert.Equal(
-                    "new_value_1",
+                    "\"new_value_1\"",
                     yaml.Scalar["scalar_field"].ToString());
                 Assert.Equal(
-                    Utility.JoinLines("new_line_1", "new_line_2"),
+                    Utility.JoinLines("\"new_line_1\"", "\"new_line_2\""),
                     yaml.Scalar["multiline_text_field"].ToString());
                 Assert.Equal(
-                    "new_value_2",
+                    "\"new_value_2\"",
                     yaml.Scalar["undefined_field"].ToString());
                 Assert.Equal(
-                    Utility.JoinLines("new_line_3", "new_line_4"),
+                    Utility.JoinLines("\"new_line_3\"", "\"new_line_4\""),
                     yaml.Scalar["multiline_undefined_field"].ToString());
             }
 
@@ -601,10 +601,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     yaml.Sequence["undefined_field"].ID);
 
                 Assert.Equal(
-                    Utility.JoinLines("- new_value_1_1", "- new_value_1_2"),
+                    Utility.JoinLines("- \"new_value_1_1\"", "- \"new_value_1_2\""),
                     yaml.Sequence["simple_sequence_field"].ToString());
                 Assert.Equal(
-                    Utility.JoinLines("- new_value_2_1", "- new_value_2_2"),
+                    Utility.JoinLines("- \"new_value_2_1\"", "- \"new_value_2_2\""),
                     yaml.Sequence["undefined_field"].ToString());
             }
 
@@ -655,13 +655,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
                 Assert.Equal(
                     Utility.JoinLines(
-                        "\"new_key_1_1\": new_value_1_1",
-                        "\"new_key_1_2\": new_value_1_2"),
+                        "\"new_key_1_1\": \"new_value_1_1\"",
+                        "\"new_key_1_2\": \"new_value_1_2\""),
                     yaml.Mapping["simple_mapping_field"].ToString());
                 Assert.Equal(
                     Utility.JoinLines(
-                        "\"new_key_2_1\": new_value_2_1",
-                        "\"new_key_2_2\": new_value_2_2"),
+                        "\"new_key_2_1\": \"new_value_2_1\"",
+                        "\"new_key_2_2\": \"new_value_2_2\""),
                     yaml.Mapping["undefined_field"].ToString());
             }
 
@@ -688,72 +688,72 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // 型に合わせてYAMLを読み進める
 
             // Scalarは自動でScalarとして読まれる
-            Assert.Equal("scalar_value", yaml["scalar_field"].ToString());
+            Assert.Equal("\"scalar_value\"", yaml["scalar_field"].ToString());
 
             // 複数行でも同様
             Assert.Equal(
-                Utility.JoinLines("line 0", "line 1", "line 2"),
+                Utility.JoinLines("\"line 0\"", "\"line 1\"", "\"line 2\""),
                 yaml["multiline_text_field"].ToString());
 
             // Sequenceは自動でSequenceとして読まれる
             Assert.Equal(
                 Utility.JoinLines(
-                    "- sqeuence_member_0",
-                    "- sqeuence_member_1",
-                    "- sqeuence_member_2"),
+                    "- \"sqeuence_member_0\"",
+                    "- \"sqeuence_member_1\"",
+                    "- \"sqeuence_member_2\""),
                 yaml["simple_sequence_field"].ToString());
 
             // 整数インデクサでの個別アクセスも可能
             Assert.Equal(
-                "sqeuence_member_0",
+                "\"sqeuence_member_0\"",
                 yaml["simple_sequence_field"][0].ToString());
 
             // Mappingは自動でMappingとして読まれる
             Assert.Equal(
                 Utility.JoinLines(
-                    "\"simple_mapping_key_0\": simple_mapping_value_0",
-                    "\"simple_mapping_key_1\": simple_mapping_value_1",
-                    "\"simple_mapping_key_2\": simple_mapping_value_2"),
+                    "\"simple_mapping_key_0\": \"simple_mapping_value_0\"",
+                    "\"simple_mapping_key_1\": \"simple_mapping_value_1\"",
+                    "\"simple_mapping_key_2\": \"simple_mapping_value_2\""),
                 yaml["simple_mapping_field"].ToString());
 
             // 文字列インデクサでの個別アクセスも可能
             Assert.Equal(
-                "simple_mapping_value_0",
+                "\"simple_mapping_value_0\"",
                 yaml[
                     "simple_mapping_field"][
                     "simple_mapping_key_0"].ToString());
 
             // SequenceとMappingのネスト構造へのアクセスも可能
             Assert.Equal(
-                "nested_mapping_value_0",
+                "\"nested_mapping_value_0\"",
                 yaml[
                     "nested_sequence_field"][1][
                     "nested_mapping_key_0"].ToString());
             Assert.Equal(
-                "nested_sequence_member_0",
+                "\"nested_sequence_member_0\"",
                 yaml["nested_sequence_field"][2][0].ToString());
             Assert.Equal(
-                "nested_mapping_value_3",
+                "\"nested_mapping_value_3\"",
                 yaml[
                     "nested_mapping_field"][
                     "deep_nested_mapping_field"][
                     "nested_mapping_key_3"].ToString());
             Assert.Equal(
-                "nested_sequence_member_3",
+                "\"nested_sequence_member_3\"",
                 yaml[
                     "nested_mapping_field"][
                     "deep_nested_sequence_field"][0].ToString());
 
             // 整数インデクサでのデフォルト値使用も可能
             Assert.Equal(
-                "default",
+                "\"default\"",
                 yaml[
                     "simple_sequence_field"][
                     100, new ScalarYAML("default")].ToString());
 
             // 文字列インデクサでのデフォルト値使用も可能
             Assert.Equal(
-                "default",
+                "\"default\"",
                 yaml[
                     "simple_mapping_field"][
                     "simple_mapping_key_100", new ScalarYAML("default")]
@@ -766,7 +766,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         { "new key", new ScalarYAML("new value") },
                 };
             Assert.Equal(
-                "\"new key\": new value",
+                "\"new key\": \"new value\"",
                 yaml["simple_sequence_field"][0].ToString());
 
             // 文字列インデクサでの上書きも可能
@@ -776,7 +776,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         new ScalarYAML("new value"),
                 };
             Assert.Equal(
-                "- new value",
+                "- \"new value\"",
                 yaml[
                     "simple_mapping_field"][
                     "simple_mapping_key_0"].ToString());
@@ -809,49 +809,49 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         private string TestYAMLBody() => Utility.JoinLines(
-            "\"scalar_field\": scalar_value",
+            "\"scalar_field\": \"scalar_value\"",
             "\"multiline_text_field\": |+",
-            "  line 0",
-            "  line 1",
-            "  line 2",
+            "  \"line 0\"",
+            "  \"line 1\"",
+            "  \"line 2\"",
             "\"simple_sequence_field\":",
-            "  - sqeuence_member_0",
-            "  - sqeuence_member_1",
-            "  - sqeuence_member_2",
+            "  - \"sqeuence_member_0\"",
+            "  - \"sqeuence_member_1\"",
+            "  - \"sqeuence_member_2\"",
             "\"simple_mapping_field\":",
-            "  \"simple_mapping_key_0\": simple_mapping_value_0",
-            "  \"simple_mapping_key_1\": simple_mapping_value_1",
-            "  \"simple_mapping_key_2\": simple_mapping_value_2",
+            "  \"simple_mapping_key_0\": \"simple_mapping_value_0\"",
+            "  \"simple_mapping_key_1\": \"simple_mapping_value_1\"",
+            "  \"simple_mapping_key_2\": \"simple_mapping_value_2\"",
             "\"nested_sequence_field\":",
             "  - |+",
-            "    nested line 0",
-            "    nested line 1",
-            "    nested line 2",
-            "  - \"nested_mapping_key_0\": nested_mapping_value_0",
-            "    \"nested_mapping_key_1\": nested_mapping_value_1",
-            "    \"nested_mapping_key_2\": nested_mapping_value_2",
+            "    \"nested line 0\"",
+            "    \"nested line 1\"",
+            "    \"nested line 2\"",
+            "  - \"nested_mapping_key_0\": \"nested_mapping_value_0\"",
+            "    \"nested_mapping_key_1\": \"nested_mapping_value_1\"",
+            "    \"nested_mapping_key_2\": \"nested_mapping_value_2\"",
             "  -",
-            "    - nested_sequence_member_0",
-            "    - nested_sequence_member_1",
-            "    - nested_sequence_member_2",
+            "    - \"nested_sequence_member_0\"",
+            "    - \"nested_sequence_member_1\"",
+            "    - \"nested_sequence_member_2\"",
             "  - []",
             "  - {}",
             "\"nested_mapping_field\":",
             "  \"deep_nested_multiline_text_field\": |+",
-            "    nested line 3",
-            "    nested line 4",
-            "    nested line 5",
+            "    \"nested line 3\"",
+            "    \"nested line 4\"",
+            "    \"nested line 5\"",
             "  \"deep_nested_mapping_field\":",
-            "    \"nested_mapping_key_3\": nested_mapping_value_3",
-            "    \"nested_mapping_key_4\": nested_mapping_value_4",
-            "    \"nested_mapping_key_5\": nested_mapping_value_5",
+            "    \"nested_mapping_key_3\": \"nested_mapping_value_3\"",
+            "    \"nested_mapping_key_4\": \"nested_mapping_value_4\"",
+            "    \"nested_mapping_key_5\": \"nested_mapping_value_5\"",
             "  \"deep_nested_sequence_field\":",
-            "    - nested_sequence_member_3",
-            "    - nested_sequence_member_4",
-            "    - nested_sequence_member_5",
+            "    - \"nested_sequence_member_3\"",
+            "    - \"nested_sequence_member_4\"",
+            "    - \"nested_sequence_member_5\"",
             "  \"deep_nested_empty_sequence\": []",
             "  \"deep_nested_empty_mapping\": {}",
-            "\" key:with[some}special]tokens{ \": value:with[some}special]tokens{");
+            "\" key:with[some}special]tokens{ \": \" value:with[some}special]tokens{ \"");
 
         private RootYAML SetupYamlFile(OutSideProxy proxy, string path)
         {

@@ -39,8 +39,8 @@ namespace MagicKitchen.SplitterSprite4.Common
             try
             {
                 var meta = this.FetchReadMetaYAML();
-                this.Author = meta["author", new ScalarYAML()].ToString();
-                this.Title = meta["title", new ScalarYAML()].ToString();
+                this.Author = meta.Scalar["author", new ScalarYAML()].Value;
+                this.Title = meta.Scalar["title", new ScalarYAML()].Value;
             }
             catch (LayeredFileNotFoundException ex)
             {

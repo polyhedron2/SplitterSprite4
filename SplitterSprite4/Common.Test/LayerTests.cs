@@ -37,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 dependencies.Length == 0 ?
                 "dependencies: []" :
                 "dependencies:\n" + Utility.JoinLines(
-                    dependencies.Select(d => $"  - {d}").ToArray());
+                    dependencies.Select(d => $"  - \"{d}\"").ToArray());
             proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
             {
                 writer.Write(yamlBody);
@@ -75,7 +75,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 dependencies.Length == 0 ?
                 "dependencies: []" :
                 "dependencies:\n" + Utility.JoinLines(
-                    dependencies.Select(d => $"  - {d}").ToArray());
+                    dependencies.Select(d => $"  - \"{d}\"").ToArray());
             yamlBody += "\ntop: true";
 
             proxy.FileIO.WithTextWriter(agnosticPath, false, (writer) =>
@@ -159,11 +159,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
              */
             this.SetUpLauncherYamlFile(proxy);
             this.SetupLayerYamlFile(
-                proxy, "first", "dependencies:", "  - second");
+                proxy, "first", "dependencies:", "  - \"second\"");
             this.SetupLayerYamlFile(
-                proxy, "second", "dependencies:", "  - third");
+                proxy, "second", "dependencies:", "  - \"third\"");
             this.SetupLayerYamlFile(
-                proxy, "third", "dependencies:", "  - fourth");
+                proxy, "third", "dependencies:", "  - \"fourth\"");
             this.SetupLayerYamlFile(
                 proxy, "fourth", "dependencies: []");
 
@@ -194,11 +194,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
              */
             this.SetUpLauncherYamlFile(proxy);
             this.SetupLayerYamlFile(
-                proxy, "top", "top: true");
+                proxy, "top", "top: \"true\"");
             this.SetupLayerYamlFile(
-                proxy, "first", "dependencies:", "  - second");
+                proxy, "first", "dependencies:", "  - \"second\"");
             this.SetupLayerYamlFile(
-                proxy, "second", "dependencies:", "  - third");
+                proxy, "second", "dependencies:", "  - \"third\"");
             this.SetupLayerYamlFile(
                 proxy, "third", "dependencies: []");
 
@@ -241,42 +241,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 proxy,
                 "first",
                 "dependencies:",
-                "  - second",
-                "  - third",
-                "  - fifth");
+                "  - \"second\"",
+                "  - \"third\"",
+                "  - \"fifth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "second",
                 "dependencies:",
-                "  - fourth",
-                "  - sixth");
+                "  - \"fourth\"",
+                "  - \"sixth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "third",
                 "dependencies:",
-                "  - fourth",
-                "  - seventh");
+                "  - \"fourth\"",
+                "  - \"seventh\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "fourth",
                 "dependencies:",
-                "  - eighth");
+                "  - \"eighth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "fifth",
                 "dependencies:",
-                "  - sixth",
-                "  - seventh");
+                "  - \"sixth\"",
+                "  - \"seventh\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "sixth",
                 "dependencies:",
-                "  - eighth");
+                "  - \"eighth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "seventh",
                 "dependencies:",
-                "  - eighth");
+                "  - \"eighth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "eighth",
@@ -375,18 +375,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 proxy,
                 "first",
                 "dependencies:",
-                "  - second",
-                "  - third");
+                "  - \"second\"",
+                "  - \"third\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "second",
                 "dependencies:",
-                "  - fourth");
+                "  - \"fourth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "third",
                 "dependencies:",
-                "  - fourth");
+                "  - \"fourth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "fourth",
@@ -395,18 +395,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 proxy,
                 "fifth",
                 "dependencies:",
-                "  - sixth",
-                "  - seventh");
+                "  - \"sixth\"",
+                "  - \"seventh\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "sixth",
                 "dependencies:",
-                "  - eighth");
+                "  - \"eighth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "seventh",
                 "dependencies:",
-                "  - eighth");
+                "  - \"eighth\"");
             this.SetupLayerYamlFile(
                 proxy,
                 "eighth",
@@ -472,11 +472,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
              */
             this.SetUpLauncherYamlFile(proxy);
             this.SetupLayerYamlFile(
-                proxy, "first", "dependencies:", "  - second");
+                proxy, "first", "dependencies:", "  - \"second\"");
             this.SetupLayerYamlFile(
-                proxy, "second", "dependencies:", "  - third");
+                proxy, "second", "dependencies:", "  - \"third\"");
             this.SetupLayerYamlFile(
-                proxy, "third", "dependencies:", "  - fourth");
+                proxy, "third", "dependencies:", "  - \"fourth\"");
             this.SetupLayerYamlFile(
                 proxy, "fourth", "dependencies: []");
 
@@ -518,13 +518,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
              */
             this.SetUpLauncherYamlFile(proxy);
             this.SetupLayerYamlFile(
-                proxy, "first", "dependencies:", "  - second");
+                proxy, "first", "dependencies:", "  - \"second\"");
             this.SetupLayerYamlFile(
-                proxy, "second", "dependencies:", "  - third");
+                proxy, "second", "dependencies:", "  - \"third\"");
             this.SetupLayerYamlFile(
-                proxy, "third", "dependencies:", "  - fourth");
+                proxy, "third", "dependencies:", "  - \"fourth\"");
             this.SetupLayerYamlFile(
-                proxy, "fourth", "dependencies:", "  - first");
+                proxy, "fourth", "dependencies:", "  - \"first\"");
 
             // act & assert
             Assert.Throws<Layer.CyclicDependencyException>(() =>
@@ -553,13 +553,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
              */
             this.SetUpLauncherYamlFile(proxy);
             this.SetupLayerYamlFile(
-                proxy, "top1", "top: true");
+                proxy, "top1", "top: \"true\"");
             this.SetupLayerYamlFile(
-                proxy, "top2", "top: true");
+                proxy, "top2", "top: \"true\"");
             this.SetupLayerYamlFile(
-                proxy, "first", "dependencies:", "  - second");
+                proxy, "first", "dependencies:", "  - \"second\"");
             this.SetupLayerYamlFile(
-                proxy, "second", "dependencies:", "  - third");
+                proxy, "second", "dependencies:", "  - \"third\"");
             this.SetupLayerYamlFile(
                 proxy, "third", "dependencies: []");
 
@@ -586,13 +586,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
              */
             this.SetUpLauncherYamlFile(proxy);
             this.SetupLayerYamlFile(
-                proxy, "first", "dependencies:", "  - second");
+                proxy, "first", "dependencies:", "  - \"second\"");
             this.SetupLayerYamlFile(
-                proxy, "second", "dependencies:", "  - third");
+                proxy, "second", "dependencies:", "  - \"third\"");
             this.SetupLayerYamlFile(
-                proxy, "third", "dependencies:", "  - fourth");
+                proxy, "third", "dependencies:", "  - \"fourth\"");
             this.SetupLayerYamlFile(
-                proxy, "fourth", "dependencies:", "  - nonexistence");
+                proxy, "fourth", "dependencies:", "  - \"nonexistence\"");
 
             // act & assert
             Assert.Throws<Layer.NonExistentLayerException>(() =>

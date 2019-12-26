@@ -56,7 +56,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             get
             {
                 return bool.Parse(this.yaml.Scalar[
-                    "top", new ScalarYAML("false")].ToString());
+                    "top", new ScalarYAML("false")].Value);
             }
 
             set
@@ -81,7 +81,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             {
                 return this.yaml.Sequence[
                     "dependencies", new SequenceYAML()].Select(
-                    child => child.ToString());
+                    child => (child as ScalarYAML).Value);
             }
 
             set
