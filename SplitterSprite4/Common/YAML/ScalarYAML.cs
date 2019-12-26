@@ -59,6 +59,10 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                         StringSplitOptions.None).Select(
                         line => line.Substring(1, line.Length - 2)));
             }
+
+            // YamlDotNetはエスケープ文字を自動解決しないため、元に戻す
+            // Unescape the value, because YamlDotNet doesn't unescape it.
+            this.Value = Unescape(this.Value);
         }
 
         /// <summary>
@@ -80,7 +84,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         {
             return this.Value.Split(
                 new string[] { "\n" }, StringSplitOptions.None).Select(
-                line => $"\"{line}\"");
+                line => $"\"{Escape(line)}\"");
         }
     }
 }

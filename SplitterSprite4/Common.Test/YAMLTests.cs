@@ -670,6 +670,80 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the keys and values with espaced characters.
+        /// </summary>
+        /// <param name="path">The os-agnostic path string.</param>
+        [Theory]
+        [InlineData("foo.yaml")]
+        [InlineData("dir/bar.yaml")]
+        [InlineData("dir1/dir2/baz.yaml")]
+        public void DoubleQuoatationTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            RootYAML originalYaml = this.SetupYamlFile(proxy, path);
+
+            // act
+            originalYaml.Scalar["double_\"quotation\"_field"] =
+                new ScalarYAML("new_\"value\"_1");
+            originalYaml.Scalar["undefined_\"quotation\"_field"] =
+                new ScalarYAML("new_\"value\"_2");
+            originalYaml.Scalar["multiline_double_\"quotation\"_field"] =
+                new ScalarYAML("new_\"line\"_1", "new_\"line\"_2");
+            originalYaml.Scalar["multiline_undefined_\"quotation\"_field"] =
+                new ScalarYAML("new_\"line\"_3", "new_\"line\"_4");
+            originalYaml.Overwrite();
+            var reloadYaml =
+                new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
+
+            // assert
+            void InternalAssert(RootYAML yaml)
+            {
+                Assert.Equal(
+                    $"{path}[double_\"quotation\"_field]",
+                    yaml.Scalar["double_\"quotation\"_field"].ID);
+                Assert.Equal(
+                    $"{path}[undefined_\"quotation\"_field]",
+                    yaml.Scalar["undefined_\"quotation\"_field"].ID);
+                Assert.Equal(
+                    $"{path}[multiline_double_\"quotation\"_field]",
+                    yaml.Scalar["multiline_double_\"quotation\"_field"].ID);
+                Assert.Equal(
+                    $"{path}[multiline_undefined_\"quotation\"_field]",
+                    yaml.Scalar["multiline_undefined_\"quotation\"_field"].ID);
+
+                Assert.Equal(
+                    "new_\"value\"_1",
+                    yaml.Scalar["double_\"quotation\"_field"].Value);
+                Assert.Equal(
+                    Utility.JoinLines("new_\"line\"_1", "new_\"line\"_2"),
+                    yaml.Scalar["multiline_double_\"quotation\"_field"].Value);
+                Assert.Equal(
+                    "new_\"value\"_2",
+                    yaml.Scalar["undefined_\"quotation\"_field"].Value);
+                Assert.Equal(
+                    Utility.JoinLines("new_\"line\"_3", "new_\"line\"_4"),
+                    yaml.Scalar["multiline_undefined_\"quotation\"_field"].Value);
+
+                Assert.Equal(
+                    "\"new_\\\"value\\\"_1\"",
+                    yaml.Scalar["double_\"quotation\"_field"].ToString());
+                Assert.Equal(
+                    Utility.JoinLines("\"new_\\\"line\\\"_1\"", "\"new_\\\"line\\\"_2\""),
+                    yaml.Scalar["multiline_double_\"quotation\"_field"].ToString());
+                Assert.Equal(
+                    "\"new_\\\"value\\\"_2\"",
+                    yaml.Scalar["undefined_\"quotation\"_field"].ToString());
+                Assert.Equal(
+                    Utility.JoinLines("\"new_\\\"line\\\"_3\"", "\"new_\\\"line\\\"_4\""),
+                    yaml.Scalar["multiline_undefined_\"quotation\"_field"].ToString());
+            }
+
+            InternalAssert(originalYaml);
+            InternalAssert(reloadYaml);
+        }
+
+        /// <summary>
         /// Test accessor methods that automatically selected.
         /// </summary>
         /// <param name="path">The os-agnostic path string.</param>
@@ -851,7 +925,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             "    - \"nested_sequence_member_5\"",
             "  \"deep_nested_empty_sequence\": []",
             "  \"deep_nested_empty_mapping\": {}",
-            "\" key:with[some}special]tokens{ \": \" value:with[some}special]tokens{ \"");
+            "\" key:with[some}spec'ialtokens{ \": \" value:with[some}special]tokens{ \"");
 
         private RootYAML SetupYamlFile(OutSideProxy proxy, string path)
         {

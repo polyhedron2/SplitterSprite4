@@ -157,6 +157,28 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         }
 
         /// <summary>
+        /// キー、またはバリューのダブルクォートをエスケープ文字に置換。
+        /// Replace double quotation in key or value string.
+        /// </summary>
+        /// <param name="str">Target string.</param>
+        /// <returns>Escaped string.</returns>
+        protected static string Escape(string str)
+        {
+            return str.Replace("\"", "\\\"");
+        }
+
+        /// <summary>
+        /// エスケープ文字を元の文字に戻す。
+        /// Restore escaped characters.
+        /// </summary>
+        /// <param name="str">Target string.</param>
+        /// <returns>Restored string.</returns>
+        protected static string Unescape(string str)
+        {
+            return str.Replace("\\\"", "\"");
+        }
+
+        /// <summary>
         /// 文字列キーについて値を保持しているか否か
         /// Determines whether the YAML contains the specified string key.
         /// </summary>
