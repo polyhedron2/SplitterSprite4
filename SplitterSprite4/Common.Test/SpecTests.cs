@@ -976,6 +976,494 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the (int x, int y) accessor.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void Int2Test(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"invalid\": \"dummy\"",
+                "  \"too short\": \"1\"",
+                "  \"too long\": \"1, 2, 3\"",
+                "  \"coprime pair\": \"729, 1000\"",
+                "  \"fibonacci number\":",
+                "    \"first\": \"0, 1\"",
+                "    \"second\": \"1, 1\"",
+                "    \"third\": \"1, 2\""));
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            // get value without default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int2["invalid"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int2["too short"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int2["too long"];
+            });
+            Assert.Equal((729, 1000), spec.Int2["coprime pair"]);
+            Assert.Equal(
+                (0, 1), spec["fibonacci number"].Int2["first"]);
+            Assert.Equal(
+                (1, 1), spec["fibonacci number"].Int2["second"]);
+            Assert.Equal(
+                (1, 2), spec["fibonacci number"].Int2["third"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec["fibonacci number"].Int2["fourth"];
+            });
+
+            // get value with default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int2["invalid", (0, 0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int2["too short", (0, 0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int2["too long", (0, 0)];
+            });
+            Assert.Equal((729, 1000), spec.Int2["coprime pair", (-1, -1)]);
+            Assert.Equal(
+                (0, 1), spec["fibonacci number"].Int2["first", (-1, -1)]);
+            Assert.Equal(
+                (1, 1), spec["fibonacci number"].Int2["second", (-1, -1)]);
+            Assert.Equal(
+                (1, 2), spec["fibonacci number"].Int2["third", (-1, -1)]);
+            Assert.Equal(
+                (2, 3), spec["fibonacci number"].Int2["fourth", (2, 3)]);
+
+            // act
+            spec.Int2["coprime pair"] = (3, 10);
+            spec["fibonacci number"].Int2["fourth"] = (2, 3);
+
+            // assert
+            Assert.Equal((3, 10), spec.Int2["coprime pair"]);
+            Assert.Equal((2, 3), spec["fibonacci number"].Int2["fourth"]);
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1\"",
+                    "  \"too long\": \"1, 2, 3\"",
+                    "  \"coprime pair\": \"3, 10\"",
+                    "  \"fibonacci number\":",
+                    "    \"first\": \"0, 1\"",
+                    "    \"second\": \"1, 1\"",
+                    "    \"third\": \"1, 2\"",
+                    "    \"fourth\": \"2, 3\""),
+                spec.ToString());
+
+            // act
+            spec.Save();
+            var reloadedSpec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1\"",
+                    "  \"too long\": \"1, 2, 3\"",
+                    "  \"coprime pair\": \"3, 10\"",
+                    "  \"fibonacci number\":",
+                    "    \"first\": \"0, 1\"",
+                    "    \"second\": \"1, 1\"",
+                    "    \"third\": \"1, 2\"",
+                    "    \"fourth\": \"2, 3\""),
+                reloadedSpec.ToString());
+        }
+
+        /// <summary>
+        /// Test the (int x, int y, int z) accessor.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void Int3Test(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"invalid\": \"dummy\"",
+                "  \"too short\": \"1, 2\"",
+                "  \"too long\": \"1, 2, 3, 4\"",
+                "  \"coprime trio\": \"6, 15, 10\"",
+                "  \"tribonacci number\":",
+                "    \"first\": \"0, 0, 1\"",
+                "    \"second\": \"0, 1, 1\"",
+                "    \"third\": \"1, 1, 2\""));
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            // get value without default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int3["invalid"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int3["too short"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int3["too long"];
+            });
+            Assert.Equal((6, 15, 10), spec.Int3["coprime trio"]);
+            Assert.Equal(
+                (0, 0, 1), spec["tribonacci number"].Int3["first"]);
+            Assert.Equal(
+                (0, 1, 1), spec["tribonacci number"].Int3["second"]);
+            Assert.Equal(
+                (1, 1, 2), spec["tribonacci number"].Int3["third"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec["fibonacci number"].Int3["fourth"];
+            });
+
+            // get value with default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int3["invalid", (0, 0, 0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int3["too short", (0, 0, 0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Int3["too long", (0, 0, 0)];
+            });
+            Assert.Equal((6, 15, 10), spec.Int3["coprime trio", (-1, -1, -1)]);
+            Assert.Equal(
+                (0, 0, 1), spec["tribonacci number"].Int3["first", (-1, -1, -1)]);
+            Assert.Equal(
+                (0, 1, 1), spec["tribonacci number"].Int3["second", (-1, -1, -1)]);
+            Assert.Equal(
+                (1, 1, 2), spec["tribonacci number"].Int3["third", (-1, -1, -1)]);
+            Assert.Equal(
+                (1, 2, 4), spec["tribonacci number"].Int3["fourth", (1, 2, 4)]);
+
+            // act
+            spec.Int3["coprime trio"] = (15, 35, 21);
+            spec["tribonacci number"].Int3["fourth"] = (1, 2, 4);
+
+            // assert
+            Assert.Equal((15, 35, 21), spec.Int3["coprime trio"]);
+            Assert.Equal((1, 2, 4), spec["tribonacci number"].Int3["fourth"]);
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1, 2\"",
+                    "  \"too long\": \"1, 2, 3, 4\"",
+                    "  \"coprime trio\": \"15, 35, 21\"",
+                    "  \"tribonacci number\":",
+                    "    \"first\": \"0, 0, 1\"",
+                    "    \"second\": \"0, 1, 1\"",
+                    "    \"third\": \"1, 1, 2\"",
+                    "    \"fourth\": \"1, 2, 4\""),
+                spec.ToString());
+
+            // act
+            spec.Save();
+            var reloadedSpec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1, 2\"",
+                    "  \"too long\": \"1, 2, 3, 4\"",
+                    "  \"coprime trio\": \"15, 35, 21\"",
+                    "  \"tribonacci number\":",
+                    "    \"first\": \"0, 0, 1\"",
+                    "    \"second\": \"0, 1, 1\"",
+                    "    \"third\": \"1, 1, 2\"",
+                    "    \"fourth\": \"1, 2, 4\""),
+                reloadedSpec.ToString());
+        }
+
+        /// <summary>
+        /// Test the (double x, double y) accessor.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void Double2Test(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"invalid\": \"dummy\"",
+                "  \"too short\": \"1.0\"",
+                "  \"too long\": \"1.0, 2.0, 3.0\"",
+                "  \"initial coordinates\": \"1.2, 3.4\"",
+                "  \"trigonometric ratio (sin, cos)\":",
+                "    \"first\": \"0.0, 1.0\"",
+                "    \"second\": \"0.5, 0.86602540378\"",
+                "    \"third\": \"0.70710678118, 0.70710678118\""));
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            // get value without default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double2["invalid"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double2["too short"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double2["too long"];
+            });
+            Assert.Equal((1.2, 3.4), spec.Double2["initial coordinates"]);
+            Assert.Equal(
+                (0.0, 1.0),
+                spec["trigonometric ratio (sin, cos)"].Double2["first"]);
+            Assert.Equal(
+                (0.5, 0.86602540378),
+                spec["trigonometric ratio (sin, cos)"].Double2["second"]);
+            Assert.Equal(
+                (0.70710678118, 0.70710678118),
+                spec["trigonometric ratio (sin, cos)"].Double2["third"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec["trigonometric ratio (sin, cos)"].Double2["fourth"];
+            });
+
+            // get value with default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double2["invalid", (0.0, 0.0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double2["too short", (0.0, 0.0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double2["too long", (0.0, 0.0)];
+            });
+            Assert.Equal((1.2, 3.4), spec.Double2["initial coordinates"]);
+            Assert.Equal(
+                (0.0, 1.0),
+                spec["trigonometric ratio (sin, cos)"].Double2["first", (0.0, -1.0)]);
+            Assert.Equal(
+                (0.5, 0.86602540378),
+                spec["trigonometric ratio (sin, cos)"].Double2["second", (0.0, -1.0)]);
+            Assert.Equal(
+                (0.70710678118, 0.70710678118),
+                spec["trigonometric ratio (sin, cos)"].Double2["third", (0.0, -1.0)]);
+            Assert.Equal(
+                (0.0, -1.0),
+                spec["trigonometric ratio (sin, cos)"].Double2["fourth", (0.0, -1.0)]);
+
+            // act
+            spec.Double2["initial coordinates"] = (101.2, 103.4);
+            spec["trigonometric ratio (sin, cos)"].Double2["fourth"] =
+                (1.0, 0.0);
+
+            // assert
+            Assert.Equal((101.2, 103.4), spec.Double2["initial coordinates"]);
+            Assert.Equal(
+                (1.0, 0.0),
+                spec["trigonometric ratio (sin, cos)"].Double2["fourth"]);
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1.0\"",
+                    "  \"too long\": \"1.0, 2.0, 3.0\"",
+                    "  \"initial coordinates\": \"101.2, 103.4\"",
+                    "  \"trigonometric ratio (sin, cos)\":",
+                    "    \"first\": \"0.0, 1.0\"",
+                    "    \"second\": \"0.5, 0.86602540378\"",
+                    "    \"third\": \"0.70710678118, 0.70710678118\"",
+                    "    \"fourth\": \"1, 0\""),
+                spec.ToString());
+
+            // act
+            spec.Save();
+            var reloadedSpec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1.0\"",
+                    "  \"too long\": \"1.0, 2.0, 3.0\"",
+                    "  \"initial coordinates\": \"101.2, 103.4\"",
+                    "  \"trigonometric ratio (sin, cos)\":",
+                    "    \"first\": \"0.0, 1.0\"",
+                    "    \"second\": \"0.5, 0.86602540378\"",
+                    "    \"third\": \"0.70710678118, 0.70710678118\"",
+                    "    \"fourth\": \"1, 0\""),
+                reloadedSpec.ToString());
+        }
+
+        /// <summary>
+        /// Test the (double x, double y, double z) accessor.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void Double3Test(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"invalid\": \"dummy\"",
+                "  \"too short\": \"1.0, 2.0\"",
+                "  \"too long\": \"1.0, 2.0, 3.0, 4.0\"",
+                "  \"initial coordinates\": \"1.2, 3.4, 5.6\"",
+                "  \"trigonometric ratio (sin, cos, tan)\":",
+                "    \"first\": \"0.0, 1.0, 0.0\"",
+                "    \"second\": \"0.5, 0.86602540378, 0.57735026919\"",
+                "    \"third\": \"0.70710678118, 0.70710678118, 1.0\""));
+
+            // act
+            var spec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            // get value without default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double3["invalid"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double3["too short"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double3["too long"];
+            });
+            Assert.Equal((1.2, 3.4, 5.6), spec.Double3["initial coordinates"]);
+            Assert.Equal(
+                (0.0, 1.0, 0.0),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["first"]);
+            Assert.Equal(
+                (0.5, 0.86602540378, 0.57735026919),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["second"]);
+            Assert.Equal(
+                (0.70710678118, 0.70710678118, 1.0),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["third"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec["trigonometric ratio (sin, cos, tan)"].Double3["fourth"];
+            });
+
+            // get value with default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double3["invalid", (0.0, 0.0, 0.0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double3["too short", (0.0, 0.0, 0.0)];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Double3["too long", (0.0, 0.0, 0.0)];
+            });
+            Assert.Equal((1.2, 3.4, 5.6), spec.Double3["initial coordinates", (0.0, 0.0, 0.0)]);
+            Assert.Equal(
+                (0.0, 1.0, 0.0),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["first", (0.0, -1.0, 0.0)]);
+            Assert.Equal(
+                (0.5, 0.86602540378, 0.57735026919),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["second", (0.0, -1.0, 0.0)]);
+            Assert.Equal(
+                (0.70710678118, 0.70710678118, 1.0),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["third", (0.0, -1.0, 0.0)]);
+            Assert.Equal(
+                (0.0, -1.0, 0.0),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["fourth", (0.0, -1.0, 0.0)]);
+
+            // act
+            spec.Double3["initial coordinates"] = (101.2, 103.4, 105.6);
+            spec["trigonometric ratio (sin, cos, tan)"].Double3["fourth"] =
+                (1.0, 0.0, double.PositiveInfinity);
+
+            // assert
+            Assert.Equal((101.2, 103.4, 105.6), spec.Double3["initial coordinates"]);
+            Assert.Equal(
+                (1.0, 0.0, double.PositiveInfinity),
+                spec["trigonometric ratio (sin, cos, tan)"].Double3["fourth"]);
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1.0, 2.0\"",
+                    "  \"too long\": \"1.0, 2.0, 3.0, 4.0\"",
+                    "  \"initial coordinates\": \"101.2, 103.4, 105.6\"",
+                    "  \"trigonometric ratio (sin, cos, tan)\":",
+                    "    \"first\": \"0.0, 1.0, 0.0\"",
+                    "    \"second\": \"0.5, 0.86602540378, 0.57735026919\"",
+                    "    \"third\": \"0.70710678118, 0.70710678118, 1.0\"",
+                    "    \"fourth\": \"1, 0, ∞\""),
+                spec.ToString());
+
+            // act
+            spec.Save();
+            var reloadedSpec = new SpecRoot(proxy, agnosticPath);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    "  \"too short\": \"1.0, 2.0\"",
+                    "  \"too long\": \"1.0, 2.0, 3.0, 4.0\"",
+                    "  \"initial coordinates\": \"101.2, 103.4, 105.6\"",
+                    "  \"trigonometric ratio (sin, cos, tan)\":",
+                    "    \"first\": \"0.0, 1.0, 0.0\"",
+                    "    \"second\": \"0.5, 0.86602540378, 0.57735026919\"",
+                    "    \"third\": \"0.70710678118, 0.70710678118, 1.0\"",
+                    "    \"fourth\": \"1, 0, ∞\""),
+                reloadedSpec.ToString());
+        }
+
+        /// <summary>
         /// Base Specからの設定値の継承をテスト。
         /// Test property inheritance from base specs.
         /// </summary>

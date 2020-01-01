@@ -168,6 +168,132 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets indexer for (int x, int y) tuple accessor.
+        /// </summary>
+        public ValueIndexer<(int x, int y)> Int2
+        {
+            get => new ValueIndexer<(int x, int y)>(
+                this,
+                "整数x2",
+                (value) =>
+                {
+                    var splitValues = value.Split(',');
+                    if (splitValues.Length != 2)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return (
+                    int.Parse(splitValues[0]),
+                    int.Parse(splitValues[1]));
+                },
+                (value) =>
+                {
+                    var ret = value.ToString();
+                    ret = ret.Substring(1, ret.Length - 2);
+                    return ret;
+                },
+                "Int2",
+                (0, 0),
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
+        /// Gets indexer for (int x, int y, int z) tuple accessor.
+        /// </summary>
+        public ValueIndexer<(int x, int y, int z)> Int3
+        {
+            get => new ValueIndexer<(int x, int y, int z)>(
+                this,
+                "整数x3",
+                (value) =>
+                {
+                    var splitValues = value.Split(',');
+                    if (splitValues.Length != 3)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return (
+                    int.Parse(splitValues[0]),
+                    int.Parse(splitValues[1]),
+                    int.Parse(splitValues[2]));
+                },
+                (value) =>
+                {
+                    var ret = value.ToString();
+                    ret = ret.Substring(1, ret.Length - 2);
+                    return ret;
+                },
+                "Int3",
+                (0, 0, 0),
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
+        /// Gets indexer for (double x, double y) tuple accessor.
+        /// </summary>
+        public ValueIndexer<(double x, double y)> Double2
+        {
+            get => new ValueIndexer<(double x, double y)>(
+                this,
+                "実数x2",
+                (value) =>
+                {
+                    var splitValues = value.Split(',');
+                    if (splitValues.Length != 2)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return (
+                    double.Parse(splitValues[0]),
+                    double.Parse(splitValues[1]));
+                },
+                (value) =>
+                {
+                    var ret = value.ToString();
+                    ret = ret.Substring(1, ret.Length - 2);
+                    return ret;
+                },
+                "Double2",
+                (0.0, 0.0),
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
+        /// Gets indexer for (double x, double y, double z) tuple accessor.
+        /// </summary>
+        public ValueIndexer<(double x, double y, double z)> Double3
+        {
+            get => new ValueIndexer<(double x, double y, double z)>(
+                this,
+                "実数x3",
+                (value) =>
+                {
+                    var splitValues = value.Split(',');
+                    if (splitValues.Length != 3)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return (
+                    double.Parse(splitValues[0]),
+                    double.Parse(splitValues[1]),
+                    double.Parse(splitValues[2]));
+                },
+                (value) =>
+                {
+                    var ret = value.ToString();
+                    ret = ret.Substring(1, ret.Length - 2);
+                    return ret;
+                },
+                "Double3",
+                (0.0, 0.0, 0.0),
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
         /// Gets the YAML instance of the spec.
         /// </summary>
         public abstract MappingYAML Body { get; }
