@@ -620,6 +620,46 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             return this.Range(0.0, rightBound);
         }
 
+        /// <summary>
+        /// Gets indexer for string accessor without line feed code.
+        /// The string length is bounded.
+        /// </summary>
+        /// <param name="limit">The bound of keyword length.</param>
+        /// <returns>Indexer for limited keyword accessor.</returns>
+        public ValueIndexer<string> LimitedKeyword(int limit)
+        {
+            if (limit < 0)
+            {
+                throw new InvalidSpecDefinitionException(
+                    $"LimitedKeywordの上限値に負の値{limit}が設定されています。");
+            }
+
+            return new ValueIndexer<string>(
+                this,
+                $"改行なし文字列({limit}文字以下)",
+                (value) =>
+                {
+                    if (value.Contains("\n") || value.Length > limit)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return value;
+                },
+                (value) =>
+                {
+                    if (value.Contains("\n") || value.Length > limit)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return value;
+                },
+                $"LimitedKeyword, {limit}",
+                string.Empty,
+                ImmutableList<string>.Empty);
+        }
+
         /// <inheritdoc/>
         public override string ToString()
         {
