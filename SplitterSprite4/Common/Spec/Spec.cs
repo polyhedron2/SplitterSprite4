@@ -325,6 +325,44 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets indexer for multi line string accessor.
+        /// </summary>
+        public ValueIndexer<string> Text
+        {
+            get => new ValueIndexer<string>(
+                this,
+                "改行あり文字列",
+                (value) =>
+                {
+                    // "YAML上の最終行が[End Of Text]"で
+                    // 終わっていないテキストは不正とする
+                    // If the text doesn't end with "\n [End of Text]",
+                    // the text is invalid.
+                    if (!value.EndsWith("\n[End Of Text]"))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    // "[End Of Text]"を除去
+                    // Remove "[End Of Text]".
+                    return value.Substring(
+                        0, value.Length - "\n[End Of Text]".Length);
+                },
+                (value) =>
+                {
+                    // 単一行のテキストでもYAML上複数行として扱うため、
+                    // 末尾に固定のテキストを一行含める。
+                    // To text write into YAML as multi line text
+                    // even if the text is single line,
+                    // add constant line.
+                    return value + "\n[End Of Text]";
+                },
+                "Text",
+                string.Empty,
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
         /// Gets the YAML instance of the spec.
         /// </summary>
         public abstract MappingYAML Body { get; }
