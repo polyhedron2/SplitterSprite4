@@ -294,6 +294,37 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets indexer for string accessor without line feed code.
+        /// </summary>
+        public ValueIndexer<string> Keyword
+        {
+            get => new ValueIndexer<string>(
+                this,
+                "改行なし文字列",
+                (value) =>
+                {
+                    if (value.Contains("\n"))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return value;
+                },
+                (value) =>
+                {
+                    if (value.Contains("\n"))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return value;
+                },
+                "Keyword",
+                string.Empty,
+                ImmutableList<string>.Empty);
+        }
+
+        /// <summary>
         /// Gets the YAML instance of the spec.
         /// </summary>
         public abstract MappingYAML Body { get; }
