@@ -2323,6 +2323,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     double.NegativeInfinity,
                     double.PositiveInfinity,
                     ')')["grault"];
+                _ = sp.Int2["garply"];
+                _ = sp.Int3["waldo"];
+                _ = sp.Double2["fred"];
+                _ = sp.Double3["plugh"];
+                _ = sp.Keyword["xyzzy"];
+                _ = sp.LimitedKeyword(7)["thud"];
+                _ = sp.Text["foobar"];
                 _ = sp["inner"].Int["inner int"];
                 _ = sp.Int["after inner"];
                 _ = sp["inner"].Double["inner double"];
@@ -2343,6 +2350,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"quux\": \"OnOff\"",
                     "  \"corge\": \"Range, (, -1, 5, ]\"",
                     "  \"grault\": \"Interval, [, -∞, ∞, )\"",
+                    "  \"garply\": \"Int2\"",
+                    "  \"waldo\": \"Int3\"",
+                    "  \"fred\": \"Double2\"",
+                    "  \"plugh\": \"Double3\"",
+                    "  \"xyzzy\": \"Keyword\"",
+                    "  \"thud\": \"LimitedKeyword, 7\"",
+                    "  \"foobar\": \"Text\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int\"",
                     "    \"inner double\": \"Double\"",
@@ -2384,6 +2398,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     double.NegativeInfinity,
                     double.PositiveInfinity,
                     ')')["grault", double.NegativeInfinity];
+                _ = sp.Int2["garply", (1, -2)];
+                _ = sp.Int3["waldo", (3, -4, 5)];
+                _ = sp.Double2["fred", (6.7, double.PositiveInfinity)];
+                _ = sp.Double3["plugh", (double.NegativeInfinity, 8.9, 10.11)];
+                _ = sp.Keyword["xyzzy", "\\phrase\\"];
+                _ = sp.LimitedKeyword(7)["thud", "limited"];
+                _ = sp.Text[
+                    "foobar",
+                    Utility.JoinLines("good, morning", "nice to meet you!")];
                 _ = sp["inner"].Int["inner int", 100];
                 _ = sp.Int["after inner", 1024];
                 _ = sp["inner"].Double["inner double", 2.71];
@@ -2404,6 +2427,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"quux\": \"OnOff, on\"",
                     "  \"corge\": \"Range, (, -1, 5, ], 3\"",
                     "  \"grault\": \"Interval, [, -∞, ∞, ), -∞\"",
+                    "  \"garply\": \"Int2, 1\\c -2\"",
+                    "  \"waldo\": \"Int3, 3\\c -4\\c 5\"",
+                    "  \"fred\": \"Double2, 6.7\\c ∞\"",
+                    "  \"plugh\": \"Double3, -∞\\c 8.9\\c 10.11\"",
+                    "  \"xyzzy\": \"Keyword, \\\\phrase\\\\\"",
+                    "  \"thud\": \"LimitedKeyword, 7, limited\"",
+                    "  \"foobar\": |+",
+                    "    \"Text, good\\c morning\"",
+                    "    \"nice to meet you!\"",
+                    "    \"[End Of Text]\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int, 100\"",
                     "    \"inner double\": \"Double, 2.71\"",
@@ -2412,6 +2445,44 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"after inner\": \"Int, 1024\"",
                     "  \"日本語キー\": \"Int, 0\""),
                 mold.ToString());
+        }
+
+        /// <summary>
+        /// MoldSpecメソッド時に、デフォルト値のエンコードに用いる変換処理をテスト。
+        /// Test the encoding method and decoding method for default value in molding.
+        /// </summary>
+        /// <param name="target">The encoding target.</param>
+        [Theory]
+        [InlineData("sinple string")]
+        [InlineData("string, with, comma")]
+        [InlineData("string\\with\\back\\slash")]
+        [InlineData("\\,\\\\,,\\\\,,,complexed\\\\pattern")]
+        public void EncodeAndDecodeDefaultValForMoldingTest(string target)
+        {
+            // act
+            var encoded = Spec.EncodeDefaultValForMolding(target);
+            var decoded = Spec.DecodeDefaultValForMolding(encoded);
+
+            // assert
+            Assert.Equal(target, decoded);
+            Assert.False(encoded.Contains(','));
+        }
+
+        /// <summary>
+        /// MoldSpec用エンコードとして不正な値をデコードした際の例外をテスト。
+        /// Test decoding method with invalid encode.
+        /// </summary>
+        /// <param name="target">The invalid decoding target.</param>
+        [Theory]
+        [InlineData("this is \\ninvalid string.")]
+        [InlineData("this is \\0invalid string.")]
+        public void DecodingInvalidDefaultValForMoldingTest(string target)
+        {
+            // assert
+            Assert.Throws<Spec.InvalidDefaultValEncoding>(() =>
+            {
+                _ = Spec.DecodeDefaultValForMolding(target);
+            });
         }
 
         /// <summary>

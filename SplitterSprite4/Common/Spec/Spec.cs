@@ -388,6 +388,66 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Comma separated values are used for molding.
+        /// Therefore, if default value contains comma,
+        /// encode commas in the default value.
+        /// </summary>
+        /// <param name="target">Encoding target string.</param>
+        /// <returns>Encoded string.</returns>
+        public static string EncodeDefaultValForMolding(string target)
+        {
+            // Mold時の値は複数のパラメータをカンマ区切りでつなげる。
+            // そのため、デフォルト値自体がカンマを含む場合には
+            // カンマを含まないようにエンコードして区別する。
+            // Comma separated values are used for molding.
+            // Therefore, if default value contains comma,
+            // encode commas in the default value.
+            return target.Replace("\\", "\\\\").Replace(",", "\\c");
+        }
+
+        /// <summary>
+        /// Decode an encoded default value for molding.
+        /// </summary>
+        /// <param name="target">Decoding target string.</param>
+        /// <returns>Decoded string.</returns>
+        public static string DecodeDefaultValForMolding(string target)
+        {
+            var ret = string.Empty;
+            var escaped = false;
+
+            foreach (char c in target)
+            {
+                if (escaped)
+                {
+                    switch (c)
+                    {
+                        case '\\':
+                            ret += '\\';
+                            break;
+                        case 'c':
+                            ret += ',';
+                            break;
+                        default:
+                            throw new InvalidDefaultValEncoding(target);
+                    }
+
+                    escaped = false;
+                    continue;
+                }
+
+                if (c == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                ret += c;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
         /// Gets indexer for ranged integer accessor.
         /// </summary>
         /// <param name="parenthesisOpen">
@@ -867,7 +927,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                             var accessCodeWithDefault =
                                 this.moldingAccessCode +
                                 ", " +
-                                this.setter(defaultVal);
+                                EncodeDefaultValForMolding(this.setter(defaultVal));
 
                             this.parent.Mold[key] =
                                 new ScalarYAML(accessCodeWithDefault);
@@ -986,6 +1046,24 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 : base(
                       $"{actual}は期待される選択肢" +
                       $"{string.Join(", ", choices)}に含まれていません。")
+            {
+            }
+        }
+
+        /// <summary>
+        /// Mold時のデフォルト値エンコードが不正である場合の例外。
+        /// The exception that is thrown when an attempt to
+        /// decode an invalid default value string for molding.
+        /// </summary>
+        public class InvalidDefaultValEncoding : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidDefaultValEncoding"/> class.
+            /// </summary>
+            /// <param name="target">The encoded string.</param>
+            internal InvalidDefaultValEncoding(string target)
+                : base(
+                      $"\"{target}\"はMold時のデフォルト値エンコードとして不正です。")
             {
             }
         }
