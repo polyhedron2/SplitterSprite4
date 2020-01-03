@@ -708,6 +708,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // get value with default value.
             Assert.Equal(0, spec.Range(10)["left inner [0, 10)", 5]);
             Assert.Equal(5, spec.Range(10)["undefined", 5]);
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Range(10)["left inner [0, 10)", -1];
+            });
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Range(10)["left inner [0, 10)", 10];
+            });
 
             // act
             spec.Range(10)["new value left"] = 0;
@@ -898,6 +906,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
             {
                 _ = spec.Interval('[', 5.5, -5.5, ']')["[5.5, -5.5]"];
+            });
+
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Interval('(', -10.5, 10.5, ')')["left outer (-10.5, 10.5)", 11.0];
+            });
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Interval('(', -10.5, 10.5, ')')["left outer (-10.5, 10.5)", -11.0];
             });
 
             // act
@@ -1516,6 +1533,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 "bogus", spec["children names"].Keyword["second", "bogus"]);
 
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec["children names"].Keyword["second", "bo\ngus"];
+            });
+
             // act
             spec.Keyword["grand father name"] = "namihei";
             spec.Keyword["grand mother name"] = "fune";
@@ -1649,6 +1671,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "こどもの名前", spec["children names"].LimitedKeyword(7)["second", "bogus"]);
             Assert.Equal(
                 "bogus", spec["children names"].LimitedKeyword(7)["third", "bogus"]);
+
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec["children names"].LimitedKeyword(7)["second", "bo\ngus"];
+            });
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec["children names"].LimitedKeyword(7)["second", "too long default"];
+            });
 
             // act
             spec.LimitedKeyword(7)["name"] = "length7";

@@ -922,6 +922,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
+                        this.getter(this.setter(defaultVal));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecDefinitionException(
+                            "デフォルト値がSpecの値として不正です。", ex);
+                    }
+
+                    try
+                    {
                         if (this.parent.IsMolding)
                         {
                             var accessCodeWithDefault =
@@ -1010,6 +1020,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="message">The exception message.</param>
             internal InvalidSpecDefinitionException(string message)
                 : base(message)
+            {
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidSpecDefinitionException"/> class.
+            /// </summary>
+            /// <param name="message">The exception message.</param>
+            /// <param name="cause">The inner exception.</param>
+            internal InvalidSpecDefinitionException(string message, Exception cause)
+                : base(message, cause)
             {
             }
         }
