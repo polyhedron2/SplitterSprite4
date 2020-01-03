@@ -925,7 +925,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             "    - \"nested_sequence_member_5\"",
             "  \"deep_nested_empty_sequence\": []",
             "  \"deep_nested_empty_mapping\": {}",
-            "\" key:with[some}special]tokens{ \": \" value:with[some}special]tokens{ \"");
+            "\" \\\\key:with[some}special]tokens{ \": \" \\\\value:with[some}special]tokens{ \"");
 
         private RootYAML SetupYamlFile(OutSideProxy proxy, string path)
         {

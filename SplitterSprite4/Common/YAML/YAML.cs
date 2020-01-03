@@ -164,7 +164,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// <returns>Escaped string.</returns>
         protected static string Escape(string str)
         {
-            return str.Replace("\"", "\\\"");
+            return str.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
 
         /// <summary>
