@@ -908,6 +908,72 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 _ = spec.Interval('[', 5.5, -5.5, ']')["[5.5, -5.5]"];
             });
 
+            // get value with default value.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Interval('(', -10.5, 10.5, ')')["left outer (-10.5, 10.5)", 0.1];
+            });
+            Assert.Equal(
+                -10.499999, spec.Interval('(', -10.5, 10.5, ')')["left inner (-10.5, 10.5)", 0.1]);
+            Assert.Equal(
+                0.0, spec.Interval('(', -10.5, 10.5, ')')["middle (-10.5, 10.5)", 0.1]);
+            Assert.Equal(
+                10.499999, spec.Interval('(', -10.5, 10.5, ')')["right inner (-10.5, 10.5)", 0.1]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Interval('(', -10.5, 10.5, ')')["right outer (-10.5, 10.5)", 0.1];
+            });
+
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Interval('[', -20.5, 20.5, ']')["left outer [-20.5, 20.5]", 0.1];
+            });
+            Assert.Equal(
+                -20.5, spec.Interval('[', -20.5, 20.5, ']')["left inner [-20.5, 20.5]", 0.1]);
+            Assert.Equal(
+                0.0, spec.Interval('[', -20.5, 20.5, ']')["middle [-20.5, 20.5]", 0.1]);
+            Assert.Equal(
+                20.5, spec.Interval('[', -20.5, 20.5, ']')["right inner [-20.5, 20.5]", 0.1]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Interval('[', -20.5, 20.5, ']')["right outer [-20.5, 20.5]", 0.1];
+            });
+
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Interval(']', -30.5, 30.5, '[')["left outer ]-30.5, 30.5[", 0.1];
+            });
+            Assert.Equal(
+                -30.499999, spec.Interval(']', -30.5, 30.5, '[')["left inner ]-30.5, 30.5[", 0.1]);
+            Assert.Equal(
+                0.0, spec.Interval(']', -30.5, 30.5, '[')["middle ]-30.5, 30.5[", 0.1]);
+            Assert.Equal(
+                30.499999, spec.Interval(']', -30.5, 30.5, '[')["right inner ]-30.5, 30.5[", 0.1]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Interval(']', -30.5, 30.5, '[')["right outer ]-30.5, 30.5[", 0.1];
+            });
+
+            Assert.Equal(
+                -10000.0,
+                spec.Interval('[', double.NegativeInfinity, 0.5, ')')["[-∞, 0.5)", 0.1]);
+            Assert.Equal(
+                10000.0,
+                spec.Interval('[', 0.5, double.PositiveInfinity, ')')["[0.5, ∞)", 1.1]);
+
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Interval('<', -5.5, 5.5, ')')["<-5.5, 5.5)", 0.1];
+            });
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Interval('[', -5.5, 5.5, '>')["[-5.5, 5.5>", 0.1];
+            });
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.Interval('[', 5.5, -5.5, ']')["[5.5, -5.5]", 0.1];
+            });
+
             Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
             {
                 _ = spec.Interval('(', -10.5, 10.5, ')')["left outer (-10.5, 10.5)", 11.0];
