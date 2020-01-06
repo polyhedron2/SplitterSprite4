@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="SpecNode.cs" company="MagicKitchen">
+// <copyright file="SubSpec.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -10,20 +10,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
-    /// Specファイルの子孫Specを表現するSpecクラス
-    /// The accessor class for descendant spec.
+    /// SpecRootやSpecChildの中での名前空間の分割を表現するSpec。
+    /// Spec class which is used to represent namespaces in SpecRoot or SpecChild.
     /// </summary>
-    public class SpecNode : Spec
+    public class SubSpec : Spec
     {
         private Spec parent;
         private string accessKey;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SpecNode"/> class.
+        /// Initializes a new instance of the <see cref="SubSpec"/> class.
         /// </summary>
         /// <param name="parent">The parent spec instance.</param>
-        /// <param name="key">The string key for this child spec.</param>
-        internal SpecNode(Spec parent, string key)
+        /// <param name="key">The string key for this sub spec.</param>
+        internal SubSpec(Spec parent, string key)
         {
             this.parent = parent;
             this.accessKey = key;
@@ -32,7 +32,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <inheritdoc/>
         public override Spec Base
         {
-            get => this.parent.Base?[this.accessKey];
+            get => this.parent.Base?.SubSpec[this.accessKey];
         }
 
         /// <inheritdoc/>
@@ -50,7 +50,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         this.accessKey, new MappingYAML()];
                     this.parent.Mold.Mapping[this.accessKey] = childYaml;
 
-                    return this.parent.Mold.Mapping[this.accessKey];
+                    return childYaml;
                 }
             }
         }
@@ -66,7 +66,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     $"{this.parent.Properties.ID}[{this.accessKey}]";
                 this.parent.Properties.Mapping[this.accessKey] = childYaml;
 
-                return this.parent.Properties.Mapping[this.accessKey];
+                return childYaml;
             }
         }
 

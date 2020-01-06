@@ -63,6 +63,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets the indexer for spec child.
+        /// </summary>
+        public SpecChildIndexer Child
+        {
+            get => new SpecChildIndexer(this);
+        }
+
+        /// <summary>
         /// Gets indexer for integer accessor.
         /// </summary>
         public ValueIndexer<int> Int
@@ -382,7 +390,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         /// <param name="key">The string key for the sub spec.</param>
         /// <returns>The sub spec.</returns>
-        public SpecNode this[string key]
+        public SubSpec this[string key]
         {
             get => this.SubSpec[key];
         }
@@ -785,9 +793,36 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// </summary>
             /// <param name="key">The string key for the sub spec.</param>
             /// <returns>The sub spec.</returns>
-            public SpecNode this[string key]
+            public SubSpec this[string key]
             {
-                get => new SpecNode(this.parent, key);
+                get => new SubSpec(this.parent, key);
+            }
+        }
+
+        /// <summary>
+        /// Indexer class for SpecChild.
+        /// </summary>
+        public class SpecChildIndexer
+        {
+            private Spec parent;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SpecChildIndexer"/> class.
+            /// </summary>
+            /// <param name="parent">The parent spec instance.</param>
+            internal SpecChildIndexer(Spec parent)
+            {
+                this.parent = parent;
+            }
+
+            /// <summary>
+            /// Indexer for spec child.
+            /// </summary>
+            /// <param name="key">The string key for the spec child.</param>
+            /// <returns>The spec child.</returns>
+            public SpecChild this[string key]
+            {
+                get => new SpecChild(this.parent, key);
             }
         }
 

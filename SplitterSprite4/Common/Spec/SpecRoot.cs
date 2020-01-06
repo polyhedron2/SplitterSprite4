@@ -11,8 +11,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
-    /// Specファイル本体を表現するSpecクラス
+    /// Specファイル本体を表現するSpecクラス。
+    /// SpawnerRootインスタンスにより使用される。
     /// The accessor class for spec file.
+    /// Used by SpawnerRoot instance.
     /// </summary>
     public class SpecRoot : Spec
     {
