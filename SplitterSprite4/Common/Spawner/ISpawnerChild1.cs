@@ -12,7 +12,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     /// </summary>
     /// <typeparam name="T_Target">Spawn target class.</typeparam>
     /// <typeparam name="T_Arg1">1st argument class for spawing.</typeparam>
-    public interface ISpawnerChild1<out T_Target, T_Arg1> : ISpawnerChild
+    public interface ISpawnerChild1<out T_Target, T_Arg1>
+        : ISpawnerChild<T_Target>
     {
         /// <summary>
         /// Gets dummy 1st argument for molding.
@@ -25,5 +26,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         /// <param name="arg1">1st argument.</param>
         /// <returns>Spawn target.</returns>
         T_Target Spawn(T_Arg1 arg1);
+
+        /// <inheritdoc/>
+        T_Target ISpawner<T_Target>.DummySpawn()
+        {
+            return this.Spawn(this.DummyArg1);
+        }
     }
 }

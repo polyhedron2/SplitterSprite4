@@ -12,17 +12,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     /// SpecRootからインスタンスを生成するインターフェース。
     /// Instance spawner interface with SpecRoot.
     /// </summary>
-    public interface ISpawnerRoot
+    /// <typeparam name="T_Target">Spawn target class.</typeparam>
+    public interface ISpawnerRoot<out T_Target> : ISpawner<T_Target>
     {
         /// <summary>
         /// Gets or sets spec instance for spawning target.
         /// The spec will be automatically set.
         /// </summary>
         SpecRoot Spec { get; set; }
-
-        /// <summary>
-        /// Gets explanation note for this spawner class.
-        /// </summary>
-        string Note { get; }
     }
 }

@@ -11,12 +11,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     /// Instance spawner interface with SpecRoot and 0 args.
     /// </summary>
     /// <typeparam name="T_Target">Spawn target class.</typeparam>
-    public interface ISpawnerRoot0<out T_Target> : ISpawnerRoot
+    public interface ISpawnerRoot0<out T_Target> : ISpawnerRoot<T_Target>
     {
         /// <summary>
         /// Spawn target instance with SpecRoot instance.
         /// </summary>
         /// <returns>Spawn target.</returns>
         T_Target Spawn();
+
+        /// <inheritdoc/>
+        T_Target ISpawner<T_Target>.DummySpawn()
+        {
+            return this.Spawn();
+        }
     }
 }
