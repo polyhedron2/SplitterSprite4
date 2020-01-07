@@ -5,15 +5,9 @@ VisualStudioVersion = 16.0.29201.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicKitchen.SplitterSprite4.Common", "Common\MagicKitchen.SplitterSprite4.Common.csproj", "{60644C35-FF3B-4E94-8E05-530226865749}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicKitchen.SplitterSprite4.ForConsole", "ForConsole\MagicKitchen.SplitterSprite4.ForConsole.csproj", "{71486BFB-B62C-46A9-88D8-4C84895FDC5F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicKitchen.SplitterSprite4.ForWPF", "ForWPF\MagicKitchen.SplitterSprite4.ForWPF.csproj", "{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicKitchen.SplitterSprite4.ForCocoa", "ForCocoa\MagicKitchen.SplitterSprite4.ForCocoa.csproj", "{FA14CFE5-4F63-4AD4-8107-68DF1A0D3F92}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicKitchen.SpIDEr", "SpIDEr\MagicKitchen.SpIDEr.csproj", "{FB88EDE6-607E-4122-A78C-D38627902BC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicKitchen.SplitterSprite4.Common.Test", "Common.Test\MagicKitchen.SplitterSprite4.Common.Test.csproj", "{0925C426-5232-4969-A4DC-72B84AF629BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicKitchen.SplitterSprite4.Common.Test", "Common.Test\MagicKitchen.SplitterSprite4.Common.Test.csproj", "{0925C426-5232-4969-A4DC-72B84AF629BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,18 +19,6 @@ Global
 		{60644C35-FF3B-4E94-8E05-530226865749}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60644C35-FF3B-4E94-8E05-530226865749}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60644C35-FF3B-4E94-8E05-530226865749}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71486BFB-B62C-46A9-88D8-4C84895FDC5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71486BFB-B62C-46A9-88D8-4C84895FDC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71486BFB-B62C-46A9-88D8-4C84895FDC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71486BFB-B62C-46A9-88D8-4C84895FDC5F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F5A6EBC-615B-4A8E-B0BB-DB513DB20E6E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA14CFE5-4F63-4AD4-8107-68DF1A0D3F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA14CFE5-4F63-4AD4-8107-68DF1A0D3F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA14CFE5-4F63-4AD4-8107-68DF1A0D3F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA14CFE5-4F63-4AD4-8107-68DF1A0D3F92}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB88EDE6-607E-4122-A78C-D38627902BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB88EDE6-607E-4122-A78C-D38627902BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB88EDE6-607E-4122-A78C-D38627902BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
