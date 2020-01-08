@@ -128,7 +128,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     }
 
                     this.Body.Scalar["spawner"] =
-                        new ScalarYAML(value.AssemblyQualifiedName);
+                        new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
                 }
                 catch (Exception ex)
                 {
@@ -151,8 +151,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     var ret = this.mold.Mapping["properties", new MappingYAML()];
                     this.mold.Scalar["base"] = new ScalarYAML("Spec");
+                    var baseType = typeof(ISpawnerRoot<object>);
                     this.mold.Scalar["spawner"] = new ScalarYAML(
-                        $"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}");
+                        $"Spawner, {baseType.FullName}," +
+                        $" {baseType.Assembly.GetName().Name}");
                     this.mold.Mapping["properties"] = ret;
                     return ret;
                 }

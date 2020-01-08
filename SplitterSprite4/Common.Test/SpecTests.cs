@@ -168,22 +168,27 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             var spec = new SpecRoot(proxy, agnosticPath, true);
+            {
+                // act
+                spec.SpawnerType = typeof(ValidSpawnerRootWithDefaultConstructor);
 
-            // act
-            spec.SpawnerType = typeof(ValidSpawnerRootWithDefaultConstructor);
+                // assert
+                var type = typeof(ValidSpawnerRootWithDefaultConstructor);
+                Assert.Equal(
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    spec.ToString());
+            }
 
-            // assert
-            Assert.Equal(
-                $"\"spawner\": \"{typeof(ValidSpawnerRootWithDefaultConstructor).AssemblyQualifiedName}\"",
-                spec.ToString());
+            {
+                // act
+                spec.SpawnerType = typeof(ValidSpawnerRootWithImplementedConstructor);
 
-            // act
-            spec.SpawnerType = typeof(ValidSpawnerRootWithImplementedConstructor);
-
-            // assert
-            Assert.Equal(
-                $"\"spawner\": \"{typeof(ValidSpawnerRootWithImplementedConstructor).AssemblyQualifiedName}\"",
-                spec.ToString());
+                // assert
+                var type = typeof(ValidSpawnerRootWithImplementedConstructor);
+                Assert.Equal(
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    spec.ToString());
+            }
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -213,8 +218,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             {
                 // act
+                var type = typeof(ValidSpawnerRootWithDefaultConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{typeof(ValidSpawnerRootWithDefaultConstructor).AssemblyQualifiedName}\""));
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
                 var spec = new SpecRoot(proxy, agnosticPath);
 
                 // assert
@@ -225,8 +231,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var type = typeof(ValidSpawnerRootWithImplementedConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{typeof(ValidSpawnerRootWithImplementedConstructor).AssemblyQualifiedName}\""));
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
                 var spec = new SpecRoot(proxy, agnosticPath);
 
                 // assert
@@ -237,8 +244,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var type = typeof(SpawnerRootWithoutValidConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{typeof(SpawnerRootWithoutValidConstructor).AssemblyQualifiedName}\""));
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                var spec = new SpecRoot(proxy, agnosticPath);
+
+                // assert
+                Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+                {
+                    _ = spec.SpawnerType;
+                });
+            }
+
+            {
+                // act
+                var type = typeof(NonSpawner);
+                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
                 var spec = new SpecRoot(proxy, agnosticPath);
 
                 // assert
@@ -251,20 +273,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             {
                 // act
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{typeof(NonSpawner).AssemblyQualifiedName}\""));
-                var spec = new SpecRoot(proxy, agnosticPath);
-
-                // assert
-                Assert.Throws<Spec.InvalidSpecAccessException>(() =>
-                {
-                    _ = spec.SpawnerType;
-                });
-            }
-
-            {
-                // act
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    "\"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\""));
+                    "\"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test\""));
                 var spec = new SpecRoot(proxy, agnosticPath);
 
                 // assert
@@ -2561,7 +2570,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"foo\": \"Int\"",
                     "  \"bar\": \"Double\"",
@@ -2639,7 +2648,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"foo\": \"Int, 10\"",
                     "  \"bar\": \"Double, 3.14\"",
@@ -2746,7 +2755,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"default\": \"Int\"",
                     $"  \"foo\": \"Int, {dynamicDefault}\""),
@@ -2799,7 +2808,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"base\": \"Spec\"",
-                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
+                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
                         "\"properties\":",
                         "  \"flag\": \"Bool\"",
                         "  \"foo\": \"Int\""),
@@ -2810,7 +2819,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"base\": \"Spec\"",
-                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
+                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
                         "\"properties\":",
                         "  \"flag\": \"Bool\"",
                         "  \"bar\": \"Double\""),
@@ -2865,7 +2874,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"derived\": \"Int\"",
                     "  \"base\": \"Int\"",
