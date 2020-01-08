@@ -14,6 +14,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     /// </summary>
     /// <typeparam name="T_Target">Spawn target class.</typeparam>
     public interface ISpawnerRoot<out T_Target> : ISpawner<T_Target>
+        where T_Target : class
     {
         /// <summary>
         /// Gets or sets spec instance for spawning target.

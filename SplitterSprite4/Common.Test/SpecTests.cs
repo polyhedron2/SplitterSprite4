@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 {
     using System;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
+    using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
@@ -151,6 +152,127 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"int1\": \"1\"",
                     "  \"int2\": \"2\""),
                 new SpecRoot(proxy, agnosticPath).ToString());
+        }
+
+        /// <summary>
+        /// Test SpawnerType setter.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void SpawnerTypeSetterTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            var spec = new SpecRoot(proxy, agnosticPath, true);
+
+            // act
+            spec.SpawnerType = typeof(ValidSpawnerRootWithDefaultConstructor);
+
+            // assert
+            Assert.Equal(
+                $"\"spawner\": \"{typeof(ValidSpawnerRootWithDefaultConstructor).AssemblyQualifiedName}\"",
+                spec.ToString());
+
+            // act
+            spec.SpawnerType = typeof(ValidSpawnerRootWithImplementedConstructor);
+
+            // assert
+            Assert.Equal(
+                $"\"spawner\": \"{typeof(ValidSpawnerRootWithImplementedConstructor).AssemblyQualifiedName}\"",
+                spec.ToString());
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                spec.SpawnerType = typeof(SpawnerRootWithoutValidConstructor);
+            });
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                spec.SpawnerType = typeof(NonSpawner);
+            });
+        }
+
+        /// <summary>
+        /// Test SpawnerType getter.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void SpawnerTypeGetterTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            {
+                // act
+                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                    $"\"spawner\": \"{typeof(ValidSpawnerRootWithDefaultConstructor).AssemblyQualifiedName}\""));
+                var spec = new SpecRoot(proxy, agnosticPath);
+
+                // assert
+                Assert.Equal(
+                    typeof(ValidSpawnerRootWithDefaultConstructor),
+                    spec.SpawnerType);
+            }
+
+            {
+                // act
+                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                    $"\"spawner\": \"{typeof(ValidSpawnerRootWithImplementedConstructor).AssemblyQualifiedName}\""));
+                var spec = new SpecRoot(proxy, agnosticPath);
+
+                // assert
+                Assert.Equal(
+                    typeof(ValidSpawnerRootWithImplementedConstructor),
+                    spec.SpawnerType);
+            }
+
+            {
+                // act
+                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                    $"\"spawner\": \"{typeof(SpawnerRootWithoutValidConstructor).AssemblyQualifiedName}\""));
+                var spec = new SpecRoot(proxy, agnosticPath);
+
+                // assert
+                Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+                {
+                    _ = spec.SpawnerType;
+                });
+            }
+
+            {
+                // act
+                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                    $"\"spawner\": \"{typeof(NonSpawner).AssemblyQualifiedName}\""));
+                var spec = new SpecRoot(proxy, agnosticPath);
+
+                // assert
+                Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+                {
+                    _ = spec.SpawnerType;
+                });
+            }
+
+            {
+                // act
+                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                    "\"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\""));
+                var spec = new SpecRoot(proxy, agnosticPath);
+
+                // assert
+                Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+                {
+                    _ = spec.SpawnerType;
+                });
+            }
         }
 
         /// <summary>
@@ -2439,6 +2561,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
                     "\"properties\":",
                     "  \"foo\": \"Int\"",
                     "  \"bar\": \"Double\"",
@@ -2516,6 +2639,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
                     "\"properties\":",
                     "  \"foo\": \"Int, 10\"",
                     "  \"bar\": \"Double, 3.14\"",
@@ -2622,6 +2746,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
                     "\"properties\":",
                     "  \"default\": \"Int\"",
                     $"  \"foo\": \"Int, {dynamicDefault}\""),
@@ -2674,6 +2799,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"base\": \"Spec\"",
+                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
                         "\"properties\":",
                         "  \"flag\": \"Bool\"",
                         "  \"foo\": \"Int\""),
@@ -2684,6 +2810,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"base\": \"Spec\"",
+                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
                         "\"properties\":",
                         "  \"flag\": \"Bool\"",
                         "  \"bar\": \"Double\""),
@@ -2738,6 +2865,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
+                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}\"",
                     "\"properties\":",
                     "  \"derived\": \"Int\"",
                     "  \"base\": \"Int\"",
@@ -2773,6 +2901,119 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             OutSideProxy proxy, string layeredPathStr, string body)
         {
             return this.SetupSpecFile(proxy, "layer", layeredPathStr, body);
+        }
+
+        /// <summary>
+        /// SpawnerRootの正しい実装。デフォルトコンストラクタを持つ。
+        /// Valid implementation of SpawnerRoot.
+        /// </summary>
+        public class ValidSpawnerRootWithDefaultConstructor :
+            ISpawnerRoot0<string>
+        {
+            /// <inheritdoc/>
+            public SpecRoot Spec { get; set; }
+
+            /// <inheritdoc/>
+            public string Note { get; } = "正しく実装されたSpawner";
+
+            /// <inheritdoc/>
+            public string Spawn()
+            {
+                return this.Spec.Text["return value"];
+            }
+        }
+
+        /// <summary>
+        /// SpawnerRootの正しい実装。0引数コンストラクタを持つ。
+        /// Valid implementation of SpawnerRoot with 0 arg constructor.
+        /// </summary>
+        public class ValidSpawnerRootWithImplementedConstructor :
+            ISpawnerRoot1<string, bool>
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ValidSpawnerRootWithImplementedConstructor"/> class.
+            /// </summary>
+            public ValidSpawnerRootWithImplementedConstructor()
+            {
+            }
+
+            /// <inheritdoc/>
+            public SpecRoot Spec { get; set; }
+
+            /// <inheritdoc/>
+            public string Note { get; } = "正しく実装されたSpawner";
+
+            /// <inheritdoc/>
+            public bool DummyArg1 { get => true; }
+
+            /// <inheritdoc/>
+            public string Spawn(bool arg1)
+            {
+                if (arg1)
+                {
+                    return this.Spec.Text["true"];
+                }
+                else
+                {
+                    return this.Spec.Text["false"];
+                }
+            }
+        }
+
+        /// <summary>
+        /// SpawnerRootの誤った実装。０引数コンストラクタを持たない。
+        /// Invalid implementation of SpawnerRoot without 0 arg constructor.
+        /// </summary>
+        public class SpawnerRootWithoutValidConstructor :
+            ISpawnerRoot2<string, bool, string>
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SpawnerRootWithoutValidConstructor"/> class.
+            /// </summary>
+            /// <param name="dummy">Dummy parameter.</param>
+            public SpawnerRootWithoutValidConstructor(int dummy)
+            {
+                _ = dummy;
+            }
+
+            /// <inheritdoc/>
+            public SpecRoot Spec { get; set; }
+
+            /// <inheritdoc/>
+            public string Note { get; } = "誤って実装されたSpawner";
+
+            /// <inheritdoc/>
+            public bool DummyArg1 { get => true; }
+
+            /// <inheritdoc/>
+            public string DummyArg2 { get => "hoge"; }
+
+            /// <inheritdoc/>
+            public string Spawn(bool arg1, string arg2)
+            {
+                try
+                {
+                    if (arg1)
+                    {
+                        return this.Spec.Text["true"];
+                    }
+                    else
+                    {
+                        return this.Spec.Text["false"];
+                    }
+                }
+                catch (Exception)
+                {
+                    return arg2;
+                }
+            }
+        }
+
+        /// <summary>
+        /// This is not a spawner.
+        /// </summary>
+        public class NonSpawner
+        {
         }
     }
 }

@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
+    using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -70,6 +71,73 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             }
         }
 
+        /// <summary>
+        /// Gets or sets spawner type for this spec.
+        /// </summary>
+        public Type SpawnerType
+        {
+            get
+            {
+                try
+                {
+                    var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
+
+                    // ISpawnerRootのサブクラスである必要がある。
+                    // The type must be sub class of ISpawnerRoot.
+                    if (!typeof(ISpawnerRoot<object>).IsAssignableFrom(type))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    // Spawnerにはゼロ引数コンストラクタを要求する。
+                    // Spawner is required to have constructor without parameters.
+                    if (type.GetConstructor(Type.EmptyTypes) == null)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    return type;
+                }
+                catch (YAML.YAMLKeyUndefinedException)
+                {
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
+                }
+            }
+
+            set
+            {
+                try
+                {
+                    // ISpawnerRootのサブクラスである必要がある。
+                    // The type must be sub class of ISpawnerRoot.
+                    if (!typeof(ISpawnerRoot<object>).IsAssignableFrom(value))
+                    {
+                        throw new ValidationError();
+                    }
+
+                    // Spawnerにはゼロ引数コンストラクタを要求する。
+                    // Spawner is required to have constructor without parameters.
+                    if (value.GetConstructor(Type.EmptyTypes) == null)
+                    {
+                        throw new ValidationError();
+                    }
+
+                    this.Body.Scalar["spawner"] =
+                        new ScalarYAML(value.AssemblyQualifiedName);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
+                }
+            }
+        }
+
         /// <inheritdoc/>
         public override MappingYAML Mold
         {
@@ -83,6 +151,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     var ret = this.mold.Mapping["properties", new MappingYAML()];
                     this.mold.Scalar["base"] = new ScalarYAML("Spec");
+                    this.mold.Scalar["spawner"] = new ScalarYAML(
+                        $"Spawner, {typeof(ISpawnerRoot<object>).AssemblyQualifiedName}");
                     this.mold.Mapping["properties"] = ret;
                     return ret;
                 }

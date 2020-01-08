@@ -15,6 +15,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     /// <typeparam name="T_Arg2">2nd argument class for spawing.</typeparam>
     public interface ISpawnerRoot2<out T_Target, T_Arg1, T_Arg2>
         : ISpawnerRoot<T_Target>
+        where T_Target : class
     {
         /// <summary>
         /// Gets dummy 1st argument for molding.

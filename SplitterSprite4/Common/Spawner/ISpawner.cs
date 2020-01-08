@@ -12,6 +12,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     /// </summary>
     /// <typeparam name="T_Target">Spawn target class.</typeparam>
     public interface ISpawner<out T_Target>
+        where T_Target : class
     {
         /// <summary>
         /// Gets explanation note for this spawner class.
