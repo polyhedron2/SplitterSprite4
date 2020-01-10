@@ -773,6 +773,25 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Validate type instance is valid spawner.
+        /// </summary>
+        /// <param name="bound">Spawner type's bound.</param>
+        /// <param name="type">Validation target type.</param>
+        protected void ValidateSpawnerType(Type bound, Type type)
+        {
+            // boundのサブクラスである必要がある。
+            // The type must be sub class of bound.
+            if (!bound.IsAssignableFrom(type))
+            {
+                throw new ValidationError();
+            }
+
+            // Spawnerはゼロ引数コンストラクタからインスタンス生成可能である。
+            // Spawner instance must be created with constructor without parameters.
+            _ = Activator.CreateInstance(type);
+        }
+
+        /// <summary>
         /// Indexer class for SubSpec.
         /// </summary>
         public class SubSpecIndexer
@@ -819,10 +838,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// Indexer for spec child.
             /// </summary>
             /// <param name="key">The string key for the spec child.</param>
+            /// <param name="type">The SpawnerChild type which this spec child will define.</param>
             /// <returns>The spec child.</returns>
-            public SpecChild this[string key]
+            public SpecChild this[string key, Type type]
             {
-                get => new SpecChild(this.parent, key);
+                get => new SpecChild(this.parent, key, type);
             }
         }
 

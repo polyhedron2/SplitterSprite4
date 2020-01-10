@@ -6,7 +6,9 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
+    using System;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
+    using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -19,22 +21,74 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     {
         private Spec parent;
         private string accessKey;
+        private Type bound;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SpecChild"/> class.
         /// </summary>
         /// <param name="parent">The parent spec instance.</param>
         /// <param name="key">The string key for this spec child.</param>
-        internal SpecChild(Spec parent, string key)
+        /// <param name="type">The SpawnerChild type which this spec child will define.</param>
+        internal SpecChild(Spec parent, string key, Type type)
         {
+            if (!typeof(ISpawnerChild<object>).IsAssignableFrom(type))
+            {
+                throw new InvalidSpecDefinitionException(
+                    $"SpecChildに指定した型{type}は" +
+                    $"ISpawnerChild<object>を継承していません。");
+            }
+
             this.parent = parent;
             this.accessKey = key;
+            this.bound = type;
         }
 
         /// <inheritdoc/>
         public override Spec Base
         {
-            get => this.parent.Base?.Child[this.accessKey];
+            get => this.parent.Base?.Child[this.accessKey, this.bound];
+        }
+
+        /// <summary>
+        /// Gets or sets spawner type for this spec.
+        /// </summary>
+        public Type SpawnerType
+        {
+            get
+            {
+                try
+                {
+                    var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
+                    this.ValidateSpawnerType(this.bound, type);
+
+                    return type;
+                }
+                catch (YAML.YAMLKeyUndefinedException)
+                {
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
+                }
+            }
+
+            set
+            {
+                try
+                {
+                    this.ValidateSpawnerType(this.bound, value);
+
+                    this.Body.Scalar["spawner"] =
+                        new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
+                }
+            }
         }
 
         /// <inheritdoc/>
@@ -51,6 +105,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     var mold = this.parent.Mold.Mapping[
                         this.accessKey, new MappingYAML()];
                     this.parent.Mold.Mapping[this.accessKey] = mold;
+
+                    mold.Scalar["spawner"] = new ScalarYAML(
+                        $"Spawner, {this.bound.FullName}," +
+                        $" {this.bound.Assembly.GetName().Name}");
 
                     var ret = mold.Mapping["properties", new MappingYAML()];
                     mold.Mapping["properties"] = ret;

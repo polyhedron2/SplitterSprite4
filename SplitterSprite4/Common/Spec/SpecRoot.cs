@@ -81,20 +81,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 try
                 {
                     var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
-
-                    // ISpawnerRootのサブクラスである必要がある。
-                    // The type must be sub class of ISpawnerRoot.
-                    if (!typeof(ISpawnerRoot<object>).IsAssignableFrom(type))
-                    {
-                        throw new ValidationError();
-                    }
-
-                    // Spawnerにはゼロ引数コンストラクタを要求する。
-                    // Spawner is required to have constructor without parameters.
-                    if (type.GetConstructor(Type.EmptyTypes) == null)
-                    {
-                        throw new ValidationError();
-                    }
+                    this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), type);
 
                     return type;
                 }
@@ -113,16 +100,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 try
                 {
-                    // ISpawnerRootのサブクラスである必要がある。
-                    // The type must be sub class of ISpawnerRoot.
-                    if (!typeof(ISpawnerRoot<object>).IsAssignableFrom(value))
-                    {
-                        throw new ValidationError();
-                    }
-
-                    // Spawnerはゼロ引数コンストラクタからインスタンス生成可能である。
-                    // Spawner instance must be created with constructor without parameters.
-                    _ = Activator.CreateInstance(value);
+                    this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), value);
 
                     this.Body.Scalar["spawner"] =
                         new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
