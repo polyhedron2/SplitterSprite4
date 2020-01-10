@@ -120,12 +120,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         throw new ValidationError();
                     }
 
-                    // Spawnerにはゼロ引数コンストラクタを要求する。
-                    // Spawner is required to have constructor without parameters.
-                    if (value.GetConstructor(Type.EmptyTypes) == null)
-                    {
-                        throw new ValidationError();
-                    }
+                    // Spawnerはゼロ引数コンストラクタからインスタンス生成可能である。
+                    // Spawner instance must be created with constructor without parameters.
+                    _ = Activator.CreateInstance(value);
 
                     this.Body.Scalar["spawner"] =
                         new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
