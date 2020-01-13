@@ -118,6 +118,31 @@ namespace MagicKitchen.SplitterSprite4.Common
         }
 
         /// <summary>
+        /// OS非依存パス間の相対パスを取得
+        /// Calculate relative path between two os-agnostic pathes.
+        /// </summary>
+        /// <param name="a">The target path.</param>
+        /// <param name="b">The base path.</param>
+        /// <returns>Relative path.</returns>
+        public static AgnosticPath operator -(AgnosticPath a, AgnosticPath b)
+        {
+            var aUri = new Uri(DummyUri, a.ToAgnosticPathString());
+            var bUri = new Uri(DummyUri, b.ToAgnosticPathString());
+
+            // base pathはディレクトリとして解釈するため、'/'をつける。
+            // Add '/' to interpret it as directory path.
+            if (!bUri.ToString().EndsWith('/'))
+            {
+                bUri = new Uri(bUri.ToString() + '/');
+            }
+
+            var relativeUri = bUri.MakeRelativeUri(aUri);
+            var relativeStr = Uri.UnescapeDataString(relativeUri.ToString());
+
+            return new AgnosticPath(relativeStr, InternalSeparatorChar);
+        }
+
+        /// <summary>
         /// OS非依存化された文字列からのオブジェクト生成
         /// Generate AgnosticPath instance from os-agnostic path string.
         /// </summary>
@@ -151,6 +176,33 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <returns>The os-dependent path string.</returns>
         public string ToOSPathString() => this.InternalPath.Replace(
             InternalSeparatorChar, Path.DirectorySeparatorChar);
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            switch (obj)
+            {
+                case null:
+                    return false;
+                case AgnosticPath that:
+                    return this.ToAgnosticPathString()
+                        == that.ToAgnosticPathString();
+                default:
+                    return false;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return this.ToAgnosticPathString().GetHashCode();
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return this.ToAgnosticPathString();
+        }
 
         /// <summary>
         /// 禁止文字がファイルパス内に含まれている際の例外

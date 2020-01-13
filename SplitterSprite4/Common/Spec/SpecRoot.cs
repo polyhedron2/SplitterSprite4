@@ -219,5 +219,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
 
             return ret;
         }
+
+        /// <summary>
+        /// BaseとなるSpecを更新する。
+        /// Update base spec.
+        /// </summary>
+        /// <param name="newBase">New base spec for udpating.</param>
+        public void UpdateBase(SpecRoot newBase)
+        {
+            var baseRelativePath =
+                newBase.LayeredFile.Path - this.LayeredFile.Path.Parent;
+            this.Body.Scalar["base"] = new ScalarYAML(
+                baseRelativePath.ToAgnosticPathString());
+        }
     }
 }

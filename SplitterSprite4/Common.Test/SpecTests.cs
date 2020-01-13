@@ -2309,6 +2309,57 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test UpdateBase method.
+        /// </summary>
+        /// <param name="derivedSpecPathStr">Derived spec path.</param>
+        /// <param name="baseSpecPathStr">Base spec path to updating.</param>
+        /// <param name="expectedBasePathInSpec">Expected value in derived spec.</param>
+        [Theory]
+        [InlineData("foo.spec", "bar.spec", "bar.spec")]
+        [InlineData("dir/foo.spec", "dir/bar.spec", "bar.spec")]
+        [InlineData("dir/dir2/foo.spec", "dir/dir2/bar.spec", "bar.spec")]
+        [InlineData("foo.spec", "dir/bar.spec", "dir/bar.spec")]
+        [InlineData("foo.spec", "dir/dir2/bar.spec", "dir/dir2/bar.spec")]
+        [InlineData("dir/foo.spec", "bar.spec", "../bar.spec")]
+        [InlineData("dir/dir2/foo.spec", "bar.spec", "../../bar.spec")]
+        [InlineData("dir/foo.spec", "dir2/bar.spec", "../dir2/bar.spec")]
+        [InlineData("dir/dir2/foo.spec", "dir3/dir4/bar.spec", "../../dir3/dir4/bar.spec")]
+        public void UpdateBaseTest(
+            string derivedSpecPathStr,
+            string baseSpecPathStr,
+            string expectedBasePathInSpec)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var derivedSpec = new SpecRoot(proxy, derivedSpecPath, true);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var baseSpec = new SpecRoot(proxy, baseSpecPath, true);
+            baseSpec.Save();
+
+            // act
+            derivedSpec.UpdateBase(baseSpec);
+            derivedSpec.Save();
+            var reloadedDerivedSpec = new SpecRoot(proxy, derivedSpecPath);
+
+            // assert
+            Assert.Equal(
+                $"\"base\": \"{expectedBasePathInSpec}\"",
+                derivedSpec.ToString());
+            Assert.Equal(
+                baseSpecPathStr,
+                derivedSpec.Base.ID);
+            Assert.Equal(
+                $"\"base\": \"{expectedBasePathInSpec}\"",
+                reloadedDerivedSpec.ToString());
+            Assert.Equal(
+                baseSpecPathStr,
+                reloadedDerivedSpec.Base.ID);
+        }
+
+        /// <summary>
         /// Base Specからの設定値の継承をテスト。
         /// Test property inheritance from base specs.
         /// </summary>

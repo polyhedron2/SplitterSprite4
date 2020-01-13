@@ -218,30 +218,33 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
-        /// Test "+" operator.
+        /// Test "+" and "-" operator.
         /// </summary>
-        /// <param name="firstPath">The first operand.</param>
-        /// <param name="secondPath">The second operand.</param>
-        /// <param name="expectedPath">The expected result.</param>
+        /// <param name="basePath">The base path.</param>
+        /// <param name="relativePath">The relative path from the base path.</param>
+        /// <param name="combinedPath">The combined path.</param>
         [Theory]
         [InlineData("dir", "foo.txt", "dir/foo.txt")]
         [InlineData("dir", "../foo.txt", "foo.txt")]
         [InlineData("dir", "../../foo.txt", "../foo.txt")]
         [InlineData("dir/dir2", "foo.txt", "dir/dir2/foo.txt")]
         [InlineData("../", "foo.txt", "../foo.txt")]
+        [InlineData("../../", "foo.txt", "../../foo.txt")]
         [InlineData("../dir", "foo.txt", "../dir/foo.txt")]
-        public void PlusOperatorTest(
-            string firstPath, string secondPath, string expectedPath)
+        [InlineData("../../dir", "foo.txt", "../../dir/foo.txt")]
+        public void PlusMinusOperatorTest(
+            string basePath, string relativePath, string combinedPath)
         {
             // arrange
-            var first = AgnosticPath.FromAgnosticPathString(firstPath);
-            var second = AgnosticPath.FromAgnosticPathString(secondPath);
-
-            // act
-            var actual = first + second;
+            var agnosticBase = AgnosticPath.FromAgnosticPathString(basePath);
+            var agnosticRelative = AgnosticPath.FromAgnosticPathString(relativePath);
+            var agnosticCombined = AgnosticPath.FromAgnosticPathString(combinedPath);
 
             // assert
-            Assert.Equal(expectedPath, actual.ToAgnosticPathString());
+            Assert.Equal(
+                agnosticCombined, agnosticBase + agnosticRelative);
+            Assert.Equal(
+                agnosticRelative, agnosticCombined - agnosticBase);
         }
     }
 }
