@@ -32,13 +32,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath, true);
+            var spec = proxy.SpecPool(agnosticPath, true);
 
             // assert
+            // absent spec is empty mapping.
             Assert.Equal("{}", spec.ToString());
+
+            // Once absent spec is loaded, the spec is pooled.
+            // There fore, spec can be fetched even if acceptAbsence=false,
+            var pooledSpec = proxy.SpecPool(agnosticPath, false);
+
+            // If spec pool is cleared, spec cannot be fetched.
             Assert.Throws<LayeredFile.LayeredFileNotFoundException>(() =>
             {
-                new SpecRoot(proxy.FileIO, agnosticPath, false);
+                proxy = Utility.PoolClearedProxy(proxy);
+                proxy.SpecPool(agnosticPath, false);
             });
         }
 
@@ -72,13 +80,40 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             this.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal("\"key\": \"value\"", spec.ToString());
             Assert.Equal(path, spec.ID);
             Assert.Equal(expectedChildID, spec["child"].ID);
             Assert.Equal(expectedDeepChildID, spec["first"]["second"].ID);
+        }
+
+        /// <summary>
+        /// Test that SpecPool method returns
+        /// same instance for same os-agnostic path.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void SpecPoolTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
+
+            // act
+            var first = proxy.SpecPool(agnosticPath);
+            var second = proxy.SpecPool(agnosticPath);
+            var third = proxy.SpecPool(agnosticPath);
+
+            // assert
+            // SpecPool returns same instance for same os-agnostic path.
+            Assert.Same(first, second);
+            Assert.Same(first, third);
         }
 
         /// <summary>
@@ -99,7 +134,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var newPath = AgnosticPath.FromAgnosticPathString("dir1/dir2/bar.spec");
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
             spec.Int["int0"] = 0;
             spec.Save(newLayer, newPath);
 
@@ -113,7 +148,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "\"properties\":",
                     "  \"key\": \"value\"",
                     "  \"int0\": \"0\""),
-                new SpecRoot(proxy.FileIO, newPath).ToString());
+                proxy.SpecPool(newPath).ToString());
 
             // act
             spec.Int["int1"] = 1;
@@ -130,7 +165,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"key\": \"value\"",
                     "  \"int0\": \"0\"",
                     "  \"int1\": \"1\""),
-                new SpecRoot(proxy.FileIO, agnosticPath).ToString());
+                proxy.SpecPool(agnosticPath).ToString());
 
             // act
             spec.Int["int2"] = 2;
@@ -151,7 +186,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"int0\": \"0\"",
                     "  \"int1\": \"1\"",
                     "  \"int2\": \"2\""),
-                new SpecRoot(proxy.FileIO, agnosticPath).ToString());
+                proxy.SpecPool(agnosticPath).ToString());
         }
 
         /// <summary>
@@ -165,11 +200,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         public void SpecRootSpawnerTypeSetterTest(string path)
         {
             // arrange
-            var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath, true);
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var spec = proxy.SpecPool(agnosticPath, true);
                 spec.SpawnerType = typeof(ValidSpawnerRootWithDefaultConstructor);
 
                 // assert
@@ -181,6 +216,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var spec = proxy.SpecPool(agnosticPath, true);
                 spec.SpawnerType = typeof(ValidSpawnerRootWithImplementedConstructor);
 
                 // assert
@@ -193,12 +230,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
+                var proxy = Utility.TestOutSideProxy();
+                var spec = proxy.SpecPool(agnosticPath, true);
                 spec.SpawnerType = typeof(SpawnerRootWithoutValidConstructor);
             });
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
+                var proxy = Utility.TestOutSideProxy();
+                var spec = proxy.SpecPool(agnosticPath, true);
                 spec.SpawnerType = typeof(NonSpawner);
             });
         }
@@ -214,14 +255,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         public void SpecRootSpawnerTypeGetterTest(string path)
         {
             // arrange
-            var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerRootWithDefaultConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+                var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
                 Assert.Equal(
@@ -231,10 +272,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerRootWithImplementedConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+                var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
                 Assert.Equal(
@@ -244,10 +286,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(SpawnerRootWithoutValidConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+                var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -258,10 +301,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+                var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -272,9 +316,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test\""));
-                var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+                var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -295,11 +340,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         public void SpecChildSpawnerTypeSetterTest(string path)
         {
             // arrange
-            var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            var specParent = new SpecRoot(proxy.FileIO, agnosticPath, true);
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var specParent = proxy.SpecPool(agnosticPath, true);
                 var type = typeof(ValidSpawnerChildWithDefaultConstructor);
                 var specChild = specParent.Child["child", typeof(ISpawnerChild<object>)];
                 specChild.SpawnerType = type;
@@ -315,6 +360,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var specParent = proxy.SpecPool(agnosticPath, true);
                 var type = typeof(ValidSpawnerChildWithImplementedConstructor);
                 var specChild = specParent.Child["child", typeof(ISpawnerChild<object>)];
                 specChild.SpawnerType = type;
@@ -330,6 +377,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var specParent = proxy.SpecPool(agnosticPath, true);
                 var specChild = specParent.Child["child", typeof(ValidSpawnerChildWithDefaultConstructor)];
 
                 // assert
@@ -342,6 +391,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var specParent = proxy.SpecPool(agnosticPath, true);
                 var specChild = specParent.Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
@@ -353,6 +404,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
+                var specParent = proxy.SpecPool(agnosticPath, true);
                 var specChild = specParent.Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
@@ -374,16 +427,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         public void SpecChildSpawnerTypeGetterTest(string path)
         {
             // arrange
-            var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerChildWithDefaultConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var specChild = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
+                var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
                 Assert.Equal(type, specChild.SpawnerType);
@@ -391,12 +444,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerChildWithImplementedConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var specChild = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
+                var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
                 Assert.Equal(type, specChild.SpawnerType);
@@ -404,12 +458,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerChildWithDefaultConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var specChild = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(ValidSpawnerChildWithImplementedConstructor)];
+                var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ValidSpawnerChildWithImplementedConstructor)];
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -420,20 +475,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // assert
+                var proxy = Utility.TestOutSideProxy();
                 Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
                 {
-                    _ = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(NonSpawner)];
+                    _ = proxy.SpecPool(agnosticPath, true).Child["child", typeof(NonSpawner)];
                 });
             }
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(SpawnerChildWithoutValidConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var specChild = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
+                var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -444,12 +501,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
-                var specChild = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
+                var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -460,12 +518,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             {
                 // act
+                var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     "    \"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test\""));
-                var specChild = new SpecRoot(proxy.FileIO, agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
+                var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -497,7 +556,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"second\": \"1729\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -543,7 +602,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -580,7 +640,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"second\": \"1.41421356\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -626,7 +686,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -663,7 +724,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"second\": \"False\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -709,7 +770,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -746,7 +808,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"second\": \"no\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -792,7 +854,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -829,7 +892,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"second\": \"off\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -875,7 +938,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -932,7 +996,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "  \"right outer [0, 10)\": \"10\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1088,7 +1152,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -1161,7 +1226,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "  \"[5.5, -5.5]\": \"0.0\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1349,7 +1414,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -1405,7 +1471,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"third\": \"1, 2\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1479,7 +1545,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -1522,7 +1589,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"third\": \"1, 1, 2\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1596,7 +1663,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -1639,7 +1707,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"third\": \"0.70710678118, 0.70710678118\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1723,7 +1791,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -1766,7 +1835,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"third\": \"0.70710678118, 0.70710678118, 1.0\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1850,7 +1919,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -1892,7 +1962,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"first\": \"tarao\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -1956,7 +2026,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -2003,7 +2074,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "    \"second\": \"こどもの名前\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -2108,7 +2179,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -2162,7 +2234,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "      \"[End Of Text]\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath);
+            var spec = proxy.SpecPool(agnosticPath);
 
             // assert
             // get value without default value.
@@ -2272,7 +2344,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             spec.Save();
-            var reloadedSpec = new SpecRoot(proxy.FileIO, agnosticPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
 
             // assert
             Assert.Equal(
@@ -2333,16 +2406,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var proxy = Utility.TestOutSideProxy();
             var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
                 derivedSpecPathStr);
-            var derivedSpec = new SpecRoot(proxy.FileIO, derivedSpecPath, true);
+            var derivedSpec = proxy.SpecPool(derivedSpecPath, true);
             var baseSpecPath = AgnosticPath.FromAgnosticPathString(
                 baseSpecPathStr);
-            var baseSpec = new SpecRoot(proxy.FileIO, baseSpecPath, true);
+            var baseSpec = proxy.SpecPool(baseSpecPath, true);
             baseSpec.Save();
 
             // act
             derivedSpec.UpdateBase(baseSpec);
             derivedSpec.Save();
-            var reloadedDerivedSpec = new SpecRoot(proxy.FileIO, derivedSpecPath);
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedDerivedSpec = proxy.SpecPool(derivedSpecPath);
 
             // assert
             Assert.Equal(
@@ -2497,7 +2571,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"111\": \"2\""));
 
             // act
-            var derivedSpec = new SpecRoot(proxy.FileIO, derivedSpecPath);
+            var derivedSpec = proxy.SpecPool(derivedSpecPath);
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -2680,7 +2754,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"111\": \"2\""));
 
             // act
-            var firstSpec = new SpecRoot(proxy.FileIO, firstSpecPath);
+            var firstSpec = proxy.SpecPool(firstSpecPath);
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -2753,7 +2827,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"defined\": \"0\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, derivedSpecPath);
+            var spec = proxy.SpecPool(derivedSpecPath);
 
             // assert
             Assert.Equal(0, spec.Int["defined"]);
@@ -2779,7 +2853,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath, true);
+            var spec = proxy.SpecPool(agnosticPath, true);
             Action<Spec> action = (Spec sp) =>
             {
                 _ = sp.Int["foo"];
@@ -2855,7 +2929,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath, true);
+            var spec = proxy.SpecPool(agnosticPath, true);
             Action<Spec> action = (Spec sp) =>
             {
                 _ = sp.Int["foo", 10];
@@ -2985,7 +3059,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 $"  \"default\": \"{dynamicDefault}\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath, true);
+            var spec = proxy.SpecPool(agnosticPath, true);
             Action<Spec> action = (Spec sp) =>
             {
                 var def = sp.Int["default"];
@@ -3029,7 +3103,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 $"  \"flag\": \"{dynamicSwitch}\""));
 
             // act
-            var spec = new SpecRoot(proxy.FileIO, agnosticPath, true);
+            var spec = proxy.SpecPool(agnosticPath, true);
             Action<Spec> action = (Spec sp) =>
             {
                 var flag = sp.Bool["flag"];
@@ -3103,7 +3177,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 $"  \"base\": \"{baseValue}\""));
 
             // act
-            var derivedSpec = new SpecRoot(proxy.FileIO, derivedPath, true);
+            var derivedSpec = proxy.SpecPool(derivedPath, true);
             Action<Spec> action = (Spec sp) =>
             {
                 _ = sp.Int["derived"];
@@ -3145,7 +3219,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 writer.Write(body);
             });
 
-            return new SpecRoot(proxy.FileIO, layeredPath);
+            return proxy.SpecPool(layeredPath);
         }
 
         private SpecRoot SetupSpecFile(

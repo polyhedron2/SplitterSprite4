@@ -34,6 +34,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             return new OutSideProxy(new TestFileIOProxy());
         }
 
+        /// <summary>
+        /// Create a OutSideProxy whose spec pool is cleared.
+        /// </summary>
+        /// <param name="proxy">Original OutSideProxy.</param>
+        /// <returns>Pool cleared proxy.</returns>
+        public static OutSideProxy PoolClearedProxy(OutSideProxy proxy)
+        {
+            return new OutSideProxy(proxy.FileIO);
+        }
+
         private class TestFileIOProxy : RealFileIOProxy
         {
             internal TestFileIOProxy()

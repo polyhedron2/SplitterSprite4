@@ -146,9 +146,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
-        internal override FileIOProxy FileIOProxy
+        internal override OutSideProxy Proxy
         {
-            get => this.parent.FileIOProxy;
+            get => this.parent.Proxy;
         }
     }
 }
