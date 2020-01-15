@@ -17,23 +17,23 @@ namespace MagicKitchen.SplitterSprite4.Common
     /// </summary>
     public class LayeredFile
     {
-        private OutSideProxy proxy;
+        private FileIOProxy fileIOProxy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LayeredFile"/> class.
         /// </summary>
-        /// <param name="proxy">The OutSideProxy for file access.</param>
+        /// <param name="fileIOProxy">The FileIOProxy for file access.</param>
         /// <param name="path">The relative path from layer directory.</param>
         /// <param name="acceptAbsence">Accept absence of the layered file or not.</param>
         public LayeredFile(
-            OutSideProxy proxy, AgnosticPath path, bool acceptAbsence = false)
+            FileIOProxy fileIOProxy, AgnosticPath path, bool acceptAbsence = false)
         {
             if (path.ToAgnosticPathString().StartsWith("../"))
             {
                 throw new OutOfLayerAccessException(path);
             }
 
-            this.proxy = proxy;
+            this.fileIOProxy = fileIOProxy;
             this.Path = path;
 
             try
@@ -121,8 +121,8 @@ namespace MagicKitchen.SplitterSprite4.Common
         {
             try
             {
-                return Layer.FetchSortedLayers(this.proxy).First(
-                    layer => this.proxy.FileIO.FileExists(
+                return Layer.FetchSortedLayers(this.fileIOProxy).First(
+                    layer => this.fileIOProxy.FileExists(
                         layer.Path + this.Path));
             }
             catch (InvalidOperationException)
@@ -137,14 +137,14 @@ namespace MagicKitchen.SplitterSprite4.Common
         {
             var metaFilePath = AgnosticPath.FromAgnosticPathString(
                 this.FetchReadPath().ToAgnosticPathString() + ".meta");
-            return new RootYAML(this.proxy, metaFilePath, acceptAbsence: true);
+            return new RootYAML(this.fileIOProxy, metaFilePath, acceptAbsence: true);
         }
 
         private RootYAML FetchWriteMetaYAML(Layer writeLayer)
         {
             var metaFilePath = AgnosticPath.FromAgnosticPathString(
                 this.FetchWritePath(writeLayer).ToAgnosticPathString() + ".meta");
-            return new RootYAML(this.proxy, metaFilePath, acceptAbsence: true);
+            return new RootYAML(this.fileIOProxy, metaFilePath, acceptAbsence: true);
         }
 
         /// <summary>

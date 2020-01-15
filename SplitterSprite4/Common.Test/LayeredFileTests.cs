@@ -33,7 +33,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             this.SetUpFile(proxy, layeredPathStr, "second", "third");
 
             // act
-            var lFile = new LayeredFile(proxy, layeredPath);
+            var lFile = new LayeredFile(proxy.FileIO, layeredPath);
 
             // assert
             Assert.Equal(layeredPathStr, lFile.Path.ToAgnosticPathString());
@@ -45,7 +45,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 $"first/{layeredPathStr}",
                 lFile.FetchWritePath(
-                    new Layer(proxy, "first")).ToAgnosticPathString());
+                    new Layer(proxy.FileIO, "first")).ToAgnosticPathString());
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             this.SetUpMeta(proxy, layeredPathStr, "first", "second", "third");
 
             // act
-            var lFile = new LayeredFile(proxy, layeredPath);
+            var lFile = new LayeredFile(proxy.FileIO, layeredPath);
 
             // assert
             Assert.Equal(layeredPathStr, lFile.Path.ToAgnosticPathString());
@@ -82,7 +82,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 $"first/{layeredPathStr}",
                 lFile.FetchWritePath(
-                    new Layer(proxy, "first")).ToAgnosticPathString());
+                    new Layer(proxy.FileIO, "first")).ToAgnosticPathString());
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Throws<LayeredFile.OutOfLayerAccessException>(() =>
             {
-                new LayeredFile(proxy, layeredPath);
+                new LayeredFile(proxy.FileIO, layeredPath);
             });
         }
 
@@ -126,15 +126,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             this.SetUpLayers(proxy, "layer");
             this.SetUpFile(proxy, layeredPathStr, "layer");
             var layeredPath = AgnosticPath.FromAgnosticPathString(layeredPathStr);
-            var lFileForEdit = new LayeredFile(proxy, layeredPath);
+            var lFileForEdit = new LayeredFile(proxy.FileIO, layeredPath);
 
             // act
             lFileForEdit.Author = newAuthor;
             lFileForEdit.Title = newTitle;
-            lFileForEdit.SaveMetaData(new Layer(proxy, "layer"));
+            lFileForEdit.SaveMetaData(new Layer(proxy.FileIO, "layer"));
 
             // assert
-            var lFile = new LayeredFile(proxy, layeredPath);
+            var lFile = new LayeredFile(proxy.FileIO, layeredPath);
             Assert.Equal(newAuthor, lFile.Author);
             Assert.Equal(newTitle, lFile.Title);
         }
@@ -154,41 +154,41 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             this.SetUpLayers(proxy, "first", "second", "third");
             this.SetUpFile(proxy, layeredPathStr, "second", "third");
             var layeredPath = AgnosticPath.FromAgnosticPathString(layeredPathStr);
-            var lFileForEdit = new LayeredFile(proxy, layeredPath);
+            var lFileForEdit = new LayeredFile(proxy.FileIO, layeredPath);
 
             // act
             lFileForEdit.Author = "third_author";
             lFileForEdit.Title = "third_author";
-            lFileForEdit.SaveMetaData(new Layer(proxy, "third"));
+            lFileForEdit.SaveMetaData(new Layer(proxy.FileIO, "third"));
 
             // assert
             // 最上位でないレイヤーに書き込んでも変化はない
             // There are no changes with update for non-top layer.
-            var lFileThird = new LayeredFile(proxy, layeredPath);
+            var lFileThird = new LayeredFile(proxy.FileIO, layeredPath);
             Assert.Equal(string.Empty, lFileThird.Author);
             Assert.Equal(string.Empty, lFileThird.Title);
 
             // act
             lFileForEdit.Author = "second_author";
             lFileForEdit.Title = "second_author";
-            lFileForEdit.SaveMetaData(new Layer(proxy, "second"));
+            lFileForEdit.SaveMetaData(new Layer(proxy.FileIO, "second"));
 
             // assert
             // 最上位でないレイヤーに書き込めば変化する
             // The meta data is changed with update for top layer.
-            var lFileSecond = new LayeredFile(proxy, layeredPath);
+            var lFileSecond = new LayeredFile(proxy.FileIO, layeredPath);
             Assert.Equal("second_author", lFileSecond.Author);
             Assert.Equal("second_author", lFileSecond.Title);
 
             // act
             lFileForEdit.Author = "first_author";
             lFileForEdit.Title = "first_author";
-            lFileForEdit.SaveMetaData(new Layer(proxy, "first"));
+            lFileForEdit.SaveMetaData(new Layer(proxy.FileIO, "first"));
 
             // assert
             // ファイル実体のないレイヤーに書き込んでも利用されない
             // There are no changes with update for a layer with no file.
-            var lFileFirst = new LayeredFile(proxy, layeredPath);
+            var lFileFirst = new LayeredFile(proxy.FileIO, layeredPath);
             Assert.Equal("second_author", lFileFirst.Author);
             Assert.Equal("second_author", lFileFirst.Title);
         }
@@ -212,7 +212,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Throws<LayeredFile.LayeredFileNotFoundException>(() =>
             {
-                new LayeredFile(proxy, layeredPath);
+                new LayeredFile(proxy.FileIO, layeredPath);
             });
         }
 
@@ -221,14 +221,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         {
             for (int i = 0; i < layerNames.Length - 1; i++)
             {
-                var layer = new Layer(proxy, layerNames[i], acceptEmpty: true);
+                var layer = new Layer(proxy.FileIO, layerNames[i], acceptEmpty: true);
                 layer.Dependencies = new string[] { layerNames[i + 1] };
                 layer.Save();
             }
 
             {
                 var layer = new Layer(
-                    proxy,
+                    proxy.FileIO,
                     layerNames[layerNames.Length - 1],
                     acceptEmpty: true);
                 layer.Save();
@@ -244,7 +244,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 AgnosticPath.FromAgnosticPathString(layeredPathStr);
             foreach (var layerName in layerNames)
             {
-                var layer = new Layer(proxy, layerName);
+                var layer = new Layer(proxy.FileIO, layerName);
                 proxy.FileIO.CreateDirectory(
                     (layer.Path + layeredPath).Parent);
                 proxy.FileIO.WithTextWriter(
@@ -264,8 +264,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 layeredPathStr + ".meta");
             foreach (var layerName in layerNames)
             {
-                var layer = new Layer(proxy, layerName, true);
-                var meta = new RootYAML(proxy, layer.Path + metaPath, true);
+                var layer = new Layer(proxy.FileIO, layerName, true);
+                var meta = new RootYAML(proxy.FileIO, layer.Path + metaPath, true);
                 meta["author"] = new ScalarYAML($"{layerName}_author");
                 meta["title"] = new ScalarYAML($"{layerName}_title");
                 meta.Overwrite();

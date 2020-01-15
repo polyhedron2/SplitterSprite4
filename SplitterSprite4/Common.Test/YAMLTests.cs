@@ -30,7 +30,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
 
             // act
-            var yaml = new RootYAML(proxy, agnosticPath, acceptAbsence: true);
+            var yaml =
+                new RootYAML(proxy.FileIO, agnosticPath, acceptAbsence: true);
 
             // assert
             Assert.Equal("{}", yaml.ToString());
@@ -522,8 +523,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             originalYaml.Scalar["multiline_undefined_field"] =
                 new ScalarYAML("new_line_3", "new_line_4");
             originalYaml.Overwrite();
-            var reloadYaml =
-                new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
+            var reloadYaml = new RootYAML(
+                proxy.FileIO, AgnosticPath.FromAgnosticPathString(path));
 
             // assert
             void InternalAssert(RootYAML yaml)
@@ -587,8 +588,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         new ScalarYAML("new_value_2_2"),
                 };
             originalYaml.Overwrite();
-            var reloadYaml =
-                new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
+            var reloadYaml = new RootYAML(
+                proxy.FileIO, AgnosticPath.FromAgnosticPathString(path));
 
             // assert
             void InternalAssert(RootYAML yaml)
@@ -640,8 +641,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                         { "new_key_2_2", new ScalarYAML("new_value_2_2") },
                 };
             originalYaml.Overwrite();
-            var reloadYaml =
-                new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
+            var reloadYaml = new RootYAML(
+                proxy.FileIO, AgnosticPath.FromAgnosticPathString(path));
 
             // assert
             void InternalAssert(RootYAML yaml)
@@ -693,8 +694,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             originalYaml.Scalar["multiline_undefined_\"quotation\"_field"] =
                 new ScalarYAML("new_\"line\"_3", "new_\"line\"_4");
             originalYaml.Overwrite();
-            var reloadYaml =
-                new RootYAML(proxy, AgnosticPath.FromAgnosticPathString(path));
+            var reloadYaml = new RootYAML(
+                proxy.FileIO, AgnosticPath.FromAgnosticPathString(path));
 
             // assert
             void InternalAssert(RootYAML yaml)
@@ -943,7 +944,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 writer.Write(body);
             });
 
-            return new RootYAML(proxy, agnosticPath);
+            return new RootYAML(proxy.FileIO, agnosticPath);
         }
     }
 }

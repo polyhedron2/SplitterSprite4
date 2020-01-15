@@ -21,7 +21,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <param name="proxy">The OutSideProxy for file access.</param>
         public Launcher(OutSideProxy proxy)
         {
-            var yaml = new RootYAML(proxy, "launcher.meta");
+            var yaml = new RootYAML(proxy.FileIO, "launcher.meta");
             var entryPoint = yaml["entry_point"].ToString();
         }
     }

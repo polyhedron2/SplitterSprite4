@@ -44,7 +44,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             // act
-            var layer = new Layer(proxy, name);
+            var layer = new Layer(proxy.FileIO, name);
 
             // assert
             Assert.Equal(name, layer.Name);
@@ -84,7 +84,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             });
 
             // act
-            var layer = new Layer(proxy, name);
+            var layer = new Layer(proxy.FileIO, name);
 
             // assert
             Assert.Equal(name, layer.Name);
@@ -105,7 +105,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var proxy = Utility.TestOutSideProxy();
 
             // act
-            var layer = new Layer(proxy, name, acceptEmpty: true);
+            var layer = new Layer(proxy.FileIO, name, acceptEmpty: true);
 
             // assert
             Assert.Equal(name, layer.Name);
@@ -127,13 +127,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
-            var editLayer = new Layer(proxy, name, acceptEmpty: true);
+            var editLayer = new Layer(proxy.FileIO, name, acceptEmpty: true);
             editLayer.Dependencies = dependencies;
             editLayer.IsTop = top;
 
             // act
             editLayer.Save();
-            var layer = new Layer(proxy, name);
+            var layer = new Layer(proxy.FileIO, name);
 
             // assert
             Assert.Equal(name, layer.Name);
@@ -168,7 +168,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 proxy, "fourth", "dependencies: []");
 
             // act
-            var layers = Layer.FetchSortedLayers(proxy);
+            var layers = Layer.FetchSortedLayers(proxy.FileIO);
 
             // assert
             var result = layers.Select(layer => layer.Name).ToArray();
@@ -203,7 +203,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 proxy, "third", "dependencies: []");
 
             // act
-            var layers = Layer.FetchSortedLayers(proxy);
+            var layers = Layer.FetchSortedLayers(proxy.FileIO);
 
             // assert
             var result = layers.Select(layer => layer.Name).ToArray();
@@ -283,7 +283,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "dependencies: []");
 
             // act
-            var layers = Layer.FetchSortedLayers(proxy);
+            var layers = Layer.FetchSortedLayers(proxy.FileIO);
 
             // assert
             var result = layers.Select(layer => layer.Name).ToArray();
@@ -413,7 +413,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "dependencies: []");
 
             // act
-            var layers = Layer.FetchSortedLayers(proxy);
+            var layers = Layer.FetchSortedLayers(proxy.FileIO);
 
             // assert
             var result = layers.Select(layer => layer.Name).ToArray();
@@ -485,7 +485,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             this.SetupEmptyDirectory(proxy, "sixth");
 
             // act
-            var layers = Layer.FetchSortedLayers(proxy);
+            var layers = Layer.FetchSortedLayers(proxy.FileIO);
 
             // assert
             var result = layers.Select(layer => layer.Name).ToArray();
@@ -529,7 +529,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // act & assert
             Assert.Throws<Layer.CyclicDependencyException>(() =>
             {
-                var layers = Layer.FetchSortedLayers(proxy).ToArray();
+                var layers = Layer.FetchSortedLayers(proxy.FileIO).ToArray();
             });
         }
 
@@ -566,7 +566,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // act & assert
             Assert.Throws<Layer.CyclicDependencyException>(() =>
             {
-                var layers = Layer.FetchSortedLayers(proxy).ToArray();
+                var layers = Layer.FetchSortedLayers(proxy.FileIO).ToArray();
             });
         }
 
@@ -597,7 +597,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // act & assert
             Assert.Throws<Layer.NonExistentLayerException>(() =>
             {
-                var layers = Layer.FetchSortedLayers(proxy).ToArray();
+                var layers = Layer.FetchSortedLayers(proxy.FileIO).ToArray();
             });
         }
 

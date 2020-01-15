@@ -23,16 +23,16 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="Layer"/> class.
         /// </summary>
-        /// <param name="proxy">The OutSideProxy for file access.</param>
+        /// <param name="fileIOProxy">The FileIOProxy for file access.</param>
         /// <param name="name">The layer name.</param>
         /// <param name="acceptEmpty">Accept non-existence of the layer directory.</param>
         public Layer(
-            Proxy.OutSideProxy proxy,
+            FileIOProxy fileIOProxy,
             string name,
             bool acceptEmpty = false)
         {
             this.Name = name;
-            this.yaml = new RootYAML(proxy, $"{name}/layer.meta", acceptEmpty);
+            this.yaml = new RootYAML(fileIOProxy, $"{name}/layer.meta", acceptEmpty);
         }
 
         /// <summary>
@@ -102,12 +102,12 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// Fetch the sorted layers which sorted topologically
         /// by dependency relation.
         /// </summary>
-        /// <param name="proxy">The OutSideProxy.</param>
+        /// <param name="fileIOProxy">The FileIOProxy for file access.</param>
         /// <returns>The sorted layers.</returns>
         public static IEnumerable<Layer> FetchSortedLayers(
-            Proxy.OutSideProxy proxy)
+            FileIOProxy fileIOProxy)
         {
-            return SortLayers(proxy, LoadLayers(proxy));
+            return SortLayers(fileIOProxy, LoadLayers(fileIOProxy));
         }
 
         /// <summary>
@@ -115,9 +115,9 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// </summary>
         public void Save() => this.yaml.Overwrite();
 
-        private static IEnumerable<Layer> LoadLayers(Proxy.OutSideProxy proxy)
+        private static IEnumerable<Layer> LoadLayers(FileIOProxy fileIOProxy)
         {
-            foreach (var dir in proxy.FileIO.EnumerateDirectories(
+            foreach (var dir in fileIOProxy.EnumerateDirectories(
                 AgnosticPath.FromAgnosticPathString(string.Empty)))
             {
                 var name = dir.ToAgnosticPathString();
@@ -125,7 +125,7 @@ namespace MagicKitchen.SplitterSprite4.Common
 
                 try
                 {
-                    layer = new Layer(proxy, name);
+                    layer = new Layer(fileIOProxy, name);
                 }
                 catch (FileIOProxy.AgnosticPathNotFoundException)
                 {
@@ -137,7 +137,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         }
 
         private static IEnumerable<Layer> SortLayers(
-            Proxy.OutSideProxy proxy, IEnumerable<Layer> layers)
+            FileIOProxy fileIOProxy, IEnumerable<Layer> layers)
         {
             var visiting = new HashSet<string>();
             var visited = new HashSet<string>();
@@ -146,7 +146,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             {
                 try
                 {
-                    return new Layer(proxy, dependeeName);
+                    return new Layer(fileIOProxy, dependeeName);
                 }
                 catch (FileIOProxy.AgnosticPathNotFoundException ex)
                 {

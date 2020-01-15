@@ -381,9 +381,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public abstract MappingYAML Properties { get; }
 
         /// <summary>
-        /// Gets the OutSideProxy for file access.
+        /// Gets the FileIOProxy for file access.
         /// </summary>
-        public abstract OutSideProxy Proxy { get; }
+        internal abstract FileIOProxy FileIOProxy { get; }
 
         /// <summary>
         /// Gets the sub spec.

@@ -21,21 +21,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     {
         private MappingYAML mold;
         private RootYAML body;
-        private OutSideProxy proxy;
+        private FileIOProxy fileIOProxy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SpecRoot"/> class.
         /// </summary>
-        /// <param name="proxy">The OusSideProxy for file access.</param>
+        /// <param name="fileIOProxy">The FileIOProxy for file access.</param>
         /// <param name="layeredPath">The spec file path.</param>
         /// <param name="acceptAbsence">Accept absence of the spec file or not.</param>
         public SpecRoot(
-                OutSideProxy proxy,
+                FileIOProxy fileIOProxy,
                 AgnosticPath layeredPath,
                 bool acceptAbsence = false)
         {
-            this.proxy = proxy;
-            this.LayeredFile = new LayeredFile(proxy, layeredPath, acceptAbsence);
+            this.fileIOProxy = fileIOProxy;
+            this.LayeredFile =
+                new LayeredFile(fileIOProxy, layeredPath, acceptAbsence);
 
             AgnosticPath yamlPath;
             try
@@ -45,10 +46,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             catch (LayeredFile.LayeredFileNotFoundException)
             {
                 yamlPath = this.LayeredFile.FetchWritePath(
-                    new Layer(proxy, "save", true));
+                    new Layer(fileIOProxy, "save", true));
             }
 
-            this.body = new RootYAML(proxy, yamlPath, acceptAbsence);
+            this.body = new RootYAML(fileIOProxy, yamlPath, acceptAbsence);
         }
 
         /// <inheritdoc/>
@@ -62,7 +63,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         this.Body.Scalar["base"].Value);
                     var baseLayeredPath =
                         this.LayeredFile.Path.Parent + baseRelativePath;
-                    return new SpecRoot(this.Proxy, baseLayeredPath);
+                    return new SpecRoot(this.FileIOProxy, baseLayeredPath);
                 }
                 catch (YAML.YAMLKeyUndefinedException)
                 {
@@ -155,9 +156,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
-        public override OutSideProxy Proxy
+        internal override FileIOProxy FileIOProxy
         {
-            get => this.proxy;
+            get => this.fileIOProxy;
         }
 
         private LayeredFile LayeredFile { get; }
@@ -167,7 +168,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public void Save()
         {
-            var saveLayer = new Layer(this.Proxy, "save", true);
+            var saveLayer = new Layer(this.FileIOProxy, "save", true);
             saveLayer.IsTop = true;
             saveLayer.Save();
             this.Save(saveLayer);
@@ -190,9 +191,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public void Save(Layer layer, AgnosticPath layeredPath)
         {
             var writePath = new LayeredFile(
-                this.Proxy, layeredPath, true).FetchWritePath(layer);
+                this.FileIOProxy, layeredPath, true).FetchWritePath(layer);
 
-            this.Proxy.FileIO.CreateDirectory(writePath.Parent);
+            this.FileIOProxy.CreateDirectory(writePath.Parent);
             this.body.SaveAs(writePath, true);
         }
 
