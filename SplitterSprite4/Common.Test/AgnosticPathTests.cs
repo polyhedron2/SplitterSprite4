@@ -177,9 +177,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [InlineData("bar.yaml", "")]
         [InlineData("baz.meta", "")]
         [InlineData("dir/", "")]
-        [InlineData("dir/foo.txt", "dir/")]
-        [InlineData("dir/dir2/", "dir/")]
-        [InlineData("dir/dir2/foo.txt", "dir/dir2/")]
+        [InlineData("dir/foo.txt", "dir")]
+        [InlineData("dir/dir2/", "dir")]
+        [InlineData("dir/dir2/foo.txt", "dir/dir2")]
         public void ParentTest(string agnosticPathStr, string expectedParent)
         {
             // arrange
@@ -220,9 +220,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// <summary>
         /// Test "+" and "-" operator.
         /// </summary>
-        /// <param name="basePath">The base path.</param>
-        /// <param name="relativePath">The relative path from the base path.</param>
-        /// <param name="combinedPath">The combined path.</param>
+        /// <param name="origin">The origin path.</param>
+        /// <param name="relative">The relative path from the origin path.</param>
+        /// <param name="destination">The destination path.</param>
         [Theory]
         [InlineData("dir", "foo.txt", "dir/foo.txt")]
         [InlineData("dir", "../foo.txt", "foo.txt")]
@@ -232,19 +232,144 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         [InlineData("../../", "foo.txt", "../../foo.txt")]
         [InlineData("../dir", "foo.txt", "../dir/foo.txt")]
         [InlineData("../../dir", "foo.txt", "../../dir/foo.txt")]
+        [InlineData("", "foo.txt", "foo.txt")]
         public void PlusMinusOperatorTest(
-            string basePath, string relativePath, string combinedPath)
+            string origin, string relative, string destination)
         {
             // arrange
-            var agnosticBase = AgnosticPath.FromAgnosticPathString(basePath);
-            var agnosticRelative = AgnosticPath.FromAgnosticPathString(relativePath);
-            var agnosticCombined = AgnosticPath.FromAgnosticPathString(combinedPath);
+            var agnosticOrigin =
+                AgnosticPath.FromAgnosticPathString(origin);
+            var agnosticRelative =
+                AgnosticPath.FromAgnosticPathString(relative);
+            var agnosticDestination =
+                AgnosticPath.FromAgnosticPathString(destination);
 
             // assert
             Assert.Equal(
-                agnosticCombined, agnosticBase + agnosticRelative);
+                agnosticDestination,
+                agnosticRelative + agnosticOrigin);
             Assert.Equal(
-                agnosticRelative, agnosticCombined - agnosticBase);
+                agnosticRelative,
+                agnosticDestination - agnosticOrigin);
+            Assert.Equal(
+                agnosticRelative,
+                agnosticRelative + agnosticOrigin - agnosticOrigin);
+        }
+
+        /// <summary>
+        /// Test "+" operator's associativity.
+        /// It means ((first + second) + third).Equals(first + (second + third)).
+        /// </summary>
+        /// <param name="a">Path 1/3.</param>
+        /// <param name="b">Path 2/3.</param>
+        /// <param name="c">Path 3/3.</param>
+        [Theory]
+        [InlineData("first", "second", "third")]
+        [InlineData("../first", "second", "third")]
+        [InlineData("", "second", "third")]
+        [InlineData("dir", "foo.txt", "dir/foo.txt")]
+        [InlineData("dir", "../foo.txt", "foo.txt")]
+        [InlineData("dir", "../../foo.txt", "../foo.txt")]
+        [InlineData("dir/dir2", "foo.txt", "dir/dir2/foo.txt")]
+        [InlineData("../", "foo.txt", "../foo.txt")]
+        [InlineData("../../", "foo.txt", "../../foo.txt")]
+        [InlineData("../dir", "foo.txt", "../dir/foo.txt")]
+        [InlineData("../../dir", "foo.txt", "../../dir/foo.txt")]
+        [InlineData("", "foo.txt", "foo.txt")]
+        public void AssociativityTest(
+            string a, string b, string c)
+        {
+            // arrange
+            var aPath =
+                AgnosticPath.FromAgnosticPathString(a);
+            var bPath =
+                AgnosticPath.FromAgnosticPathString(b);
+            var cPath =
+                AgnosticPath.FromAgnosticPathString(c);
+
+            // assert
+            // a, b, cの全ての順列についてテスト
+            // Test all permutations for a, b, and c.
+            Assert.Equal(
+                (aPath + bPath) + cPath,
+                aPath + (bPath + cPath));
+            Assert.Equal(
+                (aPath + cPath) + bPath,
+                aPath + (cPath + bPath));
+            Assert.Equal(
+                (bPath + aPath) + cPath,
+                bPath + (aPath + cPath));
+            Assert.Equal(
+                (bPath + cPath) + aPath,
+                bPath + (cPath + aPath));
+            Assert.Equal(
+                (cPath + aPath) + bPath,
+                cPath + (aPath + bPath));
+            Assert.Equal(
+                (cPath + bPath) + aPath,
+                cPath + (bPath + aPath));
+        }
+
+        /// <summary>
+        /// Test ((a + b) - b).Equals(a) and ((a - b) + b).Equals(a).
+        /// </summary>
+        /// <param name="a">Relative path.</param>
+        /// <param name="b">Origin path.</param>
+        [Theory]
+        [InlineData("foo", "bar")]
+        [InlineData("../foo", "bar")]
+        [InlineData("../../foo", "bar")]
+        [InlineData("../foo", "../bar")]
+        [InlineData("../../foo", "../bar")]
+        [InlineData("../../foo", "../../bar")]
+        [InlineData("foo/dir", "bar/dir")]
+        [InlineData("../foo/dir", "bar/dir")]
+        [InlineData("../../foo/dir", "bar/dir")]
+        [InlineData("../foo/dir", "../bar/dir")]
+        [InlineData("../../foo/dir", "../bar/dir")]
+        [InlineData("../../foo/dir", "../../bar/dir")]
+        public void MinusTest(string a, string b)
+        {
+            // arrange
+            var aPath =
+                AgnosticPath.FromAgnosticPathString(a);
+            var bPath =
+                AgnosticPath.FromAgnosticPathString(b);
+
+            // assert
+            Assert.Equal(
+                aPath, (aPath + bPath) - bPath);
+            Assert.Equal(
+                aPath, (aPath - bPath) + bPath);
+        }
+
+        /// <summary>
+        /// Test substraction with indeterminate result.
+        /// For example, "foo" - "../bar" will be "../*/foo".
+        /// ('*' is wildcard).
+        /// </summary>
+        /// <param name="a">Relative path.</param>
+        /// <param name="b">Origin path.</param>
+        [Theory]
+        [InlineData("foo", "../bar")]
+        [InlineData("foo", "../../bar")]
+        [InlineData("../foo", "../../bar")]
+        [InlineData("foo/dir", "../bar/dir")]
+        [InlineData("foo/dir", "../../bar/dir")]
+        [InlineData("../foo/dir", "../../bar/dir")]
+        public void IndeterminateSubtractionTest(string a, string b)
+        {
+            // arrange
+            var aPath =
+                AgnosticPath.FromAgnosticPathString(a);
+            var bPath =
+                AgnosticPath.FromAgnosticPathString(b);
+
+            // assert
+            Assert.Throws<AgnosticPath.IndeterminateSubtractionException>(() =>
+            {
+                _ = aPath - bPath;
+            });
         }
     }
 }

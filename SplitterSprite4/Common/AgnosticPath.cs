@@ -32,9 +32,24 @@ namespace MagicKitchen.SplitterSprite4.Common
                 }
             }
 
+            // 禁止文字列チェック
+            // Check the dummy phrase.
+            if (path.Split(separatorChar).Contains(DummyPhrase))
+            {
+                throw new DummyPhraseContainedException(path);
+            }
+
             // OS毎に異なるファイル区切り文字を置換
             // Replace the os-dependent file separator.
             this.InternalPath = path.Replace(separatorChar, InternalSeparatorChar);
+
+            // 末尾に区切り文字を含まない形を正規形とする。
+            // Canonical form doesn't have separator char at the end of it.
+            if (this.InternalPath.EndsWith(InternalSeparatorChar))
+            {
+                this.InternalPath = this.InternalPath.Substring(
+                    0, this.InternalPath.Length - 1);
+            }
         }
 
         /// <summary>
@@ -54,7 +69,7 @@ namespace MagicKitchen.SplitterSprite4.Common
                 var dummyPrefixedUri = new Uri(DummyUri, this.InternalUri);
                 var dummyPrefixedUriStr = dummyPrefixedUri.ToString();
                 dummyPrefixedUriStr =
-                    dummyPrefixedUriStr.EndsWith("/") ?
+                    dummyPrefixedUriStr.EndsWith(InternalSeparatorChar) ?
                     dummyPrefixedUriStr.Substring(
                         0, dummyPrefixedUriStr.Length - 1) :
                     dummyPrefixedUriStr;
@@ -66,6 +81,14 @@ namespace MagicKitchen.SplitterSprite4.Common
 
                 return FromAgnosticPathString(parentUri.ToString());
             }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this path not including "../".
+        /// </summary>
+        public bool IsOnlyDescending
+        {
+            get => !this.ToAgnosticPathString().StartsWith("../");
         }
 
         private static string DummyPhrase { get; } =
@@ -105,41 +128,78 @@ namespace MagicKitchen.SplitterSprite4.Common
         }
 
         /// <summary>
-        /// OS非依存パス同士の結合
+        /// OS非依存パス同士の結合。
+        /// 右オペランドを起点として左オペランドを追加する。
+        /// 結合律が成立する。即ち、((a + b) + c).Equals(a + (b + c))が成立する。
         /// Combine two os-agnostic paths.
+        /// Add LEFT operand to RIGHT operand.
+        /// This operation is associative.
+        /// i.e.: ((a + b) + c).Equals(a + (b + c)).
         /// </summary>
-        /// <param name="a">The first operand path.</param>
-        /// <param name="b">The second operand path.</param>
+        /// <param name="relative">The left operand path. This is relative path.</param>
+        /// <param name="startingPoint">The right operand path. This is starting point path.</param>
         /// <returns>Combined path.</returns>
-        public static AgnosticPath operator +(AgnosticPath a, AgnosticPath b)
+        public static AgnosticPath operator +(
+            AgnosticPath relative, AgnosticPath startingPoint)
         {
             return AgnosticPath.FromOSPathString(Path.Combine(
-                a.ToOSPathString(), b.ToOSPathString()));
+                startingPoint.ToOSPathString(), relative.ToOSPathString()));
         }
 
         /// <summary>
-        /// OS非依存パス間の相対パスを取得
+        /// OS非依存パス間の相対パスを取得。
+        /// 右オペランドから見た左オペランドの相対位置を返す。
+        /// ((a + b) - b).Equals(a)かつ((a - b) + b).Equals(a)である。
+        /// ((a + b) - c).Equals(a + (b - c))とは限らないことに注意。
+        /// 例：
+        ///   ("../foo" + "bar") - "foo" = "foo" - "foo" = ""
+        ///   "../foo" + ("bar" - "foo") = "../foo" + "../bar" = "../foo"
         /// Calculate relative path between two os-agnostic pathes.
+        /// Returns relative path from RIGHT operand to LEFT operand.
+        /// `((a + b) - b).Equals(a)` and `((a - b) + b).Equals(a)` is true.
+        /// `((a + b) - c).Equals(a + (b - c))` can be false.
+        /// E.g.：
+        ///   ("../foo" + "bar") - "foo" = "foo" - "foo" = ""
+        ///   "../foo" + ("bar" - "foo") = "../foo" + "../bar" = "../foo".
         /// </summary>
-        /// <param name="a">The target path.</param>
-        /// <param name="b">The base path.</param>
+        /// <param name="destination">The destination path.</param>
+        /// <param name="origin">The original path. It must not contain "../".</param>
         /// <returns>Relative path.</returns>
-        public static AgnosticPath operator -(AgnosticPath a, AgnosticPath b)
+        public static AgnosticPath operator -(
+            AgnosticPath destination, AgnosticPath origin)
         {
-            var aUri = new Uri(DummyUri, a.ToAgnosticPathString());
-            var bUri = new Uri(DummyUri, b.ToAgnosticPathString());
+            var destUri = new Uri(DummyUri, destination.ToAgnosticPathString());
+            var origUri = new Uri(DummyUri, origin.ToAgnosticPathString());
 
-            // base pathはディレクトリとして解釈するため、'/'をつける。
-            // Add '/' to interpret it as directory path.
-            if (!bUri.ToString().EndsWith('/'))
+            // origin pathはディレクトリとして解釈するため、'/'をつける。
+            // Add '/' to interpret origin path as directory.
+            if (!origUri.ToString().EndsWith('/'))
             {
-                bUri = new Uri(bUri.ToString() + '/');
+                origUri = new Uri(origUri.ToString() + '/');
             }
 
-            var relativeUri = bUri.MakeRelativeUri(aUri);
+            // destination pathとorigin pathの相対関係を維持するため、
+            // destination pathにも'/'をつける。
+            // Add '/' to interpret dest path as same as origin path.
+            if (!destUri.ToString().EndsWith('/'))
+            {
+                destUri = new Uri(destUri.ToString() + '/');
+            }
+
+            var relativeUri = origUri.MakeRelativeUri(destUri);
             var relativeStr = Uri.UnescapeDataString(relativeUri.ToString());
 
-            return new AgnosticPath(relativeStr, InternalSeparatorChar);
+            try
+            {
+                return new AgnosticPath(relativeStr, InternalSeparatorChar);
+            }
+            catch (DummyPhraseContainedException ex)
+            {
+                throw new IndeterminateSubtractionException(
+                    destination.ToAgnosticPathString(),
+                    origin.ToAgnosticPathString(),
+                    ex);
+            }
         }
 
         /// <summary>
@@ -235,6 +295,54 @@ namespace MagicKitchen.SplitterSprite4.Common
             /// Gets the contained prohibited character.
             /// </summary>
             public char ContainedChar { get; private set; }
+        }
+
+        /// <summary>
+        /// 内部処理用のダミー文字列を含むパスを指定した際の例外
+        /// The exception that is thrown when an attempt to
+        /// create os-agnostic path which contains dummy phrase for internal processing.
+        /// </summary>
+        public class DummyPhraseContainedException : Exception
+        {
+            private string path;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="DummyPhraseContainedException"/> class.
+            /// </summary>
+            /// <param name="path">The path which conatins dummy phrase.</param>
+            public DummyPhraseContainedException(string path)
+                : base($"OS非依存パス\"{path}\"に禁止文字列\"{DummyPhrase}\"が含まれています。")
+            {
+                this.path = path;
+            }
+
+            /// <summary>
+            /// Gets the path which contains dummy pharse.
+            /// </summary>
+            public string Path { get => this.path; }
+        }
+
+        /// <summary>
+        /// 減算の結果が定まらない際の例外
+        /// The exception that is thrown when an attempt to
+        /// subtract paths whose result is not well-defined.
+        /// </summary>
+        public class IndeterminateSubtractionException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="IndeterminateSubtractionException"/> class.
+            /// </summary>
+            /// <param name="left">The left operand.</param>
+            /// <param name="right">The right operand.</param>
+            /// <param name="innerException">The exception which caused this.</param>
+            public IndeterminateSubtractionException(
+                string left, string right, Exception innerException)
+                : base(
+                      $"OS非依存パスの減算\"{left}\" - \"{right}\"の" +
+                      $"結果は不定です。",
+                      innerException)
+            {
+            }
         }
     }
 }

@@ -62,7 +62,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     var baseRelativePath = AgnosticPath.FromAgnosticPathString(
                         this.Body.Scalar["base"].Value);
                     var baseLayeredPath =
-                        this.LayeredFile.Path.Parent + baseRelativePath;
+                        baseRelativePath + this.LayeredFile.Path.Parent;
                     return this.Proxy.SpecPool(baseLayeredPath);
                 }
                 catch (YAML.YAMLKeyUndefinedException)

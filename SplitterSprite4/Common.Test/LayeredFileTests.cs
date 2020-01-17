@@ -246,9 +246,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             {
                 var layer = new Layer(proxy.FileIO, layerName);
                 proxy.FileIO.CreateDirectory(
-                    (layer.Path + layeredPath).Parent);
+                    (layeredPath + layer.Path).Parent);
                 proxy.FileIO.WithTextWriter(
-                    layer.Path + layeredPath, false, (writer) =>
+                    layeredPath + layer.Path, false, (writer) =>
                 {
                     writer.WriteLine("file body");
                 });
@@ -265,7 +265,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             foreach (var layerName in layerNames)
             {
                 var layer = new Layer(proxy.FileIO, layerName, true);
-                var meta = new RootYAML(proxy.FileIO, layer.Path + metaPath, true);
+                var meta = new RootYAML(proxy.FileIO, metaPath + layer.Path, true);
                 meta["author"] = new ScalarYAML($"{layerName}_author");
                 meta["title"] = new ScalarYAML($"{layerName}_title");
                 meta.Overwrite();

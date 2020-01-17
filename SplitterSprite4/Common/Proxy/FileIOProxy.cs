@@ -62,7 +62,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// <returns>The full-path.</returns>
         public string OSFullPath(AgnosticPath path)
         {
-            if (path.ToAgnosticPathString().StartsWith("../"))
+            if (!path.IsOnlyDescending)
             {
                 throw new OutOfRootAccessException(path);
             }

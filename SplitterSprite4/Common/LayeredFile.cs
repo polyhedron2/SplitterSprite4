@@ -104,7 +104,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <returns>The os-agnostic path for file read.</returns>
         public AgnosticPath FetchReadPath()
         {
-            return this.FetchReadLayer().Path + this.Path;
+            return this.Path + this.FetchReadLayer().Path;
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         /// <returns>The os-agnostic path for file write.</returns>
         public AgnosticPath FetchWritePath(Layer writeLayer)
         {
-            return writeLayer.Path + this.Path;
+            return this.Path + writeLayer.Path;
         }
 
         private Layer FetchReadLayer()
@@ -123,7 +123,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             {
                 return Layer.FetchSortedLayers(this.fileIOProxy).First(
                     layer => this.fileIOProxy.FileExists(
-                        layer.Path + this.Path));
+                        this.Path + layer.Path));
             }
             catch (InvalidOperationException)
             {
