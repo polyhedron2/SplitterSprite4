@@ -60,13 +60,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                var childYaml = this.parent.Properties.Mapping[
-                    this.accessKey, new MappingYAML()];
-                childYaml.ID =
-                    $"{this.parent.Properties.ID}[{this.accessKey}]";
-                this.parent.Properties.Mapping[this.accessKey] = childYaml;
+                lock (this.parent.Properties)
+                {
+                    var childYaml = this.parent.Properties.Mapping[
+                        this.accessKey, new MappingYAML()];
+                    childYaml.ID =
+                        $"{this.parent.Properties.ID}[{this.accessKey}]";
+                    this.parent.Properties.Mapping[this.accessKey] = childYaml;
 
-                return childYaml;
+                    return childYaml;
+                }
             }
         }
 

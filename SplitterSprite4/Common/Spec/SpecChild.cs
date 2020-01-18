@@ -56,37 +56,45 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                try
+                lock (this.Body)
                 {
-                    var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
-                    this.ValidateSpawnerType(this.bound, type);
+                    try
+                    {
+                        var type = Type.GetType(
+                            this.Body.Scalar["spawner"].Value, true);
+                        this.ValidateSpawnerType(this.bound, type);
 
-                    return type;
-                }
-                catch (YAML.YAMLKeyUndefinedException)
-                {
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidSpecAccessException(
-                        $"{this.ID}[spawner]", "Spawner", ex);
+                        return type;
+                    }
+                    catch (YAML.YAMLKeyUndefinedException)
+                    {
+                        return null;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecAccessException(
+                            $"{this.ID}[spawner]", "Spawner", ex);
+                    }
                 }
             }
 
             set
             {
-                try
+                lock (this.Body)
                 {
-                    this.ValidateSpawnerType(this.bound, value);
+                    try
+                    {
+                        this.ValidateSpawnerType(this.bound, value);
 
-                    this.Body.Scalar["spawner"] =
-                        new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidSpecAccessException(
-                        $"{this.ID}[spawner]", "Spawner", ex);
+                        this.Body.Scalar["spawner"] = new ScalarYAML(
+                            $"{value.FullName}, " +
+                            $"{value.Assembly.GetName().Name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecAccessException(
+                            $"{this.ID}[spawner]", "Spawner", ex);
+                    }
                 }
             }
         }
@@ -110,7 +118,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         $"Spawner, {this.bound.FullName}," +
                         $" {this.bound.Assembly.GetName().Name}");
 
-                    var ret = mold.Mapping["properties", new MappingYAML()];
+                    var ret = mold.Mapping[
+                        "properties", new MappingYAML()];
                     mold.Mapping["properties"] = ret;
 
                     return ret;
@@ -123,13 +132,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                var childYaml = this.parent.Properties.Mapping[
-                    this.accessKey, new MappingYAML()];
-                childYaml.ID =
-                    $"{this.parent.Properties.ID}[{this.accessKey}]";
-                this.parent.Properties.Mapping[this.accessKey] = childYaml;
+                lock (this.parent.Properties)
+                {
+                    var childYaml = this.parent.Properties.Mapping[
+                        this.accessKey, new MappingYAML()];
+                    childYaml.ID =
+                        $"{this.parent.Properties.ID}[{this.accessKey}]";
+                    this.parent.Properties.Mapping[this.accessKey] = childYaml;
 
-                return childYaml;
+                    return childYaml;
+                }
             }
         }
 
@@ -138,10 +150,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                var ret = this.Body.Mapping["properties", new MappingYAML()];
-                ret.ID = $"{this.Body.ID}[properties]";
-                this.Body.Mapping["properties"] = ret;
-                return ret;
+                lock (this.parent.Body)
+                {
+                    var ret = this.Body.Mapping[
+                        "properties", new MappingYAML()];
+                    ret.ID = $"{this.Body.ID}[properties]";
+                    this.Body.Mapping["properties"] = ret;
+                    return ret;
+                }
             }
         }
 

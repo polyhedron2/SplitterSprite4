@@ -57,17 +57,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                try
+                lock (this.Body)
                 {
-                    var baseRelativePath = AgnosticPath.FromAgnosticPathString(
-                        this.Body.Scalar["base"].Value);
-                    var baseLayeredPath =
-                        baseRelativePath + this.LayeredFile.Path.Parent;
-                    return this.Proxy.SpecPool(baseLayeredPath);
-                }
-                catch (YAML.YAMLKeyUndefinedException)
-                {
-                    return null;
+                    try
+                    {
+                        var baseRelativePath = AgnosticPath.FromAgnosticPathString(
+                            this.Body.Scalar["base"].Value);
+                        var baseLayeredPath =
+                            baseRelativePath + this.LayeredFile.Path.Parent;
+                        return this.Proxy.SpecPool(baseLayeredPath);
+                    }
+                    catch (YAML.YAMLKeyUndefinedException)
+                    {
+                        return null;
+                    }
                 }
             }
         }
@@ -79,37 +82,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                try
+                lock (this.Body)
                 {
-                    var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
-                    this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), type);
+                    try
+                    {
+                        var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
+                        this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), type);
 
-                    return type;
-                }
-                catch (YAML.YAMLKeyUndefinedException)
-                {
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidSpecAccessException(
-                        $"{this.ID}[spawner]", "Spawner", ex);
+                        return type;
+                    }
+                    catch (YAML.YAMLKeyUndefinedException)
+                    {
+                        return null;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecAccessException(
+                            $"{this.ID}[spawner]", "Spawner", ex);
+                    }
                 }
             }
 
             set
             {
-                try
+                lock (this.Body)
                 {
-                    this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), value);
+                    try
+                    {
+                        this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), value);
 
-                    this.Body.Scalar["spawner"] =
-                        new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidSpecAccessException(
-                        $"{this.ID}[spawner]", "Spawner", ex);
+                        this.Body.Scalar["spawner"] =
+                            new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecAccessException(
+                            $"{this.ID}[spawner]", "Spawner", ex);
+                    }
                 }
             }
         }
@@ -148,10 +157,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             get
             {
-                var ret = this.Body.Mapping["properties", new MappingYAML()];
-                ret.ID = $"{this.Body.ID}[properties]";
-                this.Body.Mapping["properties"] = ret;
-                return ret;
+                lock (this.Body)
+                {
+                    var ret = this.Body.Mapping["properties", new MappingYAML()];
+                    ret.ID = $"{this.Body.ID}[properties]";
+                    this.Body.Mapping["properties"] = ret;
+                    return ret;
+                }
             }
         }
 
@@ -228,10 +240,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <param name="newBase">New base spec for udpating.</param>
         public void UpdateBase(SpecRoot newBase)
         {
-            var baseRelativePath =
-                newBase.LayeredFile.Path - this.LayeredFile.Path.Parent;
-            this.Body.Scalar["base"] = new ScalarYAML(
-                baseRelativePath.ToAgnosticPathString());
+            lock (this.Body)
+            {
+                var baseRelativePath =
+                    newBase.LayeredFile.Path - this.LayeredFile.Path.Parent;
+                this.Body.Scalar["base"] = new ScalarYAML(
+                    baseRelativePath.ToAgnosticPathString());
+            }
         }
     }
 }

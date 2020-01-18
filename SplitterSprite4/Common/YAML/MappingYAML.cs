@@ -79,12 +79,25 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// <param name="value">The value YAML.</param>
         public void Add(string key, YAML value)
         {
-            if (!this.Body.ContainsKey(key))
+            lock (this)
             {
-                this.KeyOrder.Add(key);
-            }
+                if (!this.Body.ContainsKey(key))
+                {
+                    this.KeyOrder.Add(key);
+                }
 
-            this.Body[key] = value;
+                this.Body[key] = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void Remove(string key)
+        {
+            lock (this)
+            {
+                this.Body.Remove(key);
+                this.KeyOrder.Remove(key);
+            }
         }
 
         /// <inheritdoc/>
@@ -213,13 +226,6 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             {
                 return new string[] { "{}" };
             }
-        }
-
-        /// <inheritdoc/>
-        public override void Remove(string key)
-        {
-            this.Body.Remove(key);
-            this.KeyOrder.Remove(key);
         }
 
         /// <inheritdoc/>

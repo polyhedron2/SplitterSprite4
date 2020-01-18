@@ -897,70 +897,76 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 get
                 {
-                    try
+                    lock (this.parent.Properties)
                     {
-                        if (this.parent.IsMolding)
-                        {
-                            this.parent.Mold[key] =
-                                new ScalarYAML(this.moldingAccessCode);
-                        }
-
                         try
                         {
-                            return this.getter(
-                                this.parent.Properties.Scalar[key].Value);
-                        }
-                        catch (YAML.YAMLKeyUndefinedException ex)
-                        {
-                            var isLooped =
-                                this.referredSpecs.Contains(this.parent.ID);
-                            if (this.parent.Base == null || isLooped)
+                            if (this.parent.IsMolding)
                             {
-                                throw ex;
+                                this.parent.Mold[key] =
+                                    new ScalarYAML(this.moldingAccessCode);
                             }
 
-                            // Only if base spec is defined and not looped,
-                            // base spec is referred.
-                            return new ValueIndexer<T>(
-                                this.parent.Base,
-                                this.type,
-                                this.getter,
-                                this.setter,
-                                this.moldingAccessCode,
-                                this.moldingDefault,
-                                this.referredSpecs.Add(this.parent.ID))[
-                                key];
+                            try
+                            {
+                                return this.getter(
+                                    this.parent.Properties.Scalar[key].Value);
+                            }
+                            catch (YAML.YAMLKeyUndefinedException ex)
+                            {
+                                var isLooped = this.referredSpecs.Contains(
+                                    this.parent.ID);
+                                if (this.parent.Base == null || isLooped)
+                                {
+                                    throw ex;
+                                }
+
+                                // Only if base spec is defined and not looped,
+                                // base spec is referred.
+                                return new ValueIndexer<T>(
+                                    this.parent.Base,
+                                    this.type,
+                                    this.getter,
+                                    this.setter,
+                                    this.moldingAccessCode,
+                                    this.moldingDefault,
+                                    this.referredSpecs.Add(this.parent.ID))[
+                                    key];
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (this.parent.IsMolding)
+                        catch (Exception ex)
                         {
-                            return this.moldingDefault;
-                        }
-                        else
-                        {
-                            throw new InvalidSpecAccessException(
-                                $"{this.parent.Properties.ID}[{key}]",
-                                this.type,
-                                ex);
+                            if (this.parent.IsMolding)
+                            {
+                                return this.moldingDefault;
+                            }
+                            else
+                            {
+                                throw new InvalidSpecAccessException(
+                                    $"{this.parent.Properties.ID}[{key}]",
+                                    this.type,
+                                    ex);
+                            }
                         }
                     }
                 }
 
                 set
                 {
-                    try
+                    lock (this.parent.Properties)
                     {
-                        this.parent.Properties[key] =
-                            new ScalarYAML(this.setter(value));
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidSpecAccessException(
-                            $"{this.parent.Properties.ID}[{key}]",
-                            this.type,
-                            ex);
+                        try
+                        {
+                            this.parent.Properties[key] =
+                                new ScalarYAML(this.setter(value));
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidSpecAccessException(
+                                $"{this.parent.Properties.ID}[{key}]",
+                                this.type,
+                                ex);
+                        }
                     }
                 }
             }
@@ -975,68 +981,72 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 get
                 {
-                    try
+                    lock (this.parent.Properties)
                     {
-                        this.getter(this.setter(defaultVal));
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidSpecDefinitionException(
-                            "デフォルト値がSpecの値として不正です。", ex);
-                    }
-
-                    try
-                    {
-                        if (this.parent.IsMolding)
+                        try
                         {
-                            var accessCodeWithDefault =
-                                this.moldingAccessCode +
-                                ", " +
-                                EncodeDefaultValForMolding(this.setter(defaultVal));
-
-                            this.parent.Mold[key] =
-                                new ScalarYAML(accessCodeWithDefault);
+                            this.getter(this.setter(defaultVal));
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidSpecDefinitionException(
+                                "デフォルト値がSpecの値として不正です。", ex);
                         }
 
                         try
                         {
-                            return this.getter(
-                                this.parent.Properties.Scalar[key].Value);
-                        }
-                        catch (YAML.YAMLKeyUndefinedException)
-                        {
-                            var isLooped =
-                                this.referredSpecs.Contains(this.parent.ID);
-                            if (this.parent.Base == null || isLooped)
+                            if (this.parent.IsMolding)
                             {
-                                return defaultVal;
+                                var accessCodeWithDefault =
+                                    this.moldingAccessCode +
+                                    ", " +
+                                    EncodeDefaultValForMolding(
+                                        this.setter(defaultVal));
+
+                                this.parent.Mold[key] =
+                                    new ScalarYAML(accessCodeWithDefault);
                             }
 
-                            // Only if base spec is defined and not looped,
-                            // base spec is referred.
-                            return new ValueIndexer<T>(
-                                this.parent.Base,
-                                this.type,
-                                this.getter,
-                                this.setter,
-                                this.moldingAccessCode,
-                                this.moldingDefault,
-                                this.referredSpecs.Add(this.parent.ID))[
-                                key, defaultVal];
+                            try
+                            {
+                                return this.getter(
+                                    this.parent.Properties.Scalar[key].Value);
+                            }
+                            catch (YAML.YAMLKeyUndefinedException)
+                            {
+                                var isLooped = this.referredSpecs.Contains(
+                                    this.parent.ID);
+                                if (this.parent.Base == null || isLooped)
+                                {
+                                    return defaultVal;
+                                }
+
+                                // Only if base spec is defined and not looped,
+                                // base spec is referred.
+                                return new ValueIndexer<T>(
+                                    this.parent.Base,
+                                    this.type,
+                                    this.getter,
+                                    this.setter,
+                                    this.moldingAccessCode,
+                                    this.moldingDefault,
+                                    this.referredSpecs.Add(this.parent.ID))[
+                                    key, defaultVal];
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (this.parent.IsMolding)
+                        catch (Exception ex)
                         {
-                            return this.moldingDefault;
-                        }
-                        else
-                        {
-                            throw new InvalidSpecAccessException(
-                                $"{this.parent.Properties.ID}[{key}]",
-                                this.type,
-                                ex);
+                            if (this.parent.IsMolding)
+                            {
+                                return this.moldingDefault;
+                            }
+                            else
+                            {
+                                throw new InvalidSpecAccessException(
+                                    $"{this.parent.Properties.ID}[{key}]",
+                                    this.type,
+                                    ex);
+                            }
                         }
                     }
                 }
