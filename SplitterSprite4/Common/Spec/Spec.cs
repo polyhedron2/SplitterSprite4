@@ -10,6 +10,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     using System.Collections.Immutable;
     using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
+    using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -18,6 +19,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     /// </summary>
     public abstract class Spec
     {
+        /// <summary>
+        /// Gets an os-agnostic path of this spec file.
+        /// </summary>
+        public abstract AgnosticPath Path { get; }
+
         /// <summary>
         /// Gets a Spec for inheritance.
         /// If a property is not defined in this spec,
@@ -456,6 +462,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Encode type instance into string for scalar value in yaml.
+        /// </summary>
+        /// <param name="type">Encode target type.</param>
+        /// <returns>Encoded string.</returns>
+        public static string EncodeType(Type type)
+        {
+            return $"{type.FullName}, {type.Assembly.GetName().Name}";
+        }
+
+        /// <summary>
+        /// Decode string into type instance from scalar value in yaml.
+        /// </summary>
+        /// <param name="code">Encoded string.</param>
+        /// <returns>Decoded Type instance.</returns>
+        public static Type DecodeType(string code)
+        {
+            return Type.GetType(code, true);
+        }
+
+        /// <summary>
         /// Gets indexer for ranged integer accessor.
         /// </summary>
         /// <param name="parenthesisOpen">
@@ -766,29 +792,37 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 ImmutableList<string>.Empty);
         }
 
+        /// <summary>
+        /// Gets indexer for SpawnerRoot instance from another spec file.
+        /// </summary>
+        /// <typeparam name="T">Expected SpawnerRoot type.</typeparam>
+        /// <returns>SpawnerRoot instance.</returns>
+        public PathIndexer<T> Exterior<T>()
+            where T : ISpawnerRoot<object>
+        {
+            var paramType = typeof(T);
+
+            return new PathIndexer<T>(
+                this,
+                paramType.Name,
+                (path) =>
+                {
+                    var spec = this.Proxy.SpecPool(path);
+                    var spawner = (T)Activator.CreateInstance(spec.SpawnerType);
+                    spawner.Spec = spec;
+
+                    return spawner;
+                },
+                (spawner) => spawner.Spec.Path,
+                $"Exterior, {EncodeType(paramType)}",
+                ISpawner<object>.MoldingDefault<T>(this.Proxy),
+                ImmutableList<string>.Empty);
+        }
+
         /// <inheritdoc/>
         public override string ToString()
         {
             return this.Body.ToString(true);
-        }
-
-        /// <summary>
-        /// Validate type instance is valid spawner.
-        /// </summary>
-        /// <param name="bound">Spawner type's bound.</param>
-        /// <param name="type">Validation target type.</param>
-        protected void ValidateSpawnerType(Type bound, Type type)
-        {
-            // boundのサブクラスである必要がある。
-            // The type must be sub class of bound.
-            if (!bound.IsAssignableFrom(type))
-            {
-                throw new ValidationError();
-            }
-
-            // Spawnerはゼロ引数コンストラクタからインスタンス生成可能である。
-            // Spawner instance must be created with constructor without parameters.
-            _ = Activator.CreateInstance(type);
         }
 
         /// <summary>
@@ -847,7 +881,236 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Indexer class for Int, Double, and Bool.
+        /// Indexer class for instances which associated with file paths.
+        /// </summary>
+        /// <typeparam name="T">Type of path associated value.</typeparam>
+        public class PathIndexer<T>
+        {
+            private Spec parent;
+            private string type;
+            private Func<AgnosticPath, T> getter;
+            private Func<T, AgnosticPath> setter;
+            private string moldingAccessCode;
+            private T moldingDefault;
+            private ImmutableList<string> referredSpecs;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="PathIndexer{T}"/> class.
+            /// </summary>
+            /// <param name="parent">The parent spec.</param>
+            /// <param name="type">The access type string.</param>
+            /// <param name="getter">Translation function from agnostic path.</param>
+            /// <param name="setter">Translation function to agnostic path.</param>
+            /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
+            /// <param name="moldingDefault">The default value for molding.</param>
+            /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
+            internal PathIndexer(
+                Spec parent,
+                string type,
+                Func<AgnosticPath, T> getter,
+                Func<T, AgnosticPath> setter,
+                string moldingAccessCode,
+                T moldingDefault,
+                ImmutableList<string> referredSpecs)
+            {
+                this.parent = parent;
+                this.type = type;
+                this.getter = getter;
+                this.setter = setter;
+                this.moldingAccessCode = moldingAccessCode;
+                this.moldingDefault = moldingDefault;
+                this.referredSpecs = referredSpecs;
+            }
+
+            /// <summary>
+            /// Indexer for value.
+            /// </summary>
+            /// <param name="key">The string key for the value.</param>
+            /// <returns>The translated value.</returns>
+            public T this[string key]
+            {
+                get
+                {
+                    lock (this.parent.Properties)
+                    {
+                        try
+                        {
+                            if (this.parent.IsMolding)
+                            {
+                                this.parent.Mold[key] =
+                                    new ScalarYAML(this.moldingAccessCode);
+                            }
+
+                            try
+                            {
+                                // パスが記録されたSpecファイルからの相対パスとして扱う
+                                // Interpret string as relative path from the spec file.
+                                var path = AgnosticPath.FromAgnosticPathString(
+                                    this.parent.Properties.Scalar[key].Value) +
+                                    this.parent.Path.Parent;
+                                return this.getter(path);
+                            }
+                            catch (YAML.YAMLKeyUndefinedException ex)
+                            {
+                                var isLooped = this.referredSpecs.Contains(
+                                    this.parent.ID);
+                                if (this.parent.Base == null || isLooped)
+                                {
+                                    throw ex;
+                                }
+
+                                // Only if base spec is defined and not looped,
+                                // base spec is referred.
+                                return new PathIndexer<T>(
+                                    this.parent.Base,
+                                    this.type,
+                                    this.getter,
+                                    this.setter,
+                                    this.moldingAccessCode,
+                                    this.moldingDefault,
+                                    this.referredSpecs.Add(this.parent.ID))[
+                                    key];
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (this.parent.IsMolding)
+                            {
+                                return this.moldingDefault;
+                            }
+                            else
+                            {
+                                throw new InvalidSpecAccessException(
+                                    $"{this.parent.Properties.ID}[{key}]",
+                                    this.type,
+                                    ex);
+                            }
+                        }
+                    }
+                }
+
+                set
+                {
+                    lock (this.parent.Properties)
+                    {
+                        try
+                        {
+                            // パスが記録されたSpecファイルからの相対パスとして扱う
+                            // Interpret string as relative path from the spec file.
+                            var path =
+                                this.setter(value) - this.parent.Path.Parent;
+                            this.parent.Properties[key] =
+                                new ScalarYAML(path.ToAgnosticPathString());
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidSpecAccessException(
+                                $"{this.parent.Properties.ID}[{key}]",
+                                this.type,
+                                ex);
+                        }
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Indexer for value with default.
+            /// </summary>
+            /// <param name="key">The string key for the value.</param>
+            /// <param name="defaultPath">The default agnostic path string.</param>
+            /// <returns>The translated value.</returns>
+            public T this[string key, string defaultPath]
+            {
+                get
+                {
+                    lock (this.parent.Properties)
+                    {
+                        try
+                        {
+                            _ = AgnosticPath.FromAgnosticPathString(
+                                defaultPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidSpecDefinitionException(
+                                "デフォルトパスが不正です。", ex);
+                        }
+
+                        try
+                        {
+                            if (this.parent.IsMolding)
+                            {
+                                var accessCodeWithDefault =
+                                    this.moldingAccessCode +
+                                    ", " +
+                                    EncodeDefaultValForMolding(defaultPath);
+
+                                this.parent.Mold[key] =
+                                    new ScalarYAML(accessCodeWithDefault);
+                            }
+
+                            try
+                            {
+                                // パスが記録されたSpecファイルからの相対パスとして扱う
+                                // Interpret string as relative path from the spec file.
+                                var path = AgnosticPath.FromAgnosticPathString(
+                                    this.parent.Properties.Scalar[key].Value) +
+                                    this.parent.Path.Parent;
+                                return this.getter(path);
+                            }
+                            catch (YAML.YAMLKeyUndefinedException)
+                            {
+                                var isLooped = this.referredSpecs.Contains(
+                                    this.parent.ID);
+                                if (this.parent.Base == null || isLooped)
+                                {
+                                    var defaultAgnosticPath =
+                                        AgnosticPath.FromAgnosticPathString(
+                                            defaultPath) +
+                                        this.parent.Path.Parent;
+                                    return this.getter(defaultAgnosticPath);
+                                }
+
+                                // Only if base spec is defined and not looped,
+                                // base spec is referred.
+                                var defaultPathFromBase = (
+                                    AgnosticPath.FromAgnosticPathString(
+                                        defaultPath) +
+                                    this.parent.Path.Parent -
+                                    this.parent.Base.Path.Parent)
+                                    .ToAgnosticPathString();
+                                return new PathIndexer<T>(
+                                    this.parent.Base,
+                                    this.type,
+                                    this.getter,
+                                    this.setter,
+                                    this.moldingAccessCode,
+                                    this.moldingDefault,
+                                    this.referredSpecs.Add(this.parent.ID))[
+                                    key, defaultPathFromBase];
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (this.parent.IsMolding)
+                            {
+                                return this.moldingDefault;
+                            }
+                            else
+                            {
+                                throw new InvalidSpecAccessException(
+                                    $"{this.parent.Properties.ID}[{key}]",
+                                    this.type,
+                                    ex);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Indexer class for Int, Double, and Bool etc.
         /// </summary>
         /// <typeparam name="T">Type of value.</typeparam>
         public class ValueIndexer<T>

@@ -30,6 +30,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
+        public override AgnosticPath Path { get => this.parent.Path; }
+
+        /// <inheritdoc/>
         public override Spec Base
         {
             get => this.parent.Base?.SubSpec[this.accessKey];

@@ -36,22 +36,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 bool acceptAbsence = false)
         {
             this.proxy = proxy;
-            this.LayeredFile =
+            this.Path = layeredPath;
+            var layeredFile =
                 new LayeredFile(proxy.FileIO, layeredPath, acceptAbsence);
 
             AgnosticPath yamlPath;
             try
             {
-                yamlPath = this.LayeredFile.FetchReadPath();
+                yamlPath = layeredFile.FetchReadPath();
             }
             catch (LayeredFile.LayeredFileNotFoundException)
             {
-                yamlPath = this.LayeredFile.FetchWritePath(
+                yamlPath = layeredFile.FetchWritePath(
                     new Layer(proxy.FileIO, "save", true));
             }
 
             this.body = new RootYAML(proxy.FileIO, yamlPath, acceptAbsence);
         }
+
+        /// <inheritdoc/>
+        public override AgnosticPath Path { get; }
 
         /// <inheritdoc/>
         public override Spec Base { get => this.BaseAsRoot; }
@@ -69,10 +73,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), value);
-
+                        ISpawner<object>.ValidateSpawnerType(
+                            typeof(ISpawnerRoot<object>), value);
                         this.Body.Scalar["spawner"] =
-                            new ScalarYAML($"{value.FullName}, {value.Assembly.GetName().Name}");
+                            new ScalarYAML(EncodeType(value));
                     }
                     catch (Exception ex)
                     {
@@ -98,8 +102,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     this.mold.Scalar["base"] = new ScalarYAML("Spec");
                     var baseType = typeof(ISpawnerRoot<object>);
                     this.mold.Scalar["spawner"] = new ScalarYAML(
-                        $"Spawner, {baseType.FullName}," +
-                        $" {baseType.Assembly.GetName().Name}");
+                        $"Spawner, {EncodeType(baseType)}");
                     this.mold.Mapping["properties"] = ret;
                     return ret;
                 }
@@ -150,7 +153,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         var baseRelativePath = AgnosticPath.FromAgnosticPathString(
                             this.Body.Scalar["base"].Value);
                         var baseLayeredPath =
-                            baseRelativePath + this.LayeredFile.Path.Parent;
+                            baseRelativePath + this.Path.Parent;
                         return this.Proxy.SpecPool(baseLayeredPath);
                     }
                     catch (YAML.YAMLKeyUndefinedException)
@@ -167,8 +170,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 }
             }
         }
-
-        private LayeredFile LayeredFile { get; }
 
         /// <summary>
         /// Save the spec's values into the save layer.
@@ -187,7 +188,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <param name="layer">Layer to save the spec.</param>
         public void Save(Layer layer)
         {
-            this.Save(layer, this.LayeredFile.Path);
+            this.Save(layer, this.Path);
         }
 
         /// <summary>
@@ -238,7 +239,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             lock (this.Body)
             {
                 var baseRelativePath =
-                    newBase.LayeredFile.Path - this.LayeredFile.Path.Parent;
+                    newBase.Path - this.Path.Parent;
                 this.Body.Scalar["base"] = new ScalarYAML(
                     baseRelativePath.ToAgnosticPathString());
             }
@@ -255,9 +256,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 try
                 {
-                    var type = Type.GetType(
-                        this.Body.Scalar["spawner"].Value, true);
-                    this.ValidateSpawnerType(
+                    var type = DecodeType(
+                        this.Body.Scalar["spawner"].Value);
+                    ISpawner<object>.ValidateSpawnerType(
                         typeof(ISpawnerRoot<object>), type);
 
                     return type;

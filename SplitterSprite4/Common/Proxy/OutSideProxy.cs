@@ -6,7 +6,10 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.Proxy
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
     using MagicKitchen.SplitterSprite4.Common.Spec;
 
     /// <summary>
@@ -19,6 +22,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
     {
         private Dictionary<string, SpecRoot> specPool =
             new Dictionary<string, SpecRoot>();
+
+        private bool typePoolIsCached = false;
+        private IEnumerable<Type> typePool = new Type[0];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutSideProxy"/> class.
@@ -63,6 +69,44 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
                     this.specPool[poolKey] = ret;
                     return ret;
                 }
+            }
+        }
+
+        /// <summary>
+        /// アセンブリにロードされた全Typeを取得する。
+        /// 一度目はアセンブリにアクセスするが、二回目以降はキャッシュされた結果を返す。
+        /// Return all types loaded in assemblies.
+        /// At first call, this method access all assemblies,
+        /// then the result is cached.
+        /// </summary>
+        /// <returns>All types loaded in assemblies.</returns>
+        public IEnumerable<Type> TypePool()
+        {
+            lock (this.typePool)
+            {
+                if (!this.typePoolIsCached)
+                {
+                    foreach (
+                        var assembly in
+                        AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        try
+                        {
+                            this.typePool =
+                                this.typePool.Concat(assembly.GetTypes());
+                        }
+                        catch (ReflectionTypeLoadException)
+                        {
+                            // アクセス不能となるAssemblyは無視する
+                            // Unaccessible types are ignored.
+                            continue;
+                        }
+                    }
+
+                    this.typePoolIsCached = true;
+                }
+
+                return this.typePool;
             }
         }
     }

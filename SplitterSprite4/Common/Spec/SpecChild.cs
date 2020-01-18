@@ -45,6 +45,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
+        public override AgnosticPath Path { get => this.parent.Path; }
+
+        /// <inheritdoc/>
         public override Spec Base
         {
             get => this.BaseAsChild;
@@ -63,11 +66,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        this.ValidateSpawnerType(this.bound, value);
-
-                        this.Body.Scalar["spawner"] = new ScalarYAML(
-                            $"{value.FullName}, " +
-                            $"{value.Assembly.GetName().Name}");
+                        ISpawner<object>.ValidateSpawnerType(
+                            this.bound, value);
+                        this.Body.Scalar["spawner"] =
+                            new ScalarYAML(EncodeType(value));
                     }
                     catch (Exception ex)
                     {
@@ -94,8 +96,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     this.parent.Mold.Mapping[this.accessKey] = mold;
 
                     mold.Scalar["spawner"] = new ScalarYAML(
-                        $"Spawner, {this.bound.FullName}," +
-                        $" {this.bound.Assembly.GetName().Name}");
+                        $"Spawner, {EncodeType(this.bound)}");
 
                     var ret = mold.Mapping[
                         "properties", new MappingYAML()];
@@ -168,9 +169,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 try
                 {
-                    var type = Type.GetType(
-                        this.Body.Scalar["spawner"].Value, true);
-                    this.ValidateSpawnerType(this.bound, type);
+                    var type = DecodeType(
+                        this.Body.Scalar["spawner"].Value);
+                    ISpawner<object>.ValidateSpawnerType(
+                        this.bound, type);
 
                     return type;
                 }

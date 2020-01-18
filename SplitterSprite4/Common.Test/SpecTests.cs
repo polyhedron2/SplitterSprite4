@@ -210,7 +210,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // assert
                 var type = typeof(ValidSpawnerRootWithDefaultConstructor);
                 Assert.Equal(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                     spec.ToString());
             }
 
@@ -223,7 +223,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // assert
                 var type = typeof(ValidSpawnerRootWithImplementedConstructor);
                 Assert.Equal(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                     spec.ToString());
             }
 
@@ -261,7 +261,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerRootWithDefaultConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
@@ -275,7 +275,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerRootWithImplementedConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
@@ -289,7 +289,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(SpawnerRootWithoutValidConstructor);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
@@ -304,7 +304,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = proxy.SpecPool(agnosticPath);
 
                 // assert
@@ -354,7 +354,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     Utility.JoinLines(
                         "\"properties\":",
                         "  \"child\":",
-                        $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""),
+                        $"    \"spawner\": \"{Spec.EncodeType(type)}\""),
                     specParent.ToString());
             }
 
@@ -371,7 +371,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     Utility.JoinLines(
                         "\"properties\":",
                         "  \"child\":",
-                        $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""),
+                        $"    \"spawner\": \"{Spec.EncodeType(type)}\""),
                     specParent.ToString());
             }
 
@@ -435,7 +435,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
-                    $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
                 var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
@@ -449,7 +449,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
-                    $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
                 var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
@@ -463,7 +463,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
-                    $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
                 var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ValidSpawnerChildWithImplementedConstructor)];
 
                 // assert
@@ -489,7 +489,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
-                    $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
                 var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
@@ -506,7 +506,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 this.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
-                    $"    \"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\""));
+                    $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
                 var specChild = proxy.SpecPool(agnosticPath).Child["child", typeof(ISpawnerChild<object>)];
 
                 // assert
@@ -2382,6 +2382,280 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the SpawnerRoot accessor.
+        /// </summary>
+        /// <param name="derivedPath">
+        /// The os-agnostic path of the derived spec file.
+        /// </param>
+        /// <param name="basePath">
+        /// The os-agnostic path of the base spec file.
+        /// </param>
+        /// <param name="referredPath">
+        /// The os-agnostic path of the referred spec file.
+        /// </param>
+        /// <param name="baseFromDerived">
+        /// Relative path from derived spec to base spec file.
+        /// </param>
+        /// <param name="referredFromDerived">
+        /// Relative path from derived spec to referred spec file.
+        /// </param>
+        /// <param name="referredFromBase">
+        /// Relative path from base spec to referred spec file.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "derived.spec",
+            "base.spec",
+            "referred.spec",
+            "base.spec",
+            "referred.spec",
+            "referred.spec")]
+        [InlineData(
+            "dir/derived.spec",
+            "base.spec",
+            "referred.spec",
+            "../base.spec",
+            "../referred.spec",
+            "referred.spec")]
+        [InlineData(
+            "dir/dir2/derived.spec",
+            "base.spec",
+            "referred.spec",
+            "../../base.spec",
+            "../../referred.spec",
+            "referred.spec")]
+        [InlineData(
+            "derived.spec",
+            "dir/base.spec",
+            "referred.spec",
+            "dir/base.spec",
+            "referred.spec",
+            "../referred.spec")]
+        [InlineData(
+            "derived.spec",
+            "dir/dir2/base.spec",
+            "referred.spec",
+            "dir/dir2/base.spec",
+            "referred.spec",
+            "../../referred.spec")]
+        [InlineData(
+            "derived.spec",
+            "base.spec",
+            "dir/referred.spec",
+            "base.spec",
+            "dir/referred.spec",
+            "dir/referred.spec")]
+        [InlineData(
+            "derived.spec",
+            "base.spec",
+            "dir/dir2/referred.spec",
+            "base.spec",
+            "dir/dir2/referred.spec",
+            "dir/dir2/referred.spec")]
+        public void ExteriorTest(
+            string derivedPath,
+            string basePath,
+            string referredPath,
+            string baseFromDerived,
+            string referredFromDerived,
+            string referredFromBase)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+
+            var agnosticDerivedPath =
+                AgnosticPath.FromAgnosticPathString(derivedPath);
+            this.SetupSpecFile(proxy, derivedPath, Utility.JoinLines(
+                $"\"base\": \"{baseFromDerived}\""));
+
+            var agnosticBasePath =
+                AgnosticPath.FromAgnosticPathString(basePath);
+            this.SetupSpecFile(proxy, basePath, Utility.JoinLines(
+                "\"properties\":",
+                "  \"invalid\": \"dummy\"",
+                $"  \"valid\": \"{referredFromBase}\""));
+
+            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var agnosticReferredPath =
+                AgnosticPath.FromAgnosticPathString(referredPath);
+            this.SetupSpecFile(proxy, referredPath, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"spawned value\"",
+                "    \"[End Of Text]\""));
+
+            // act
+            var derivedSpec = proxy.SpecPool(agnosticDerivedPath);
+            var baseSpec = proxy.SpecPool(agnosticBasePath);
+
+            // assert
+            // get value without default value.
+            // Invalid type parameter
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    SpawnerRootWithoutValidConstructor>();
+            });
+
+            // Refer to absence spec
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()["invalid"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = baseSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()["invalid"];
+            });
+
+            // Type mismatch
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithImplementedConstructor>()["valid"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = baseSpec.Exterior<
+                    ValidSpawnerRootWithImplementedConstructor>()["valid"];
+            });
+
+            // undefined value
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()["undefined"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = baseSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()["undefined"];
+            });
+
+            // valid pattern
+            Assert.Equal(
+                "spawned value",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "valid"].Spawn());
+            Assert.Equal(
+                "spawned value",
+                baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "valid"].Spawn());
+
+            // get value with default value.
+            // Invalid default path
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()[
+                    "invalid", "invalid|default|path"];
+            });
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()[
+                    "invalid", "invalid|default|path"];
+            });
+
+            // Refer to absence spec
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()[
+                    "invalid", "default/path"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = baseSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()[
+                    "invalid", "default/path"];
+            });
+
+            // Type mismatch
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<
+                    ValidSpawnerRootWithImplementedConstructor>()[
+                    "valid", "default/path"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = baseSpec.Exterior<
+                    ValidSpawnerRootWithImplementedConstructor>()[
+                    "valid", "default/path"];
+            });
+
+            // undefined value
+            Assert.Equal(
+                "spawned value",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "undefined", referredFromDerived].Spawn());
+            Assert.Equal(
+                "spawned value",
+                baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "undefined", referredFromBase].Spawn());
+
+            // valid pattern
+            Assert.Equal(
+                "spawned value",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "valid", "default/path"].Spawn());
+            Assert.Equal(
+                "spawned value",
+                baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "valid", "default/path"].Spawn());
+
+            // act
+            var spawner =
+                baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "valid"];
+            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                "undefined"] = spawner;
+
+            // assert
+            Assert.Equal(
+                "spawned value",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "undefined"].Spawn());
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = baseSpec.Exterior<
+                    ValidSpawnerRootWithDefaultConstructor>()["undefined"];
+            });
+
+            // derived spec is editted.
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{baseFromDerived}\"",
+                    "\"properties\":",
+                    $"  \"undefined\": \"{referredFromDerived}\""),
+                derivedSpec.ToString());
+
+            // base spec is not editted.
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"invalid\": \"dummy\"",
+                    $"  \"valid\": \"{referredFromBase}\""),
+                baseSpec.ToString());
+
+            // act
+            derivedSpec.Save();
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticDerivedPath);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{baseFromDerived}\"",
+                    "\"properties\":",
+                    $"  \"undefined\": \"{referredFromDerived}\""),
+                reloadedSpec.ToString());
+        }
+
+        /// <summary>
         /// Test UpdateBase method.
         /// </summary>
         /// <param name="derivedSpecPathStr">Derived spec path.</param>
@@ -2546,7 +2820,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 intermediateSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromIntermediateToBaseStr}",
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                     "\"properties\":",
                     "  \"010\": \"1\"",
                     "  \"011\": \"1\"",
@@ -2563,7 +2837,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 baseSpecLayerName,
                 baseSpecPathStr,
                 Utility.JoinLines(
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                     "\"properties\":",
                     "  \"001\": \"2\"",
                     "  \"011\": \"2\"",
@@ -2737,7 +3011,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 secondSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromSecondToThirdStr}",
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                     "\"properties\":",
                     "  \"010\": \"1\"",
                     "  \"011\": \"1\"",
@@ -2755,7 +3029,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 thirdSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromThirdToFirstStr}",
-                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                     "\"properties\":",
                     "  \"001\": \"2\"",
                     "  \"011\": \"2\"",
@@ -2896,6 +3170,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 _ = sp.Keyword["xyzzy"];
                 _ = sp.LimitedKeyword(7)["thud"];
                 _ = sp.Text["foobar"];
+                _ = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "foobaz"];
                 _ = sp["inner"].Int["inner int"];
                 _ = sp.Int["after inner"];
                 _ = sp["inner"].Double["inner double"];
@@ -2908,7 +3184,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
                     "\"properties\":",
                     "  \"foo\": \"Int\"",
                     "  \"bar\": \"Double\"",
@@ -2924,6 +3200,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"xyzzy\": \"Keyword\"",
                     "  \"thud\": \"LimitedKeyword, 7\"",
                     "  \"foobar\": \"Text\"",
+                    $"  \"foobaz\": \"Exterior, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int\"",
                     "    \"inner double\": \"Double\"",
@@ -2974,6 +3251,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 _ = sp.Text[
                     "foobar",
                     Utility.JoinLines("good, morning", "nice to meet you!")];
+                _ = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "foobaz", "default/path"];
                 _ = sp["inner"].Int["inner int", 100];
                 _ = sp.Int["after inner", 1024];
                 _ = sp["inner"].Double["inner double", 2.71];
@@ -2986,7 +3265,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
                     "\"properties\":",
                     "  \"foo\": \"Int, 10\"",
                     "  \"bar\": \"Double, 3.14\"",
@@ -3005,6 +3284,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"Text, good\\\\c morning\"",
                     "    \"nice to meet you!\"",
                     "    \"[End Of Text]\"",
+                    $"  \"foobaz\": \"Exterior, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}, default/path\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int, 100\"",
                     "    \"inner double\": \"Double, 2.71\"",
@@ -3093,7 +3373,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
                     "\"properties\":",
                     "  \"default\": \"Int\"",
                     $"  \"foo\": \"Int, {dynamicDefault}\""),
@@ -3146,7 +3426,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"base\": \"Spec\"",
-                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
+                        $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
                         "\"properties\":",
                         "  \"flag\": \"Bool\"",
                         "  \"foo\": \"Int\""),
@@ -3157,7 +3437,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"base\": \"Spec\"",
-                        $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
+                        $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
                         "\"properties\":",
                         "  \"flag\": \"Bool\"",
                         "  \"bar\": \"Double\""),
@@ -3212,7 +3492,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 Utility.JoinLines(
                     "\"base\": \"Spec\"",
-                    $"\"spawner\": \"Spawner, {typeof(ISpawnerRoot<object>).FullName}, {typeof(ISpawnerRoot<object>).Assembly.GetName().Name}\"",
+                    $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
                     "\"properties\":",
                     "  \"derived\": \"Int\"",
                     "  \"base\": \"Int\"",
