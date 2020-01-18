@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
+    using System.Collections.Immutable;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.YAML;
@@ -46,7 +47,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <inheritdoc/>
         public override Spec Base
         {
-            get => this.parent.Base?.Child[this.accessKey, this.bound];
+            get => this.BaseAsChild;
         }
 
         /// <summary>
@@ -54,29 +55,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public Type SpawnerType
         {
-            get
-            {
-                lock (this.Body)
-                {
-                    try
-                    {
-                        var type = Type.GetType(
-                            this.Body.Scalar["spawner"].Value, true);
-                        this.ValidateSpawnerType(this.bound, type);
-
-                        return type;
-                    }
-                    catch (YAML.YAMLKeyUndefinedException)
-                    {
-                        return null;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidSpecAccessException(
-                            $"{this.ID}[spawner]", "Spawner", ex);
-                    }
-                }
-            }
+            get => this.SpawnerTypeGetter(ImmutableList<string>.Empty);
 
             set
             {
@@ -165,6 +144,53 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         internal override OutSideProxy Proxy
         {
             get => this.parent.Proxy;
+        }
+
+        /// <summary>
+        /// Gets a Spec for inheritance as SpecChild.
+        /// If a property is not defined in this spec,
+        /// the base spec's property is referred.
+        /// If the base spec is not defined, this property is null.
+        /// </summary>
+        internal SpecChild BaseAsChild
+        {
+            get => this.parent.Base?.Child[this.accessKey, this.bound];
+        }
+
+        /// <summary>
+        /// Internal spawner getter method for base spec access.
+        /// </summary>
+        /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
+        /// <returns>Spawner type instance.</returns>
+        internal Type SpawnerTypeGetter(ImmutableList<string> referredSpecs)
+        {
+            lock (this.Body)
+            {
+                try
+                {
+                    var type = Type.GetType(
+                        this.Body.Scalar["spawner"].Value, true);
+                    this.ValidateSpawnerType(this.bound, type);
+
+                    return type;
+                }
+                catch (YAML.YAMLKeyUndefinedException ex)
+                {
+                    var isLooped = referredSpecs.Contains(this.Body.ID);
+                    if (this.Base == null || isLooped)
+                    {
+                        throw ex;
+                    }
+
+                    return this.BaseAsChild.SpawnerTypeGetter(
+                        referredSpecs.Add(this.Body.ID));
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
+                }
+            }
         }
     }
 }

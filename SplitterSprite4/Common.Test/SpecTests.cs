@@ -2522,6 +2522,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // "0" means the value come from derived spec.
             // "1" means the value come from intermediate spec.
             // "2" means the value come from base spec.
+            // Spawner type is in "011" pattern.
             this.SetupSpecFile(
                 proxy,
                 derivedSpecLayerName,
@@ -2538,12 +2539,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"101\": \"0\"",
                     "    \"110\": \"0\"",
                     "    \"111\": \"0\""));
+            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
             this.SetupSpecFile(
                 proxy,
                 intermediateSpecLayerName,
                 intermediateSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromIntermediateToBaseStr}",
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"010\": \"1\"",
                     "  \"011\": \"1\"",
@@ -2554,11 +2557,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"011\": \"1\"",
                     "    \"110\": \"1\"",
                     "    \"111\": \"1\""));
+            type = typeof(ValidSpawnerRootWithImplementedConstructor);
             this.SetupSpecFile(
                 proxy,
                 baseSpecLayerName,
                 baseSpecPathStr,
                 Utility.JoinLines(
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"001\": \"2\"",
                     "  \"011\": \"2\"",
@@ -2615,6 +2620,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(0, derivedSpec["inner"].Int["101", -1]);
             Assert.Equal(0, derivedSpec["inner"].Int["110", -1]);
             Assert.Equal(0, derivedSpec["inner"].Int["111", -1]);
+
+            Assert.Equal(
+                typeof(ValidSpawnerRootWithDefaultConstructor),
+                derivedSpec.SpawnerType);
         }
 
         /// <summary>
@@ -2704,6 +2713,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // "0" means the value come from the first spec.
             // "1" means the value come from the second spec.
             // "2" means the value come from the third spec.
+            // Spawner type is in "011" pattern.
             this.SetupSpecFile(
                 proxy,
                 firstSpecLayerName,
@@ -2720,12 +2730,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"101\": \"0\"",
                     "    \"110\": \"0\"",
                     "    \"111\": \"0\""));
+            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
             this.SetupSpecFile(
                 proxy,
                 secondSpecLayerName,
                 secondSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromSecondToThirdStr}",
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"010\": \"1\"",
                     "  \"011\": \"1\"",
@@ -2736,12 +2748,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"011\": \"1\"",
                     "    \"110\": \"1\"",
                     "    \"111\": \"1\""));
+            type = typeof(ValidSpawnerChildWithImplementedConstructor);
             this.SetupSpecFile(
                 proxy,
                 thirdSpecLayerName,
                 thirdSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromThirdToFirstStr}",
+                    $"\"spawner\": \"{type.FullName}, {type.Assembly.GetName().Name}\"",
                     "\"properties\":",
                     "  \"001\": \"2\"",
                     "  \"011\": \"2\"",
@@ -2798,6 +2812,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(0, firstSpec["inner"].Int["101", -1]);
             Assert.Equal(0, firstSpec["inner"].Int["110", -1]);
             Assert.Equal(0, firstSpec["inner"].Int["111", -1]);
+
+            Assert.Equal(
+                typeof(ValidSpawnerRootWithDefaultConstructor),
+                firstSpec.SpawnerType);
         }
 
         /// <summary>
@@ -2834,6 +2852,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
                 _ = spec.Int["undefined"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.SpawnerType;
             });
         }
 

@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
+    using System.Collections.Immutable;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.YAML;
@@ -53,55 +54,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <inheritdoc/>
-        public override Spec Base
-        {
-            get
-            {
-                lock (this.Body)
-                {
-                    try
-                    {
-                        var baseRelativePath = AgnosticPath.FromAgnosticPathString(
-                            this.Body.Scalar["base"].Value);
-                        var baseLayeredPath =
-                            baseRelativePath + this.LayeredFile.Path.Parent;
-                        return this.Proxy.SpecPool(baseLayeredPath);
-                    }
-                    catch (YAML.YAMLKeyUndefinedException)
-                    {
-                        return null;
-                    }
-                }
-            }
-        }
+        public override Spec Base { get => this.BaseAsRoot; }
 
         /// <summary>
         /// Gets or sets spawner type for this spec.
         /// </summary>
         public Type SpawnerType
         {
-            get
-            {
-                lock (this.Body)
-                {
-                    try
-                    {
-                        var type = Type.GetType(this.Body.Scalar["spawner"].Value, true);
-                        this.ValidateSpawnerType(typeof(ISpawnerRoot<object>), type);
-
-                        return type;
-                    }
-                    catch (YAML.YAMLKeyUndefinedException)
-                    {
-                        return null;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidSpecAccessException(
-                            $"{this.ID}[spawner]", "Spawner", ex);
-                    }
-                }
-            }
+            get => this.SpawnerTypeGetter(ImmutableList<string>.Empty);
 
             set
             {
@@ -171,6 +131,41 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         internal override OutSideProxy Proxy
         {
             get => this.proxy;
+        }
+
+        /// <summary>
+        /// Gets a Spec for inheritance as SpecRoot.
+        /// If a property is not defined in this spec,
+        /// the base spec's property is referred.
+        /// If the base spec is not defined, this property is null.
+        /// </summary>
+        internal SpecRoot BaseAsRoot
+        {
+            get
+            {
+                lock (this.Body)
+                {
+                    try
+                    {
+                        var baseRelativePath = AgnosticPath.FromAgnosticPathString(
+                            this.Body.Scalar["base"].Value);
+                        var baseLayeredPath =
+                            baseRelativePath + this.LayeredFile.Path.Parent;
+                        return this.Proxy.SpecPool(baseLayeredPath);
+                    }
+                    catch (YAML.YAMLKeyUndefinedException)
+                    {
+                        return null;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecAccessException(
+                            $"{this.Body.ID}[base]",
+                            "継承元",
+                            ex);
+                    }
+                }
+            }
         }
 
         private LayeredFile LayeredFile { get; }
@@ -246,6 +241,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     newBase.LayeredFile.Path - this.LayeredFile.Path.Parent;
                 this.Body.Scalar["base"] = new ScalarYAML(
                     baseRelativePath.ToAgnosticPathString());
+            }
+        }
+
+        /// <summary>
+        /// Internal spawner getter method for base spec access.
+        /// </summary>
+        /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
+        /// <returns>Spawner type instance.</returns>
+        internal Type SpawnerTypeGetter(ImmutableList<string> referredSpecs)
+        {
+            lock (this.Body)
+            {
+                try
+                {
+                    var type = Type.GetType(
+                        this.Body.Scalar["spawner"].Value, true);
+                    this.ValidateSpawnerType(
+                        typeof(ISpawnerRoot<object>), type);
+
+                    return type;
+                }
+                catch (YAML.YAMLKeyUndefinedException ex)
+                {
+                    var isLooped = referredSpecs.Contains(this.Body.ID);
+                    if (this.Base == null || isLooped)
+                    {
+                        throw ex;
+                    }
+
+                    return this.BaseAsRoot.SpawnerTypeGetter(
+                        referredSpecs.Add(this.Body.ID));
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
+                }
             }
         }
     }
