@@ -62,7 +62,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         {
             var spawnerType = typeof(T_Spawner);
 
-            foreach (var type in proxy.TypePool())
+            foreach (var type in proxy.SpawnerTypePool())
             {
                 try
                 {

@@ -10,6 +10,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec;
 
     /// <summary>
@@ -23,8 +24,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         private Dictionary<string, SpecRoot> specPool =
             new Dictionary<string, SpecRoot>();
 
-        private bool typePoolIsCached = false;
-        private IEnumerable<Type> typePool = new Type[0];
+        private List<Type> spawnerTypePool = Enumerable.Empty<Type>().ToList();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutSideProxy"/> class.
@@ -40,6 +40,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// and program files.
         /// </summary>
         public FileIOProxy FileIO { get; }
+
+        private bool SpawnerTypePoolIsCached
+        {
+            get => this.spawnerTypePool.Any();
+        }
 
         /// <summary>
         /// SpecRootインスタンスを取得する。
@@ -73,40 +78,76 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         }
 
         /// <summary>
-        /// アセンブリにロードされた全Typeを取得する。
+        /// アセンブリにロードされた全SpawnerのTypeを取得する。
         /// 一度目はアセンブリにアクセスするが、二回目以降はキャッシュされた結果を返す。
-        /// Return all types loaded in assemblies.
+        /// Return all spawner types loaded in assemblies.
         /// At first call, this method access all assemblies,
         /// then the result is cached.
         /// </summary>
         /// <returns>All types loaded in assemblies.</returns>
-        public IEnumerable<Type> TypePool()
+        public IEnumerable<Type> SpawnerTypePool()
         {
-            lock (this.typePool)
+            lock (this.spawnerTypePool)
             {
-                if (!this.typePoolIsCached)
+                if (this.SpawnerTypePoolIsCached)
                 {
-                    foreach (
-                        var assembly in
-                        AppDomain.CurrentDomain.GetAssemblies())
-                    {
-                        try
-                        {
-                            this.typePool =
-                                this.typePool.Concat(assembly.GetTypes());
-                        }
-                        catch (ReflectionTypeLoadException)
-                        {
-                            // アクセス不能となるAssemblyは無視する
-                            // Unaccessible types are ignored.
-                            continue;
-                        }
-                    }
-
-                    this.typePoolIsCached = true;
+                    return this.spawnerTypePool;
                 }
 
-                return this.typePool;
+                // 全てのAssemblyを確認
+                // Check all assemblies.
+                foreach (
+                    var assembly in
+                    AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    // 標準ライブラリ群はSpawnerを持たないためスキップ
+                    // Standard libralies are skipped
+                    // because they don't have spawners.
+                    var assemblyName = assembly.FullName;
+                    if (assemblyName.StartsWith("System.") ||
+                        assemblyName.StartsWith("System,") ||
+                        assemblyName.StartsWith("Microsoft.") ||
+                        assemblyName.StartsWith("Windows.") ||
+                        assemblyName.StartsWith("WindowsBase,") ||
+                        assemblyName.StartsWith("mscorlib,") ||
+                        assemblyName.StartsWith("netstandard,") ||
+                        assemblyName.StartsWith("xunit.") ||
+                        assemblyName.StartsWith("YamlDotNet,") ||
+                        assemblyName.StartsWith("Anonymously Hosted " +
+                                                "DynamicMethods Assembly,") ||
+                        assemblyName.StartsWith("testhost,"))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        // Spawnerのみをフィルタして追加
+                        // Add only spawner classes by filtering.
+                        this.spawnerTypePool.AddRange(
+                            assembly.GetTypes().Where((type) =>
+                            {
+                                try
+                                {
+                                    ISpawner<object>.ValidateSpawnerType(
+                                        typeof(ISpawner<object>), type);
+                                    return true;
+                                }
+                                catch (Exception)
+                                {
+                                    return false;
+                                }
+                            }));
+                    }
+                    catch (ReflectionTypeLoadException)
+                    {
+                        // アクセス不能となるAssemblyは無視する
+                        // Unaccessible types are ignored.
+                        continue;
+                    }
+                }
+
+                return this.spawnerTypePool;
             }
         }
     }
