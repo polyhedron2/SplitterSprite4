@@ -2813,36 +2813,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"101\": \"0\"",
                     "    \"110\": \"0\"",
                     "    \"111\": \"0\""));
-            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var rootType = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var childType = typeof(ValidSpawnerChildWithDefaultConstructor);
             this.SetupSpecFile(
                 proxy,
                 intermediateSpecLayerName,
                 intermediateSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromIntermediateToBaseStr}",
-                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(rootType)}\"",
                     "\"properties\":",
                     "  \"010\": \"1\"",
                     "  \"011\": \"1\"",
                     "  \"110\": \"1\"",
                     "  \"111\": \"1\"",
+                    "  \"child\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(childType)}\"",
                     "  \"inner\":",
                     "    \"010\": \"1\"",
                     "    \"011\": \"1\"",
                     "    \"110\": \"1\"",
                     "    \"111\": \"1\""));
-            type = typeof(ValidSpawnerRootWithImplementedConstructor);
+            rootType = typeof(ValidSpawnerRootWithImplementedConstructor);
+            childType = typeof(ValidSpawnerChildWithImplementedConstructor);
             this.SetupSpecFile(
                 proxy,
                 baseSpecLayerName,
                 baseSpecPathStr,
                 Utility.JoinLines(
-                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(rootType)}\"",
                     "\"properties\":",
                     "  \"001\": \"2\"",
                     "  \"011\": \"2\"",
                     "  \"101\": \"2\"",
                     "  \"111\": \"2\"",
+                    "  \"child\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(childType)}\"",
                     "  \"inner\":",
                     "    \"001\": \"2\"",
                     "    \"011\": \"2\"",
@@ -2851,6 +2857,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             var derivedSpec = proxy.SpecPool(derivedSpecPath);
+            var childSpec =
+                derivedSpec.Child["child", typeof(ISpawnerChild<object>)];
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -2898,6 +2906,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 typeof(ValidSpawnerRootWithDefaultConstructor),
                 derivedSpec.SpawnerType);
+            Assert.Equal(
+                typeof(ValidSpawnerChildWithDefaultConstructor),
+                childSpec.SpawnerType);
         }
 
         /// <summary>
@@ -3004,37 +3015,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"101\": \"0\"",
                     "    \"110\": \"0\"",
                     "    \"111\": \"0\""));
-            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var rootType = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var childType = typeof(ValidSpawnerChildWithDefaultConstructor);
             this.SetupSpecFile(
                 proxy,
                 secondSpecLayerName,
                 secondSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromSecondToThirdStr}",
-                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(rootType)}\"",
                     "\"properties\":",
                     "  \"010\": \"1\"",
                     "  \"011\": \"1\"",
                     "  \"110\": \"1\"",
                     "  \"111\": \"1\"",
+                    "  \"child\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(childType)}\"",
                     "  \"inner\":",
                     "    \"010\": \"1\"",
                     "    \"011\": \"1\"",
                     "    \"110\": \"1\"",
                     "    \"111\": \"1\""));
-            type = typeof(ValidSpawnerChildWithImplementedConstructor);
+            rootType = typeof(ValidSpawnerChildWithImplementedConstructor);
+            childType = typeof(ValidSpawnerChildWithImplementedConstructor);
             this.SetupSpecFile(
                 proxy,
                 thirdSpecLayerName,
                 thirdSpecPathStr,
                 Utility.JoinLines(
                     $"\"base\": {relativePathFromThirdToFirstStr}",
-                    $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                    $"\"spawner\": \"{Spec.EncodeType(rootType)}\"",
                     "\"properties\":",
                     "  \"001\": \"2\"",
                     "  \"011\": \"2\"",
                     "  \"101\": \"2\"",
                     "  \"111\": \"2\"",
+                    "  \"child\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(childType)}\"",
                     "  \"inner\":",
                     "    \"001\": \"2\"",
                     "    \"011\": \"2\"",
@@ -3043,6 +3060,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             // act
             var firstSpec = proxy.SpecPool(firstSpecPath);
+            var childSpec =
+                firstSpec.Child["child", typeof(ISpawnerChild<object>)];
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -3090,6 +3109,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 typeof(ValidSpawnerRootWithDefaultConstructor),
                 firstSpec.SpawnerType);
+            Assert.Equal(
+                typeof(ValidSpawnerChildWithDefaultConstructor),
+                childSpec.SpawnerType);
         }
 
         /// <summary>
@@ -3130,6 +3152,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
                 _ = spec.SpawnerType;
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Child[
+                    "child",
+                    typeof(ValidSpawnerChildWithDefaultConstructor)]
+                    .SpawnerType;
             });
         }
 
