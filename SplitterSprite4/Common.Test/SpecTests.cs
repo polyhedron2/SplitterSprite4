@@ -3170,13 +3170,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 _ = sp.Keyword["xyzzy"];
                 _ = sp.LimitedKeyword(7)["thud"];
                 _ = sp.Text["foobar"];
-                _ = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                var exterior = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "foobaz"];
                 _ = sp["inner"].Int["inner int"];
                 _ = sp.Int["after inner"];
                 _ = sp["inner"].Double["inner double"];
                 _ = sp["inner"]["inner inner"].Int["inner inner int"];
                 _ = sp.Int["日本語キー"];
+
+                // Dummy specによりSpawnは無事実行可能。
+                // Spawn can be executed because of dummy spec.
+                _ = exterior.Spawn();
             };
             var mold = spec.MoldSpec(action);
 
@@ -3251,13 +3255,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 _ = sp.Text[
                     "foobar",
                     Utility.JoinLines("good, morning", "nice to meet you!")];
-                _ = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                var exterior = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "foobaz", "default/path"];
                 _ = sp["inner"].Int["inner int", 100];
                 _ = sp.Int["after inner", 1024];
                 _ = sp["inner"].Double["inner double", 2.71];
                 _ = sp["inner"]["inner inner"].Int["inner inner int", -1];
                 _ = sp.Int["日本語キー", 0];
+
+                // Dummy specによりSpawnは無事実行可能。
+                // Spawn can be executed because of dummy spec.
+                _ = exterior.Spawn();
             };
             var mold = spec.MoldSpec(action);
 

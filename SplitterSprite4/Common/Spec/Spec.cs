@@ -801,6 +801,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             where T : ISpawnerRoot<object>
         {
             var paramType = typeof(T);
+            var moldingDefault = this.MoldingDefault<T>();
+            moldingDefault.Spec = SpecRoot.CreateDummy(this.Proxy);
 
             return new PathIndexer<T>(
                 this,
@@ -808,14 +810,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 (path) =>
                 {
                     var spec = this.Proxy.SpecPool(path);
-                    var spawner = (T)Activator.CreateInstance(spec.SpawnerType);
+                    var spawner = (T)Activator.CreateInstance(
+                        spec.SpawnerType);
                     spawner.Spec = spec;
 
                     return spawner;
                 },
                 (spawner) => spawner.Spec.Path,
                 $"Exterior, {EncodeType(paramType)}",
-                ISpawner<object>.MoldingDefault<T>(this.Proxy),
+                moldingDefault,
                 ImmutableList<string>.Empty);
         }
 
@@ -823,6 +826,38 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public override string ToString()
         {
             return this.Body.ToString(true);
+        }
+
+        /// <summary>
+        /// Create instance for molding default.
+        /// </summary>
+        /// <typeparam name="T_Spawner">Expected spawner type.</typeparam>
+        /// <returns>Dummy spawner instance.</returns>
+        protected T_Spawner MoldingDefault<T_Spawner>()
+            where T_Spawner : ISpawner<object>
+        {
+            var spawnerType = typeof(T_Spawner);
+
+            foreach (var type in this.Proxy.SpawnerTypePool())
+            {
+                try
+                {
+                    // 最初にValidation成功したTypeによるインスタンスを返す
+                    // Instance from first valid type is returned.
+                    return (T_Spawner)ISpawner<object>.ValidateSpawnerType(
+                        spawnerType, type);
+                }
+                catch (Exception)
+                {
+                    // Validation失敗となるTypeは無視する
+                    // Invalid types are ignored.
+                    continue;
+                }
+            }
+
+            throw new Spec.InvalidSpecDefinitionException(
+                $"正当なサブクラスを持たないSpawnerクラス" +
+                $"\"{spawnerType.Name}\"が使用されています。");
         }
 
         /// <summary>

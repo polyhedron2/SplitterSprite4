@@ -54,6 +54,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             this.body = new RootYAML(proxy.FileIO, yamlPath, acceptAbsence);
         }
 
+        private SpecRoot(OutSideProxy proxy)
+        {
+            this.proxy = proxy;
+            this.Path =
+                AgnosticPath.FromAgnosticPathString("This is dummy spec.");
+            this.body = new RootYAML(proxy.FileIO, string.Empty, true);
+            this.mold = new MappingYAML();
+        }
+
         /// <inheritdoc/>
         public override AgnosticPath Path { get; }
 
@@ -244,6 +253,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     baseRelativePath.ToAgnosticPathString());
             }
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SpecRoot"/> class.
+        /// </summary>
+        /// <param name="proxy">The OutSideProxy for file or spec pool access.</param>
+        /// <returns>Dummy SpecRoot instance for molding default.</returns>
+        internal static SpecRoot CreateDummy(OutSideProxy proxy) =>
+            new SpecRoot(proxy);
 
         /// <summary>
         /// Internal spawner getter method for base spec access.
