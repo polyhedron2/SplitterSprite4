@@ -2160,7 +2160,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Equal("length7", spec.LimitedKeyword(7)["name"]);
             Assert.Equal("名前がななもじ", spec.LimitedKeyword(7)["名前"]);
-            Assert.Equal("3rd", spec["children names"].Keyword["third"]);
+            Assert.Equal("3rd", spec["children names"].LimitedKeyword(7)["third"]);
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
