@@ -1077,10 +1077,110 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Specの持つ値が不正である場合の例外
+        /// The exception that is thrown when an attempt to
+        /// access a spec value or a child which has invalid definition.
+        /// </summary>
+        public class InvalidSpecAccessException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidSpecAccessException"/> class.
+            /// </summary>
+            /// <param name="id">The spec access ID.</param>
+            /// <param name="type">The access type.</param>
+            /// <param name="cause">The innerException.</param>
+            internal InvalidSpecAccessException(string id, string type, Exception cause)
+                : base($"{id}での{type}アクセス時に問題が発生しました。", cause)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Specアクセス時の型定義が不正である場合の例外。
+        /// The exception that is thrown when an attempt to
+        /// define a invalid spec type.
+        /// </summary>
+        public class InvalidSpecDefinitionException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidSpecDefinitionException"/> class.
+            /// </summary>
+            /// <param name="message">The exception message.</param>
+            internal InvalidSpecDefinitionException(string message)
+                : base(message)
+            {
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidSpecDefinitionException"/> class.
+            /// </summary>
+            /// <param name="message">The exception message.</param>
+            /// <param name="cause">The inner exception.</param>
+            internal InvalidSpecDefinitionException(string message, Exception cause)
+                : base(message, cause)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Spec上の文字列を指定の型に変更する際の正当性チェックが失敗した際の例外。
+        /// The exception that is thrown when an attempt to
+        /// validate a invalid spec string.
+        /// </summary>
+        public class ValidationError : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ValidationError"/> class.
+            /// </summary>
+            internal ValidationError()
+                : base()
+            {
+            }
+        }
+
+        /// <summary>
+        /// 複数の選択肢を期待するSpecアクセスにおいて、選択肢以外の値がある場合の例外
+        /// The exception that is thrown when an attempt to
+        /// access a choice type spec value with unexpected choice.
+        /// </summary>
+        public class UnexpectedChoiceException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="UnexpectedChoiceException"/> class.
+            /// </summary>
+            /// <param name="actual">The unexpected value.</param>
+            /// <param name="choices">The choices.</param>
+            internal UnexpectedChoiceException(string actual, params string[] choices)
+                : base(
+                      $"{actual}は期待される選択肢" +
+                      $"{string.Join(", ", choices)}に含まれていません。")
+            {
+            }
+        }
+
+        /// <summary>
+        /// Mold時のデフォルト値エンコードが不正である場合の例外。
+        /// The exception that is thrown when an attempt to
+        /// decode an invalid default value string for molding.
+        /// </summary>
+        public class InvalidDefaultValEncoding : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidDefaultValEncoding"/> class.
+            /// </summary>
+            /// <param name="target">The encoded string.</param>
+            internal InvalidDefaultValEncoding(string target)
+                : base(
+                      $"\"{target}\"はMold時のデフォルト値エンコードとして不正です。")
+            {
+            }
+        }
+
+        /// <summary>
         /// Common indexer class for scalar value in spec file.
         /// </summary>
         /// <typeparam name="T">Type of value.</typeparam>
-        public class ScalarIndexer<T>
+        private class ScalarIndexer<T>
         {
             private Spec parent;
             private string type;
@@ -1288,106 +1388,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         this.referredSpecs.Add(this.parent.ID))
                         .IndexGet(key);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Specの持つ値が不正である場合の例外
-        /// The exception that is thrown when an attempt to
-        /// access a spec value or a child which has invalid definition.
-        /// </summary>
-        public class InvalidSpecAccessException : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="InvalidSpecAccessException"/> class.
-            /// </summary>
-            /// <param name="id">The spec access ID.</param>
-            /// <param name="type">The access type.</param>
-            /// <param name="cause">The innerException.</param>
-            internal InvalidSpecAccessException(string id, string type, Exception cause)
-                : base($"{id}での{type}アクセス時に問題が発生しました。", cause)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Specアクセス時の型定義が不正である場合の例外。
-        /// The exception that is thrown when an attempt to
-        /// define a invalid spec type.
-        /// </summary>
-        public class InvalidSpecDefinitionException : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="InvalidSpecDefinitionException"/> class.
-            /// </summary>
-            /// <param name="message">The exception message.</param>
-            internal InvalidSpecDefinitionException(string message)
-                : base(message)
-            {
-            }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="InvalidSpecDefinitionException"/> class.
-            /// </summary>
-            /// <param name="message">The exception message.</param>
-            /// <param name="cause">The inner exception.</param>
-            internal InvalidSpecDefinitionException(string message, Exception cause)
-                : base(message, cause)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Spec上の文字列を指定の型に変更する際の正当性チェックが失敗した際の例外。
-        /// The exception that is thrown when an attempt to
-        /// validate a invalid spec string.
-        /// </summary>
-        public class ValidationError : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="ValidationError"/> class.
-            /// </summary>
-            internal ValidationError()
-                : base()
-            {
-            }
-        }
-
-        /// <summary>
-        /// 複数の選択肢を期待するSpecアクセスにおいて、選択肢以外の値がある場合の例外
-        /// The exception that is thrown when an attempt to
-        /// access a choice type spec value with unexpected choice.
-        /// </summary>
-        public class UnexpectedChoiceException : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="UnexpectedChoiceException"/> class.
-            /// </summary>
-            /// <param name="actual">The unexpected value.</param>
-            /// <param name="choices">The choices.</param>
-            internal UnexpectedChoiceException(string actual, params string[] choices)
-                : base(
-                      $"{actual}は期待される選択肢" +
-                      $"{string.Join(", ", choices)}に含まれていません。")
-            {
-            }
-        }
-
-        /// <summary>
-        /// Mold時のデフォルト値エンコードが不正である場合の例外。
-        /// The exception that is thrown when an attempt to
-        /// decode an invalid default value string for molding.
-        /// </summary>
-        public class InvalidDefaultValEncoding : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="InvalidDefaultValEncoding"/> class.
-            /// </summary>
-            /// <param name="target">The encoded string.</param>
-            internal InvalidDefaultValEncoding(string target)
-                : base(
-                      $"\"{target}\"はMold時のデフォルト値エンコードとして不正です。")
-            {
             }
         }
     }
