@@ -207,6 +207,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <param name="layeredPath">Layered path to save the spec.</param>
         public void Save(Layer layer, AgnosticPath layeredPath)
         {
+            // If this is molding, This spec should not be saved.
+            if (this.IsMolding)
+            {
+                return;
+            }
+
             var writePath = new LayeredFile(
                 this.Proxy.FileIO, layeredPath, true).FetchWritePath(layer);
 
@@ -255,7 +261,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SpecRoot"/> class.
+        /// Molding中状態のSpecRootインスタンスを返す。
+        /// このSpecRootは任意の値呼び出しに対して、MoldingDefaultを返す。
+        /// Return SpecRoot instance which is molding.
+        /// For any value calls, the instance returns molding default values.
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file or spec pool access.</param>
         /// <returns>Dummy SpecRoot instance for molding default.</returns>
