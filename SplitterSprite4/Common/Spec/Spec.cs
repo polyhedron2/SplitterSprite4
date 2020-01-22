@@ -79,54 +79,51 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <summary>
         /// Gets indexer for integer accessor.
         /// </summary>
-        public ValueIndexer<int> Int
+        public LiteralIndexer<int> Int
         {
-            get => new ValueIndexer<int>(
+            get => new LiteralIndexer<int>(
                 this,
                 "整数",
                 (value) => int.Parse(value),
                 (value) => value.ToString(),
                 "Int",
-                0,
-                ImmutableList<string>.Empty);
+                0);
         }
 
         /// <summary>
         /// Gets indexer for double precision floating point number accessor.
         /// </summary>
-        public ValueIndexer<double> Double
+        public LiteralIndexer<double> Double
         {
-            get => new ValueIndexer<double>(
+            get => new LiteralIndexer<double>(
                 this,
                 "実数",
                 (value) => double.Parse(value),
                 (value) => value.ToString(),
                 "Double",
-                0.0,
-                ImmutableList<string>.Empty);
+                0.0);
         }
 
         /// <summary>
         /// Gets indexer for boolean accessor.
         /// </summary>
-        public ValueIndexer<bool> Bool
+        public LiteralIndexer<bool> Bool
         {
-            get => new ValueIndexer<bool>(
+            get => new LiteralIndexer<bool>(
                 this,
                 "真偽値",
                 (value) => bool.Parse(value),
                 (value) => value.ToString(),
                 "Bool",
-                false,
-                ImmutableList<string>.Empty);
+                false);
         }
 
         /// <summary>
         /// Gets indexer for boolean accessor with "yes" or "no".
         /// </summary>
-        public ValueIndexer<bool> YesNo
+        public LiteralIndexer<bool> YesNo
         {
-            get => new ValueIndexer<bool>(
+            get => new LiteralIndexer<bool>(
                 this,
                 "YES/NO",
                 (value) =>
@@ -147,16 +144,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 },
                 (value) => value ? "yes" : "no",
                 "YesNo",
-                false,
-                ImmutableList<string>.Empty);
+                false);
         }
 
         /// <summary>
         /// Gets indexer for boolean accessor with "on" or "off".
         /// </summary>
-        public ValueIndexer<bool> OnOff
+        public LiteralIndexer<bool> OnOff
         {
-            get => new ValueIndexer<bool>(
+            get => new LiteralIndexer<bool>(
                 this,
                 "ON/OFF",
                 (value) =>
@@ -177,16 +173,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 },
                 (value) => value ? "on" : "off",
                 "OnOff",
-                false,
-                ImmutableList<string>.Empty);
+                false);
         }
 
         /// <summary>
         /// Gets indexer for (int x, int y) tuple accessor.
         /// </summary>
-        public ValueIndexer<(int x, int y)> Int2
+        public LiteralIndexer<(int x, int y)> Int2
         {
-            get => new ValueIndexer<(int x, int y)>(
+            get => new LiteralIndexer<(int x, int y)>(
                 this,
                 "整数x2",
                 (value) =>
@@ -208,16 +203,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return ret;
                 },
                 "Int2",
-                (0, 0),
-                ImmutableList<string>.Empty);
+                (0, 0));
         }
 
         /// <summary>
         /// Gets indexer for (int x, int y, int z) tuple accessor.
         /// </summary>
-        public ValueIndexer<(int x, int y, int z)> Int3
+        public LiteralIndexer<(int x, int y, int z)> Int3
         {
-            get => new ValueIndexer<(int x, int y, int z)>(
+            get => new LiteralIndexer<(int x, int y, int z)>(
                 this,
                 "整数x3",
                 (value) =>
@@ -240,16 +234,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return ret;
                 },
                 "Int3",
-                (0, 0, 0),
-                ImmutableList<string>.Empty);
+                (0, 0, 0));
         }
 
         /// <summary>
         /// Gets indexer for (double x, double y) tuple accessor.
         /// </summary>
-        public ValueIndexer<(double x, double y)> Double2
+        public LiteralIndexer<(double x, double y)> Double2
         {
-            get => new ValueIndexer<(double x, double y)>(
+            get => new LiteralIndexer<(double x, double y)>(
                 this,
                 "実数x2",
                 (value) =>
@@ -271,16 +264,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return ret;
                 },
                 "Double2",
-                (0.0, 0.0),
-                ImmutableList<string>.Empty);
+                (0.0, 0.0));
         }
 
         /// <summary>
         /// Gets indexer for (double x, double y, double z) tuple accessor.
         /// </summary>
-        public ValueIndexer<(double x, double y, double z)> Double3
+        public LiteralIndexer<(double x, double y, double z)> Double3
         {
-            get => new ValueIndexer<(double x, double y, double z)>(
+            get => new LiteralIndexer<(double x, double y, double z)>(
                 this,
                 "実数x3",
                 (value) =>
@@ -303,16 +295,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return ret;
                 },
                 "Double3",
-                (0.0, 0.0, 0.0),
-                ImmutableList<string>.Empty);
+                (0.0, 0.0, 0.0));
         }
 
         /// <summary>
         /// Gets indexer for string accessor without line feed code.
         /// </summary>
-        public ValueIndexer<string> Keyword
+        public LiteralIndexer<string> Keyword
         {
-            get => new ValueIndexer<string>(
+            get => new LiteralIndexer<string>(
                 this,
                 "改行なし文字列",
                 (value) =>
@@ -334,16 +325,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return value;
                 },
                 "Keyword",
-                string.Empty,
-                ImmutableList<string>.Empty);
+                string.Empty);
         }
 
         /// <summary>
         /// Gets indexer for multi line string accessor.
         /// </summary>
-        public ValueIndexer<string> Text
+        public LiteralIndexer<string> Text
         {
-            get => new ValueIndexer<string>(
+            get => new LiteralIndexer<string>(
                 this,
                 "改行あり文字列",
                 (value) =>
@@ -372,8 +362,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return value + "\n[End Of Text]";
                 },
                 "Text",
-                string.Empty,
-                ImmutableList<string>.Empty);
+                string.Empty);
         }
 
         /// <summary>
@@ -503,7 +492,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// The character must be in ')', ']', or '['.
         /// </param>
         /// <returns>Indexer for ranged interger accessor.</returns>
-        public ValueIndexer<int> Range(
+        public LiteralIndexer<int> Range(
             char parenthesisOpen,
             double leftBound,
             double rightBound,
@@ -576,7 +565,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 return leftBoundCheck && rightBoundCheck;
             };
 
-            return new ValueIndexer<int>(
+            return new LiteralIndexer<int>(
                 this,
                 $"整数({rangeText})",
                 (value) =>
@@ -600,8 +589,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return value.ToString();
                 },
                 moldingAccessCode,
-                moldingDefault,
-                ImmutableList<string>.Empty);
+                moldingDefault);
         }
 
         /// <summary>
@@ -627,7 +615,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// The character must be in ')', ']', or '['.
         /// </param>
         /// <returns>Indexer for floating point number accesssor in an interval.</returns>
-        public ValueIndexer<double> Interval(
+        public LiteralIndexer<double> Interval(
             char parenthesisOpen,
             double leftBound,
             double rightBound,
@@ -692,7 +680,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 return leftBoundCheck && rightBoundCheck;
             };
 
-            return new ValueIndexer<double>(
+            return new LiteralIndexer<double>(
                 this,
                 $"実数({rangeText})",
                 (value) =>
@@ -716,8 +704,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return value.ToString();
                 },
                 moldingAccessCode,
-                moldingDefault,
-                ImmutableList<string>.Empty);
+                moldingDefault);
         }
 
         /// <summary>
@@ -732,7 +719,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// The right bound of the interval.
         /// </param>
         /// <returns>Indexer for ranged interger accessor.</returns>
-        public ValueIndexer<int> Range(
+        public LiteralIndexer<int> Range(
             double leftBound,
             double rightBound)
         {
@@ -747,7 +734,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// The right bound of the interval.
         /// </param>
         /// <returns>Indexer for ranged interger accessor.</returns>
-        public ValueIndexer<int> Range(double rightBound)
+        public LiteralIndexer<int> Range(double rightBound)
         {
             return this.Range(0.0, rightBound);
         }
@@ -758,7 +745,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         /// <param name="limit">The bound of keyword length.</param>
         /// <returns>Indexer for limited keyword accessor.</returns>
-        public ValueIndexer<string> LimitedKeyword(int limit)
+        public LiteralIndexer<string> LimitedKeyword(int limit)
         {
             if (limit < 0)
             {
@@ -766,7 +753,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     $"LimitedKeywordの上限値に負の値{limit}が設定されています。");
             }
 
-            return new ValueIndexer<string>(
+            return new LiteralIndexer<string>(
                 this,
                 $"改行なし文字列({limit}文字以下)",
                 (value) =>
@@ -788,8 +775,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     return value;
                 },
                 $"LimitedKeyword, {limit}",
-                string.Empty,
-                ImmutableList<string>.Empty);
+                string.Empty);
         }
 
         /// <summary>
@@ -818,8 +804,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 },
                 (spawner) => spawner.Spec.Path,
                 $"Exterior, {EncodeType(paramType)}",
-                moldingDefault,
-                ImmutableList<string>.Empty);
+                moldingDefault);
         }
 
         /// <inheritdoc/>
@@ -927,7 +912,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             private Func<T, AgnosticPath> setter;
             private string moldingAccessCode;
             private T moldingDefault;
-            private ImmutableList<string> referredSpecs;
+            private ScalarIndexer<T> internalIndexer;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="PathIndexer{T}"/> class.
@@ -938,15 +923,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="setter">Translation function to agnostic path.</param>
             /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
             /// <param name="moldingDefault">The default value for molding.</param>
-            /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
             internal PathIndexer(
                 Spec parent,
                 string type,
                 Func<AgnosticPath, T> getter,
                 Func<T, AgnosticPath> setter,
                 string moldingAccessCode,
-                T moldingDefault,
-                ImmutableList<string> referredSpecs)
+                T moldingDefault)
             {
                 this.parent = parent;
                 this.type = type;
@@ -954,7 +937,24 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 this.setter = setter;
                 this.moldingAccessCode = moldingAccessCode;
                 this.moldingDefault = moldingDefault;
-                this.referredSpecs = referredSpecs;
+                this.internalIndexer = new ScalarIndexer<T>(
+                    this.parent,
+                    this.type,
+                    (path, scalar) =>
+                    {
+                        var relative = AgnosticPath.FromAgnosticPathString(scalar);
+                        var fromExecutable = relative + path.Parent;
+                        return this.getter(fromExecutable);
+                    },
+                    (path, value) =>
+                    {
+                        var fromExecutable = this.setter(value);
+                        var relative = fromExecutable - path.Parent;
+                        return relative.ToAgnosticPathString();
+                    },
+                    this.moldingAccessCode,
+                    this.moldingDefault,
+                    ImmutableList<string>.Empty);
             }
 
             /// <summary>
@@ -964,88 +964,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <returns>The translated value.</returns>
             public T this[string key]
             {
-                get
-                {
-                    lock (this.parent.Properties)
-                    {
-                        try
-                        {
-                            if (this.parent.IsMolding)
-                            {
-                                this.parent.Mold[key] =
-                                    new ScalarYAML(this.moldingAccessCode);
-                            }
-
-                            try
-                            {
-                                // パスが記録されたSpecファイルからの相対パスとして扱う
-                                // Interpret string as relative path from the spec file.
-                                var path = AgnosticPath.FromAgnosticPathString(
-                                    this.parent.Properties.Scalar[key].Value) +
-                                    this.parent.Path.Parent;
-                                return this.getter(path);
-                            }
-                            catch (YAML.YAMLKeyUndefinedException ex)
-                            {
-                                var isLooped = this.referredSpecs.Contains(
-                                    this.parent.ID);
-                                if (this.parent.Base == null || isLooped)
-                                {
-                                    throw ex;
-                                }
-
-                                // Only if base spec is defined and not looped,
-                                // base spec is referred.
-                                return new PathIndexer<T>(
-                                    this.parent.Base,
-                                    this.type,
-                                    this.getter,
-                                    this.setter,
-                                    this.moldingAccessCode,
-                                    this.moldingDefault,
-                                    this.referredSpecs.Add(this.parent.ID))[
-                                    key];
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (this.parent.IsMolding)
-                            {
-                                return this.moldingDefault;
-                            }
-                            else
-                            {
-                                throw new InvalidSpecAccessException(
-                                    $"{this.parent.Properties.ID}[{key}]",
-                                    this.type,
-                                    ex);
-                            }
-                        }
-                    }
-                }
-
-                set
-                {
-                    lock (this.parent.Properties)
-                    {
-                        try
-                        {
-                            // パスが記録されたSpecファイルからの相対パスとして扱う
-                            // Interpret string as relative path from the spec file.
-                            var path =
-                                this.setter(value) - this.parent.Path.Parent;
-                            this.parent.Properties[key] =
-                                new ScalarYAML(path.ToAgnosticPathString());
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new InvalidSpecAccessException(
-                                $"{this.parent.Properties.ID}[{key}]",
-                                this.type,
-                                ex);
-                        }
-                    }
-                }
+                get => this.internalIndexer[key];
+                set { this.internalIndexer[key] = value; }
             }
 
             /// <summary>
@@ -1058,97 +978,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 get
                 {
-                    lock (this.parent.Properties)
+                    try
                     {
-                        try
-                        {
-                            _ = AgnosticPath.FromAgnosticPathString(
-                                defaultPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new InvalidSpecDefinitionException(
-                                "デフォルトパスが不正です。", ex);
-                        }
-
-                        try
-                        {
-                            if (this.parent.IsMolding)
-                            {
-                                var accessCodeWithDefault =
-                                    this.moldingAccessCode +
-                                    ", " +
-                                    EncodeDefaultValForMolding(defaultPath);
-
-                                this.parent.Mold[key] =
-                                    new ScalarYAML(accessCodeWithDefault);
-                            }
-
-                            try
-                            {
-                                // パスが記録されたSpecファイルからの相対パスとして扱う
-                                // Interpret string as relative path from the spec file.
-                                var path = AgnosticPath.FromAgnosticPathString(
-                                    this.parent.Properties.Scalar[key].Value) +
-                                    this.parent.Path.Parent;
-                                return this.getter(path);
-                            }
-                            catch (YAML.YAMLKeyUndefinedException)
-                            {
-                                var isLooped = this.referredSpecs.Contains(
-                                    this.parent.ID);
-                                if (this.parent.Base == null || isLooped)
-                                {
-                                    var defaultAgnosticPath =
-                                        AgnosticPath.FromAgnosticPathString(
-                                            defaultPath) +
-                                        this.parent.Path.Parent;
-                                    return this.getter(defaultAgnosticPath);
-                                }
-
-                                // Only if base spec is defined and not looped,
-                                // base spec is referred.
-                                var defaultPathFromBase = (
-                                    AgnosticPath.FromAgnosticPathString(
-                                        defaultPath) +
-                                    this.parent.Path.Parent -
-                                    this.parent.Base.Path.Parent)
-                                    .ToAgnosticPathString();
-                                return new PathIndexer<T>(
-                                    this.parent.Base,
-                                    this.type,
-                                    this.getter,
-                                    this.setter,
-                                    this.moldingAccessCode,
-                                    this.moldingDefault,
-                                    this.referredSpecs.Add(this.parent.ID))[
-                                    key, defaultPathFromBase];
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (this.parent.IsMolding)
-                            {
-                                return this.moldingDefault;
-                            }
-                            else
-                            {
-                                throw new InvalidSpecAccessException(
-                                    $"{this.parent.Properties.ID}[{key}]",
-                                    this.type,
-                                    ex);
-                            }
-                        }
+                        _ = AgnosticPath.FromAgnosticPathString(defaultPath);
                     }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecDefinitionException(
+                            "デフォルトパスが不正です。", ex);
+                    }
+
+                    return this.internalIndexer[key, defaultPath];
                 }
             }
         }
 
         /// <summary>
-        /// Indexer class for Int, Double, and Bool etc.
+        /// Indexer class for literal values (Int, Double, and Bool etc).
         /// </summary>
         /// <typeparam name="T">Type of value.</typeparam>
-        public class ValueIndexer<T>
+        public class LiteralIndexer<T>
         {
             private Spec parent;
             private string type;
@@ -1156,10 +1005,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             private Func<T, string> setter;
             private string moldingAccessCode;
             private T moldingDefault;
-            private ImmutableList<string> referredSpecs;
+            private ScalarIndexer<T> internalIndexer;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="ValueIndexer{T}"/> class.
+            /// Initializes a new instance of the <see cref="LiteralIndexer{T}"/> class.
             /// </summary>
             /// <param name="parent">The parent spec.</param>
             /// <param name="type">The access type string.</param>
@@ -1167,12 +1016,95 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <param name="setter">Translation function to string.</param>
             /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
             /// <param name="moldingDefault">The default value for molding.</param>
-            /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
-            internal ValueIndexer(
+            internal LiteralIndexer(
                 Spec parent,
                 string type,
                 Func<string, T> getter,
                 Func<T, string> setter,
+                string moldingAccessCode,
+                T moldingDefault)
+            {
+                this.parent = parent;
+                this.type = type;
+                this.getter = getter;
+                this.setter = setter;
+                this.moldingAccessCode = moldingAccessCode;
+                this.moldingDefault = moldingDefault;
+                this.internalIndexer = new ScalarIndexer<T>(
+                    this.parent,
+                    this.type,
+                    (path, scalar) => this.getter(scalar),
+                    (path, value) => this.setter(value),
+                    this.moldingAccessCode,
+                    this.moldingDefault,
+                    ImmutableList<string>.Empty);
+            }
+
+            /// <summary>
+            /// Indexer for literal value.
+            /// </summary>
+            /// <param name="key">The string key for the literal value.</param>
+            /// <returns>The translated value.</returns>
+            public T this[string key]
+            {
+                get => this.internalIndexer[key];
+                set { this.internalIndexer[key] = value; }
+            }
+
+            /// <summary>
+            /// Indexer for literal value.
+            /// </summary>
+            /// <param name="key">The string key for the literal value.</param>
+            /// <param name="defaultVal">The default literal value.</param>
+            /// <returns>The translated value.</returns>
+            public T this[string key, T defaultVal]
+            {
+                get
+                {
+                    try
+                    {
+                        this.getter(this.setter(defaultVal));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidSpecDefinitionException(
+                            "デフォルト値がSpecの値として不正です。", ex);
+                    }
+
+                    return this.internalIndexer[key, defaultVal];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Common indexer class for scalar value in spec file.
+        /// </summary>
+        /// <typeparam name="T">Type of value.</typeparam>
+        public class ScalarIndexer<T>
+        {
+            private Spec parent;
+            private string type;
+            private Func<AgnosticPath, string, T> getter;
+            private Func<AgnosticPath, T, string> setter;
+            private string moldingAccessCode;
+            private T moldingDefault;
+            private ImmutableList<string> referredSpecs;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ScalarIndexer{T}"/> class.
+            /// </summary>
+            /// <param name="parent">The parent spec.</param>
+            /// <param name="type">The access type string.</param>
+            /// <param name="getter">Translation function from spec path and string value in spec to indexed value.</param>
+            /// <param name="setter">Translation function from spec path and indexed value to string value in spec.</param>
+            /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
+            /// <param name="moldingDefault">The default value for molding.</param>
+            /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
+            internal ScalarIndexer(
+                Spec parent,
+                string type,
+                Func<AgnosticPath, string, T> getter,
+                Func<AgnosticPath, T, string> setter,
                 string moldingAccessCode,
                 T moldingDefault,
                 ImmutableList<string> referredSpecs)
@@ -1205,32 +1137,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                                     new ScalarYAML(this.moldingAccessCode);
                             }
 
-                            try
-                            {
-                                return this.getter(
-                                    this.parent.Properties.Scalar[key].Value);
-                            }
-                            catch (YAML.YAMLKeyUndefinedException ex)
-                            {
-                                var isLooped = this.referredSpecs.Contains(
-                                    this.parent.ID);
-                                if (this.parent.Base == null || isLooped)
-                                {
-                                    throw ex;
-                                }
-
-                                // Only if base spec is defined and not looped,
-                                // base spec is referred.
-                                return new ValueIndexer<T>(
-                                    this.parent.Base,
-                                    this.type,
-                                    this.getter,
-                                    this.setter,
-                                    this.moldingAccessCode,
-                                    this.moldingDefault,
-                                    this.referredSpecs.Add(this.parent.ID))[
-                                    key];
-                            }
+                            return this.IndexGet(key);
                         }
                         catch (Exception ex)
                         {
@@ -1256,7 +1163,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         try
                         {
                             this.parent.Properties[key] =
-                                new ScalarYAML(this.setter(value));
+                                new ScalarYAML(this.setter(this.parent.Path, value));
                         }
                         catch (Exception ex)
                         {
@@ -1277,20 +1184,35 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             /// <returns>The translated value.</returns>
             public T this[string key, T defaultVal]
             {
+                get => this[
+                    key,
+                    () => defaultVal,
+                    this.setter(this.parent.Path, defaultVal)];
+            }
+
+            /// <summary>
+            /// Indexer for value with default.
+            /// </summary>
+            /// <param name="key">The string key for the value.</param>
+            /// <param name="defaultValInSpec">The default value in spec.</param>
+            /// <returns>The translated value.</returns>
+            public T this[string key, string defaultValInSpec]
+            {
+                get => this[
+                    key,
+                    () => this.getter(this.parent.Path, defaultValInSpec),
+                    defaultValInSpec];
+            }
+
+            private T this[
+                string key,
+                Func<T> lazyDefaultVal,
+                string defaultValForMolding]
+            {
                 get
                 {
                     lock (this.parent.Properties)
                     {
-                        try
-                        {
-                            this.getter(this.setter(defaultVal));
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new InvalidSpecDefinitionException(
-                                "デフォルト値がSpecの値として不正です。", ex);
-                        }
-
                         try
                         {
                             if (this.parent.IsMolding)
@@ -1299,7 +1221,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                                     this.moldingAccessCode +
                                     ", " +
                                     EncodeDefaultValForMolding(
-                                        this.setter(defaultVal));
+                                        defaultValForMolding);
 
                                 this.parent.Mold[key] =
                                     new ScalarYAML(accessCodeWithDefault);
@@ -1307,29 +1229,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
 
                             try
                             {
-                                return this.getter(
-                                    this.parent.Properties.Scalar[key].Value);
+                                return this.IndexGet(key);
                             }
                             catch (YAML.YAMLKeyUndefinedException)
                             {
-                                var isLooped = this.referredSpecs.Contains(
-                                    this.parent.ID);
-                                if (this.parent.Base == null || isLooped)
-                                {
-                                    return defaultVal;
-                                }
-
-                                // Only if base spec is defined and not looped,
-                                // base spec is referred.
-                                return new ValueIndexer<T>(
-                                    this.parent.Base,
-                                    this.type,
-                                    this.getter,
-                                    this.setter,
-                                    this.moldingAccessCode,
-                                    this.moldingDefault,
-                                    this.referredSpecs.Add(this.parent.ID))[
-                                    key, defaultVal];
+                                return lazyDefaultVal();
                             }
                         }
                         catch (Exception ex)
@@ -1347,6 +1251,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                             }
                         }
                     }
+                }
+            }
+
+            /// <summary>
+            /// Common index getter process.
+            /// </summary>
+            /// <param name="key">The string key for the value.</param>
+            /// <returns>The translated value.</returns>
+            internal T IndexGet(string key)
+            {
+                try
+                {
+                    return this.getter(
+                        this.parent.Path,
+                        this.parent.Properties.Scalar[key].Value);
+                }
+                catch (YAML.YAMLKeyUndefinedException ex)
+                {
+                    var isLooped = this.referredSpecs.Contains(
+                        this.parent.ID);
+                    if (this.parent.Base == null || isLooped)
+                    {
+                        throw ex;
+                    }
+
+                    // Only if base spec is defined and not looped,
+                    // base spec is referred.
+                    return new ScalarIndexer<T>(
+                        this.parent.Base,
+                        this.type,
+                        this.getter,
+                        this.setter,
+                        this.moldingAccessCode,
+                        this.moldingDefault,
+                        this.referredSpecs.Add(this.parent.ID))
+                        .IndexGet(key);
                 }
             }
         }
