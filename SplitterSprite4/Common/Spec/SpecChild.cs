@@ -95,8 +95,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         this.accessKey, new MappingYAML()];
                     this.parent.Mold.Mapping[this.accessKey] = mold;
 
-                    mold.Scalar["spawner"] = new ScalarYAML(
-                        $"Spawner, {EncodeType(this.bound)}");
+                    var spawnerMold = mold.Scalar[
+                        "spawner",
+                        new ScalarYAML($"Spawner, {EncodeType(this.bound)}")];
+                    mold.Scalar["spawner"] = spawnerMold;
 
                     var ret = mold.Mapping[
                         "properties", new MappingYAML()];

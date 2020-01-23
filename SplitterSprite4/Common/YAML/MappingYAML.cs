@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
 {
     using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using YamlDotNet.RepresentationModel;
 
@@ -70,6 +71,31 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        /// <summary>
+        /// MappingYAMLを複製する。子YAMLも全て複製される。
+        /// Clone this MappingYAML. All descendants are clonsed too.
+        /// </summary>
+        /// <param name="id">The cloned yaml's ID.</param>
+        /// <returns>The cloned yaml.</returns>
+        public MappingYAML Clone(string id)
+        {
+            lock (this)
+            {
+                var yamlStream = new YamlStream();
+
+                using (
+                    StringReader reader =
+                    new StringReader(this.ToString(true)))
+                {
+                    yamlStream.Load(reader);
+                }
+
+                var mappingNode =
+                    (YamlMappingNode)yamlStream.Documents[0].RootNode;
+                return new MappingYAML(id, mappingNode);
+            }
         }
 
         /// <summary>
