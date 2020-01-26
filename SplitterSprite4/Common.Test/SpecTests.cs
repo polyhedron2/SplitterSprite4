@@ -2897,6 +2897,64 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test sync of spec's value among several spawners.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void SpecSyncTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var rootType = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var childType = typeof(ValidSpawnerChildWithDefaultConstructor);
+
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(rootType)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"original root value\"",
+                "    \"[End Of Text]\"",
+                "  \"child\":",
+                $"    \"spawner\": \"{Spec.EncodeType(childType)}\"",
+                "    \"properties\":",
+                "      \"return value\": |+",
+                "        \"original child value\"",
+                "        \"[End Of Text]\""));
+
+            var startPath = AgnosticPath.FromAgnosticPathString("start.spec");
+            this.SetupSpecFile(proxy, "start.spec", Utility.JoinLines(
+                "\"properties\":",
+                $"  \"exterior\": {path}"));
+
+            var startSpec = proxy.SpecPool(startPath);
+
+            var rootSpawner1 = startSpec.Exterior<
+                ValidSpawnerRootWithDefaultConstructor>()["exterior"];
+            var childSpawner1 = rootSpawner1.Spec.Interior<
+                ValidSpawnerChildWithDefaultConstructor>()["child"];
+            var rootSpawner2 = startSpec.Exterior<
+                ValidSpawnerRootWithDefaultConstructor>()["exterior"];
+            var childSpawner2 = rootSpawner2.Spec.Interior<
+                ValidSpawnerChildWithDefaultConstructor>()["child"];
+
+            // act
+            rootSpawner1.Spec.Text["return value"] = "edited root value";
+            childSpawner1.Spec.Text["return value"] = "edited child value";
+
+            // assert
+            Assert.Equal(
+                "edited root value",
+                rootSpawner2.Spec.Text["return value"]);
+            Assert.Equal(
+                "edited child value",
+                childSpawner2.Spec.Text["return value"]);
+        }
+
+        /// <summary>
         /// Test UpdateBase method.
         /// </summary>
         /// <param name="derivedSpecPathStr">Derived spec path.</param>
