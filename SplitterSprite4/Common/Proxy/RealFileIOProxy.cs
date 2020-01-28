@@ -20,53 +20,55 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// <inheritdoc/>
         public override void CreateDirectory(AgnosticPath path)
         {
-            Directory.CreateDirectory(this.OSFullPath(path));
+            Directory.CreateDirectory(this.ToOSFullPath(path));
         }
 
         /// <inheritdoc/>
         public override IEnumerable<AgnosticPath>
             EnumerateDirectories(AgnosticPath path)
         {
-            var basePath = this.OSFullPath(path);
-            AgnosticPath SubDirPath(string fullPath)
-            {
-                // + 1 is for separator length.
-                var subDirName = fullPath.Substring(basePath.Length + 1);
-                return AgnosticPath.FromOSPathString(subDirName);
-            }
-
+            var basePath = this.ToOSFullPath(path);
             return Directory.EnumerateDirectories(
-                basePath).Select(subDirStr => SubDirPath(subDirStr));
+                basePath).Select(x => this.FromOSFullPath(x) - path);
+        }
+
+        /// <inheritdoc/>
+        public override IEnumerable<AgnosticPath>
+            EnumerateFiles(AgnosticPath path)
+        {
+            var basePath = this.ToOSFullPath(path);
+            return Directory.EnumerateFiles(
+                basePath).Select(x => this.FromOSFullPath(x) - path);
         }
 
         /// <inheritdoc/>
         public override bool FileExists(AgnosticPath path)
         {
-            return File.Exists(this.OSFullPath(path));
+            return File.Exists(this.ToOSFullPath(path));
         }
 
         /// <inheritdoc/>
         protected override TextReader FetchTextReader(AgnosticPath path)
         {
-            if (!File.Exists(this.OSFullPath(path)))
+            if (!File.Exists(this.ToOSFullPath(path)))
             {
                 throw new AgnosticPathNotFoundException(path);
             }
 
-            return new StreamReader(this.OSFullPath(path), Encoding.UTF8);
+            return new StreamReader(this.ToOSFullPath(path), Encoding.UTF8);
         }
 
         /// <inheritdoc/>
         protected override TextWriter FetchTextWriter(
             AgnosticPath path, bool append)
         {
-            if (!Directory.Exists(this.OSFullPath(path.Parent)))
+            if (!Directory.Exists(this.ToOSFullPath(path.Parent)))
             {
                 throw new AgnosticPathNotFoundException(path);
             }
 
             return new StreamWriter(
-                this.OSFullPath(path), append, Encoding.UTF8);
+                this.ToOSFullPath(path), append, Encoding.UTF8);
         }
     }
 }

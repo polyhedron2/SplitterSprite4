@@ -30,7 +30,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            var dirFullPath = proxy.FileIO.OSFullPath(agnosticPath.Parent);
+            var dirFullPath = proxy.FileIO.ToOSFullPath(agnosticPath.Parent);
             Assert.False(Directory.Exists(dirFullPath));
 
             // act
@@ -41,7 +41,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
         }
 
         /// <summary>
-        /// Test the EnumerateDirectory method.
+        /// Test the EnumerateDirectories method.
         /// </summary>
         /// <param name="basePath">The parent direcotry path.</param>
         /// <param name="childrenPaths">The children direcotry paths.</param>
@@ -66,8 +66,53 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
                 proxy.FileIO.CreateDirectory(child);
             }
 
+            proxy.FileIO.WithTextWriter(
+                AgnosticPath.FromAgnosticPathString($"{basePath}/ignoredFile"),
+                false,
+                (writer) => writer.WriteLine("dummy"));
+
             // act
             var result = proxy.FileIO.EnumerateDirectories(
+                parent).Select(d => d.ToAgnosticPathString()).ToHashSet();
+
+            // assert
+            Assert.Equal(childrenPaths.ToHashSet(), result);
+        }
+
+        /// <summary>
+        /// Test the EnumerateFiles method.
+        /// </summary>
+        /// <param name="basePath">The parent direcotry path.</param>
+        /// <param name="childrenPaths">The children file paths.</param>
+        [Theory]
+        [InlineData("parent")]
+        [InlineData("parent", "child0")]
+        [InlineData("parent", "child0", "child1")]
+        [InlineData("parent", "child0", "child1", "child2")]
+        [InlineData("foo", "child0", "child1", "child2")]
+        [InlineData("bar", "child0", "child1", "child2")]
+        public void EnumerateFilesTest(
+            string basePath, params string[] childrenPaths)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var parent = AgnosticPath.FromAgnosticPathString(basePath);
+            var children = childrenPaths.Select(
+                child => AgnosticPath.FromAgnosticPathString($"{basePath}/{child}"));
+            proxy.FileIO.CreateDirectory(parent);
+            foreach (var child in children)
+            {
+                proxy.FileIO.WithTextWriter(
+                    child,
+                    false,
+                    (writer) => writer.WriteLine("dummy"));
+            }
+
+            proxy.FileIO.CreateDirectory(
+                AgnosticPath.FromAgnosticPathString($"{basePath}/ignoredDir"));
+
+            // act
+            var result = proxy.FileIO.EnumerateFiles(
                 parent).Select(d => d.ToAgnosticPathString()).ToHashSet();
 
             // assert
@@ -94,9 +139,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
                 Path.GetDirectoryName(expectedFullPath);
 
             // act
-            var actualFullPath = proxy.FileIO.OSFullPath(agnosticPath);
+            var actualFullPath = proxy.FileIO.ToOSFullPath(agnosticPath);
             var actualFullDirPath =
-                proxy.FileIO.OSFullPath(agnosticPath.Parent);
+                proxy.FileIO.ToOSFullPath(agnosticPath.Parent);
             if (actualFullDirPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 actualFullDirPath = actualFullDirPath.Substring(
@@ -326,7 +371,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
             // 開始時点ではpathに至るファイルが存在しない
             // There is no file on the path.
             Assert.False(File.Exists(
-                proxy.FileIO.OSFullPath(agnosticPath)));
+                proxy.FileIO.ToOSFullPath(agnosticPath)));
 
             // ファイルが無い状態で読み込みをしようとすれば例外
             // Exception will be thrown when an attempt to read the path.
@@ -354,7 +399,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Proxy
             // 開始時点ではpathに至るディレクトリが存在しない
             // There is no file on the path.
             Assert.False(Directory.Exists(
-                proxy.FileIO.OSFullPath(agnosticPath.Parent)));
+                proxy.FileIO.ToOSFullPath(agnosticPath.Parent)));
 
             // ディレクトリが無い状態で書き込みをしようとすれば例外
             // Exception will be thrown when an attempt to write the path.

@@ -52,6 +52,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
             EnumerateDirectories(AgnosticPath path);
 
         /// <summary>
+        /// OS非依存パス先のディレクトリ内のファイル一覧を返却
+        /// Enumearate sub files in the os-agnostic path directory.
+        /// </summary>
+        /// <param name="path">
+        /// OS非依存パス
+        /// The os-agnostic path.
+        /// </param>
+        /// <returns>
+        /// ディレクトリ内ファイルのOS非依存パスイテレータ
+        /// Iterator of the sub files.
+        /// </returns>
+        public abstract IEnumerable<AgnosticPath>
+            EnumerateFiles(AgnosticPath path);
+
+        /// <summary>
         /// OS依存なフルパスとして出力
         /// Dump as OS-dependent full-path.
         /// </summary>
@@ -60,7 +75,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
         /// The os-agnostic path.
         /// </param>
         /// <returns>The full-path.</returns>
-        public string OSFullPath(AgnosticPath path)
+        public string ToOSFullPath(AgnosticPath path)
         {
             if (!path.IsOnlyDescending)
             {
@@ -68,6 +83,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Proxy
             }
 
             return Path.Combine(this.RootPath, path.ToOSPathString());
+        }
+
+        /// <summary>
+        /// OS依存なフルパスからOS非依存パスを生成
+        /// Generate OS-agnostic path from OS-dependent full-path.
+        /// </summary>
+        /// <param name="fullPath">
+        /// OS依存フルパス
+        /// The os-dependant full-path.
+        /// </param>
+        /// <returns>The os-agnostic path.</returns>
+        public AgnosticPath FromOSFullPath(string fullPath)
+        {
+            string fromRootPath = fullPath.Substring(this.RootPath.Length + 1);
+            return AgnosticPath.FromOSPathString(fromRootPath);
         }
 
         /// <summary>
