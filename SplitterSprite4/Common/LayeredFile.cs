@@ -30,7 +30,7 @@ namespace MagicKitchen.SplitterSprite4.Common
         {
             if (path.ToAgnosticPathString().StartsWith("../"))
             {
-                throw new OutOfLayerAccessException(path);
+                throw new Layer.OutOfLayerAccessException(path);
             }
 
             this.fileIOProxy = fileIOProxy;
@@ -145,25 +145,6 @@ namespace MagicKitchen.SplitterSprite4.Common
             var metaFilePath = AgnosticPath.FromAgnosticPathString(
                 this.FetchWritePath(writeLayer).ToAgnosticPathString() + ".meta");
             return new RootYAML(this.fileIOProxy, metaFilePath, acceptAbsence: true);
-        }
-
-        /// <summary>
-        /// レイヤーディレクトリ外にアクセスが実行された際の例外
-        /// The exception that is thrown when an attempt to
-        /// access out of the layer directory path.
-        /// </summary>
-        public class OutOfLayerAccessException : Exception
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="OutOfLayerAccessException"/> class.
-            /// </summary>
-            /// <param name="path">The relative path from layer directory.</param>
-            internal OutOfLayerAccessException(AgnosticPath path)
-                : base(
-                      $"レイヤーディレクトリ外" +
-                      $"\"{path.ToAgnosticPathString()}\"へのアクセス")
-            {
-            }
         }
 
         /// <summary>

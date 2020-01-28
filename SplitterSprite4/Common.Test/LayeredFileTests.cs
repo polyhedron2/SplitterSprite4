@@ -99,7 +99,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var layeredPath = AgnosticPath.FromAgnosticPathString(outerPath);
 
             // assert
-            Assert.Throws<LayeredFile.OutOfLayerAccessException>(() =>
+            Assert.Throws<Layer.OutOfLayerAccessException>(() =>
             {
                 new LayeredFile(proxy.FileIO, layeredPath);
             });

@@ -202,6 +202,25 @@ namespace MagicKitchen.SplitterSprite4.Common
         }
 
         /// <summary>
+        /// レイヤーディレクトリ外にアクセスが実行された際の例外
+        /// The exception that is thrown when an attempt to
+        /// access out of the layer directory path.
+        /// </summary>
+        public class OutOfLayerAccessException : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="OutOfLayerAccessException"/> class.
+            /// </summary>
+            /// <param name="path">The relative path from layer directory.</param>
+            internal OutOfLayerAccessException(AgnosticPath path)
+                : base(
+                      $"レイヤーディレクトリ外" +
+                      $"\"{path.ToAgnosticPathString()}\"へのアクセス")
+            {
+            }
+        }
+
+        /// <summary>
         /// レイヤーの依存先が存在していない場合の例外
         /// The exception that is thrown when an attempt to
         /// a layer depends on a non-existent layer.
