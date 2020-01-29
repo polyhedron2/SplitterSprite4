@@ -12,7 +12,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <summary>
     /// Indexer class for SpawnerRoot instances.
     /// </summary>
-    /// <typeparam name="T">Expected SpawnerChild type.</typeparam>
+    /// <typeparam name="T">Expected SpawnerRoot type.</typeparam>
     public class ExteriorIndexer<T> : PathIndexer<T>
         where T : ISpawnerRoot<object>
     {

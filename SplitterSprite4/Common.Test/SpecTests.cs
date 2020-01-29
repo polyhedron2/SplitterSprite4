@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Test
 {
     using System;
+    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec;
@@ -2656,6 +2657,185 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test the SpawnerDir accessor.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void ExteriorDirTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            var validDirPath = AgnosticPath.FromAgnosticPathString("validDir");
+            var invalidDirPath = AgnosticPath.FromAgnosticPathString("invalidDir");
+
+            var validDirRelativePathStr =
+                (validDirPath - agnosticPath.Parent).ToAgnosticPathString();
+            var invalidDirRelativePathStr =
+                (invalidDirPath - agnosticPath.Parent).ToAgnosticPathString();
+            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                $"  \"valid\": \"{validDirRelativePathStr}\"",
+                $"  \"invalid\": \"{invalidDirRelativePathStr}\""));
+
+            proxy.FileIO.CreateDirectory(validDirPath);
+            proxy.FileIO.CreateDirectory(invalidDirPath);
+
+            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
+            for (int i = 0; i < 10; i++)
+            {
+                foreach (var dir in
+                    new AgnosticPath[] { validDirPath, invalidDirPath })
+                {
+                    var pathInDir =
+                        AgnosticPath.FromAgnosticPathString($"{i}.spec") + dir;
+                    var pathInDirStr = pathInDir.ToAgnosticPathString();
+                    this.SetupSpecFile(proxy, pathInDirStr, Utility.JoinLines(
+                        $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                        "\"properties\":",
+                        "  \"return value\": |+",
+                        $"    \"{i} th spec.\"",
+                        "    \"[End Of Text]\""));
+                }
+            }
+
+            var invalidFilePathStr = (
+                AgnosticPath.FromAgnosticPathString("invalid.spec") +
+                invalidDirPath).ToAgnosticPathString();
+            this.SetupSpecFile(proxy, invalidFilePathStr, Utility.JoinLines(
+                $"\"spawner\": \"invalid spawner type\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                $"    \"invalid spec.\"",
+                "    \"[End Of Text]\""));
+
+            // act
+            var spec = proxy.SpecPool(agnosticPath);
+
+            // assert
+            // get value without default value.
+            // Invalid type parameter
+            Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
+            {
+                _ = spec.ExteriorDir<
+                    SpawnerRootWithoutValidConstructor>();
+            });
+
+            // Refer to spawner directory which contains invalid file.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.ExteriorDir<
+                    ValidSpawnerRootWithDefaultConstructor>()["invalid"];
+            });
+
+            // Type mismatch
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.ExteriorDir<
+                    ValidSpawnerRootWithImplementedConstructor>()["valid"];
+            });
+
+            // undefined value
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.ExteriorDir<
+                    ValidSpawnerRootWithDefaultConstructor>()["undefined"];
+            });
+
+            // valid pattern
+            {
+                var validDir = spec.ExteriorDir<
+                    ValidSpawnerRootWithDefaultConstructor>()["valid"];
+
+                var actual = validDir.Select(sp => sp.Spawn()).ToHashSet();
+                var expected =
+                    Enumerable.Range(0, 10).Select(i => $"{i} th spec.")
+                    .ToHashSet();
+                Assert.Equal(expected, actual);
+            }
+
+            // get value with default value.
+            // Refer to spawner directory which contains invalid file.
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.ExteriorDir<
+                    ValidSpawnerRootWithDefaultConstructor>()["invalid", "default/dir"];
+            });
+
+            // Type mismatch
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.ExteriorDir<
+                    ValidSpawnerRootWithImplementedConstructor>()["valid", "default/dir"];
+            });
+
+            // undefined value
+            {
+                var validDir = spec.ExteriorDir<
+                    ValidSpawnerRootWithDefaultConstructor>()[
+                    "undefined", validDirRelativePathStr];
+
+                var actual = validDir.Select(sp => sp.Spawn()).ToHashSet();
+                var expected =
+                    Enumerable.Range(0, 10).Select(i => $"{i} th spec.")
+                    .ToHashSet();
+                Assert.Equal(expected, actual);
+            }
+
+            // valid pattern
+            {
+                var validDir = spec.ExteriorDir<
+                    ValidSpawnerRootWithDefaultConstructor>()["valid", "default/dir"];
+
+                var actual = validDir.Select(sp => sp.Spawn()).ToHashSet();
+                var expected =
+                    Enumerable.Range(0, 10).Select(i => $"{i} th spec.")
+                    .ToHashSet();
+                Assert.Equal(expected, actual);
+            }
+
+            // act
+            var spawnerDir =
+                spec.ExteriorDir<ValidSpawnerRootWithDefaultConstructor>()[
+                    "valid"];
+            spec.ExteriorDir<ValidSpawnerRootWithDefaultConstructor>()[
+                "undefined"] = spawnerDir;
+
+            // assert
+            var actualPath =
+                spec.ExteriorDir<ValidSpawnerRootWithDefaultConstructor>()[
+                    "undefined"].Dir.Path;
+            Assert.Equal(validDirPath, actualPath);
+
+            // spec is editted.
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    $"  \"valid\": \"{validDirRelativePathStr}\"",
+                    $"  \"invalid\": \"{invalidDirRelativePathStr}\"",
+                    $"  \"undefined\": \"{validDirRelativePathStr}\""),
+                spec.ToString());
+
+            // act
+            spec.Save();
+            proxy = Utility.PoolClearedProxy(proxy);
+            var reloadedSpec = proxy.SpecPool(agnosticPath);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    $"  \"valid\": \"{validDirRelativePathStr}\"",
+                    $"  \"invalid\": \"{invalidDirRelativePathStr}\"",
+                    $"  \"undefined\": \"{validDirRelativePathStr}\""),
+                reloadedSpec.ToString());
+        }
+
+        /// <summary>
         /// Test the SpawnerChild accessor.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
@@ -3500,8 +3680,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 _ = sp.Text["foobar"];
                 var exterior = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "foobaz"];
-                var interior = sp.Interior<ValidSpawnerChildWithDefaultConstructor>()[
+                var exteriorDir = sp.ExteriorDir<ValidSpawnerRootWithDefaultConstructor>()[
                     "fooqux"];
+                var interior = sp.Interior<ValidSpawnerChildWithDefaultConstructor>()[
+                    "fooquux"];
                 _ = sp["inner"].Int["inner int"];
                 _ = sp.Int["after inner"];
                 _ = sp["inner"].Double["inner double"];
@@ -3536,7 +3718,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"thud\": \"LimitedKeyword, 7\"",
                     "  \"foobar\": \"Text\"",
                     $"  \"foobaz\": \"Exterior, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}\"",
-                    "  \"fooqux\":",
+                    $"  \"fooqux\": \"ExteriorDir, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}\"",
+                    "  \"fooquux\":",
                     $"    \"spawner\": \"Spawner, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int\"",
@@ -3590,8 +3773,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     Utility.JoinLines("good, morning", "nice to meet you!")];
                 var exterior = sp.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "foobaz", "default/path"];
+                var exteriorDir = sp.ExteriorDir<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fooqux", "default/dir"];
                 var interior = sp.Interior<ValidSpawnerChildWithDefaultConstructor>()[
-                    "fooqux", typeof(ValidSpawnerChildWithDefaultConstructor)];
+                    "fooquux", typeof(ValidSpawnerChildWithDefaultConstructor)];
                 _ = sp["inner"].Int["inner int", 100];
                 _ = sp.Int["after inner", 1024];
                 _ = sp["inner"].Double["inner double", 2.71];
@@ -3629,7 +3814,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"nice to meet you!\"",
                     "    \"[End Of Text]\"",
                     $"  \"foobaz\": \"Exterior, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}, default/path\"",
-                    "  \"fooqux\":",
+                    $"  \"fooqux\": \"ExteriorDir, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}, default/dir\"",
+                    "  \"fooquux\":",
                     $"    \"spawner\": \"Spawner, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
                     "    \"properties\":",
                     "      \"return value\": \"Text\"",

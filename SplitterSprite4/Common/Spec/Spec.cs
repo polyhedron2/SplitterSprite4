@@ -389,7 +389,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// Gets indexer for SpawnerRoot instance from another spec file.
         /// </summary>
         /// <typeparam name="T">Expected SpawnerRoot type.</typeparam>
-        /// <returns>SpawnerRoot instance.</returns>
+        /// <returns>Indexer for SpawnerRoot instance.</returns>
         public ExteriorIndexer<T> Exterior<T>()
             where T : ISpawnerRoot<object>
         {
@@ -397,10 +397,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Gets indexer for SpawnerDir instance from a directory.
+        /// </summary>
+        /// <typeparam name="T">Expected SpawnerRoot type.</typeparam>
+        /// <returns>Indexer for SpawnerDir instance.</returns>
+        public ExteriorDirIndexer<T> ExteriorDir<T>()
+            where T : ISpawnerRoot<object>
+        {
+            return new ExteriorDirIndexer<T>(this);
+        }
+
+        /// <summary>
         /// Gets indexer for SpawnerChild instance from spec child.
         /// </summary>
         /// <typeparam name="T">Expected SpawnerChild type.</typeparam>
-        /// <returns>SpawnerChild instance.</returns>
+        /// <returns>Indexer for SpawnerChild instance.</returns>
         public InteriorIndexer<T> Interior<T>()
             where T : ISpawnerChild<object>
         {
