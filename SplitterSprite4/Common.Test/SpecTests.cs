@@ -78,7 +78,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -104,7 +104,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines("key: \"value\""));
 
             // act
             var first = SpecRoot.Fetch(proxy, agnosticPath);
@@ -126,7 +126,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString("foo.spec");
-            this.SetupSpecFile(proxy, "foo.spec", Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, "foo.spec", Utility.JoinLines(
                 "\"properties\":",
                 "  \"key\": \"value\""));
             var newLayer = new Layer(proxy.FileIO, "new_layer", true);
@@ -261,7 +261,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerRootWithDefaultConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
 
@@ -275,7 +275,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerRootWithImplementedConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
 
@@ -289,7 +289,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(SpawnerRootWithoutValidConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
 
@@ -304,7 +304,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     $"\"spawner\": \"{Spec.EncodeType(type)}\""));
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
 
@@ -318,7 +318,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             {
                 // act
                 var proxy = Utility.TestOutSideProxy();
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test\""));
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
 
@@ -433,7 +433,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerChildWithDefaultConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
@@ -447,7 +447,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerChildWithImplementedConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
@@ -461,7 +461,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(ValidSpawnerChildWithDefaultConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
@@ -487,7 +487,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(SpawnerChildWithoutValidConstructor);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
@@ -504,7 +504,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     $"    \"spawner\": \"{Spec.EncodeType(type)}\""));
@@ -521,7 +521,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 // act
                 var proxy = Utility.TestOutSideProxy();
                 var type = typeof(NonSpawner);
-                this.SetupSpecFile(proxy, path, Utility.JoinLines(
+                Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                     "\"properties\":",
                     "  \"child\":",
                     "    \"spawner\": \"MagicKitchen.SplitterSprite4.Common.Test.SpecTests+NonExistenceClass, MagicKitchen.SplitterSprite4.Common.Test\""));
@@ -548,7 +548,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"Answer to the Ultimate Question\": \"42\"",
@@ -632,7 +632,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"pi\": \"3.14159265\"",
@@ -716,7 +716,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"special\": \"True\"",
@@ -800,7 +800,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"True\"",
                 "  \"special\": \"YES\"",
@@ -884,7 +884,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"True\"",
                 "  \"special\": \"ON\"",
@@ -968,7 +968,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"left outer (-10, 10)\": \"-10\"",
                 "  \"left inner (-10, 10)\": \"-9\"",
@@ -1203,7 +1203,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"left outer (-10.5, 10.5)\": \"-10.5\"",
                 "  \"left inner (-10.5, 10.5)\": \"-10.499999\"",
@@ -1460,7 +1460,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"too short\": \"1\"",
@@ -1578,7 +1578,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"too short\": \"1, 2\"",
@@ -1696,7 +1696,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"too short\": \"1.0\"",
@@ -1824,7 +1824,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 "  \"too short\": \"1.0, 2.0\"",
@@ -1952,7 +1952,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": |+",
                 "    \"1st line\"",
@@ -2061,7 +2061,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": |+",
                 "    \"1st\"",
@@ -2214,7 +2214,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"without end line\": |+",
                 "    \"Live as if you were to die tomorrow.\"",
@@ -2466,12 +2466,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 
             var agnosticDerivedPath =
                 AgnosticPath.FromAgnosticPathString(derivedPath);
-            this.SetupSpecFile(proxy, derivedPath, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, derivedPath, Utility.JoinLines(
                 $"\"base\": \"{baseFromDerived}\""));
 
             var agnosticBasePath =
                 AgnosticPath.FromAgnosticPathString(basePath);
-            this.SetupSpecFile(proxy, basePath, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, basePath, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\": \"dummy\"",
                 $"  \"valid\": \"{referredFromBase}\""));
@@ -2479,7 +2479,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var type = typeof(ValidSpawnerRootWithDefaultConstructor);
             var agnosticReferredPath =
                 AgnosticPath.FromAgnosticPathString(referredPath);
-            this.SetupSpecFile(proxy, referredPath, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, referredPath, Utility.JoinLines(
                 $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                 "\"properties\":",
                 "  \"return value\": |+",
@@ -2677,7 +2677,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 (validDirPath - agnosticPath.Parent).ToAgnosticPathString();
             var invalidDirRelativePathStr =
                 (invalidDirPath - agnosticPath.Parent).ToAgnosticPathString();
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 $"  \"valid\": \"{validDirRelativePathStr}\"",
                 $"  \"invalid\": \"{invalidDirRelativePathStr}\""));
@@ -2694,7 +2694,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     var pathInDir =
                         AgnosticPath.FromAgnosticPathString($"{i}.spec") + dir;
                     var pathInDirStr = pathInDir.ToAgnosticPathString();
-                    this.SetupSpecFile(proxy, pathInDirStr, Utility.JoinLines(
+                    Utility.SetupSpecFile(proxy, pathInDirStr, Utility.JoinLines(
                         $"\"spawner\": \"{Spec.EncodeType(type)}\"",
                         "\"properties\":",
                         "  \"return value\": |+",
@@ -2706,7 +2706,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var invalidFilePathStr = (
                 AgnosticPath.FromAgnosticPathString("invalid.spec") +
                 invalidDirPath).ToAgnosticPathString();
-            this.SetupSpecFile(proxy, invalidFilePathStr, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, invalidFilePathStr, Utility.JoinLines(
                 $"\"spawner\": \"invalid spawner type\"",
                 "\"properties\":",
                 "  \"return value\": |+",
@@ -2848,7 +2848,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"invalid\":",
                 $"    \"spawner\": \"this is not a spawner type.\"",
@@ -3092,7 +3092,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var childType = typeof(ValidSpawnerChildWithDefaultConstructor);
 
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 $"\"spawner\": \"{Spec.EncodeType(rootType)}\"",
                 "\"properties\":",
                 "  \"return value\": |+",
@@ -3106,7 +3106,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                 "        \"[End Of Text]\""));
 
             var startPath = AgnosticPath.FromAgnosticPathString("start.spec");
-            this.SetupSpecFile(proxy, "start.spec", Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, "start.spec", Utility.JoinLines(
                 "\"properties\":",
                 $"  \"exterior\": {path}"));
 
@@ -3276,7 +3276,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // "1" means the value come from intermediate spec.
             // "2" means the value come from base spec.
             // Spawner type is in "011" pattern.
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 derivedSpecLayerName,
                 derivedSpecPathStr,
@@ -3294,7 +3294,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"111\": \"0\""));
             var rootType = typeof(ValidSpawnerRootWithDefaultConstructor);
             var childType = typeof(ValidSpawnerChildWithDefaultConstructor);
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 intermediateSpecLayerName,
                 intermediateSpecPathStr,
@@ -3315,7 +3315,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"111\": \"1\""));
             rootType = typeof(ValidSpawnerRootWithImplementedConstructor);
             childType = typeof(ValidSpawnerChildWithImplementedConstructor);
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 baseSpecLayerName,
                 baseSpecPathStr,
@@ -3478,7 +3478,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // "1" means the value come from the second spec.
             // "2" means the value come from the third spec.
             // Spawner type is in "011" pattern.
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 firstSpecLayerName,
                 firstSpecPathStr,
@@ -3496,7 +3496,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"111\": \"0\""));
             var rootType = typeof(ValidSpawnerRootWithDefaultConstructor);
             var childType = typeof(ValidSpawnerChildWithDefaultConstructor);
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 secondSpecLayerName,
                 secondSpecPathStr,
@@ -3517,7 +3517,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "    \"111\": \"1\""));
             rootType = typeof(ValidSpawnerChildWithImplementedConstructor);
             childType = typeof(ValidSpawnerChildWithImplementedConstructor);
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 thirdSpecLayerName,
                 thirdSpecPathStr,
@@ -3611,7 +3611,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
                 derivedSpecPathStr);
             var proxy = Utility.TestOutSideProxy();
-            this.SetupSpecFile(
+            Utility.SetupSpecFile(
                 proxy,
                 derivedSpecPathStr,
                 Utility.JoinLines(
@@ -3890,7 +3890,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 $"  \"default\": \"{dynamicDefault}\""));
 
@@ -3934,7 +3934,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            this.SetupSpecFile(proxy, path, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 $"  \"flag\": \"{dynamicSwitch}\""));
 
@@ -4004,11 +4004,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             var proxy = Utility.TestOutSideProxy();
             var derivedPath =
                 AgnosticPath.FromAgnosticPathString(derivedPathStr);
-            this.SetupSpecFile(proxy, derivedPathStr, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, derivedPathStr, Utility.JoinLines(
                 $"\"base\": \"{relativeBasePathStr}\"",
                 "\"properties\":",
                 $"  \"derived\": \"{derivedValue}\""));
-            this.SetupSpecFile(proxy, basePathStr, Utility.JoinLines(
+            Utility.SetupSpecFile(proxy, basePathStr, Utility.JoinLines(
                 "\"properties\":",
                 $"  \"base\": \"{baseValue}\""));
 
@@ -4032,36 +4032,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
                     "  \"base\": \"Int\"",
                     $"  \"dynamic\": \"Int, {baseValue}\""),
                 mold.ToString());
-        }
-
-        private SpecRoot SetupSpecFile(
-            OutSideProxy proxy,
-            string layerName,
-            string layeredPathStr,
-            string body)
-        {
-            var layer = new Layer(proxy.FileIO, layerName, true);
-            layer.Save();
-
-            var layeredPath =
-                AgnosticPath.FromAgnosticPathString(layeredPathStr);
-            var layeredFile = new LayeredFile(proxy.FileIO, layeredPath, true);
-
-            var writePath = layeredFile.FetchWritePath(layer);
-            proxy.FileIO.CreateDirectory(writePath.Parent);
-
-            proxy.FileIO.WithTextWriter(writePath, false, (writer) =>
-            {
-                writer.Write(body);
-            });
-
-            return SpecRoot.Fetch(proxy, layeredPath);
-        }
-
-        private SpecRoot SetupSpecFile(
-            OutSideProxy proxy, string layeredPathStr, string body)
-        {
-            return this.SetupSpecFile(proxy, "layer", layeredPathStr, body);
         }
 
         /// <summary>

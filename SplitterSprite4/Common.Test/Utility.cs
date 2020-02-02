@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 {
     using System.IO;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
+    using MagicKitchen.SplitterSprite4.Common.Spec;
 
     /// <summary>
     /// テスト用汎用実装
@@ -42,6 +43,36 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         public static OutSideProxy PoolClearedProxy(OutSideProxy proxy)
         {
             return new OutSideProxy(proxy.FileIO);
+        }
+
+        public static SpecRoot SetupSpecFile(
+            OutSideProxy proxy,
+            string layerName,
+            string layeredPathStr,
+            string body)
+        {
+            var layer = new Layer(proxy.FileIO, layerName, true);
+            layer.Save();
+
+            var layeredPath =
+                AgnosticPath.FromAgnosticPathString(layeredPathStr);
+            var layeredFile = new LayeredFile(proxy.FileIO, layeredPath, true);
+
+            var writePath = layeredFile.FetchWritePath(layer);
+            proxy.FileIO.CreateDirectory(writePath.Parent);
+
+            proxy.FileIO.WithTextWriter(writePath, false, (writer) =>
+            {
+                writer.Write(body);
+            });
+
+            return SpecRoot.Fetch(proxy, layeredPath);
+        }
+
+        public static SpecRoot SetupSpecFile(
+            OutSideProxy proxy, string layeredPathStr, string body)
+        {
+            return SetupSpecFile(proxy, "layer", layeredPathStr, body);
         }
 
         private class TestFileIOProxy : RealFileIOProxy
