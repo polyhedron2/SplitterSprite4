@@ -11,6 +11,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     using System.Collections.Generic;
     using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
+    using MagicKitchen.SplitterSprite4.Common.Spec;
 
     /// <summary>
     /// ISpawnerDirの実体クラス。
@@ -36,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
                 (path) => path + this.Dir.Path).Select(
                 (path) =>
                 {
-                    var spec = this.proxy.SpecPool(path);
+                    var spec = SpecRoot.Fetch(this.proxy, path);
                     var spawner = (T_Spawner)Activator.CreateInstance(
                         spec.SpawnerType);
                     spawner.Spec = spec;

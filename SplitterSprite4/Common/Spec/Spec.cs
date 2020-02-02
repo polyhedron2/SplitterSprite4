@@ -434,14 +434,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             var spawnerType = typeof(T_Spawner);
 
-            foreach (var type in this.Proxy.SpawnerTypePool())
+            var candidateTypes = Spawner.AllLoadedTypes(this.Proxy);
+            foreach (var type in candidateTypes)
             {
                 try
                 {
                     // 最初にValidation成功したTypeによるインスタンスを返す
                     // Instance from first valid type is returned.
-                    return (T_Spawner)ISpawner<object>.ValidateSpawnerType(
-                        spawnerType, type);
+                    return Spawner.ValidateSpawnerType<T_Spawner>(type);
                 }
                 catch (Exception)
                 {

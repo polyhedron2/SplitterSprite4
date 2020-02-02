@@ -82,8 +82,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        ISpawner<object>.ValidateSpawnerType(
-                            typeof(ISpawnerRoot<object>), value);
+                        Spawner.ValidateSpawnerType<ISpawnerRoot<object>>(
+                            value);
                         this.Body.Scalar["spawner"] =
                             new ScalarYAML(EncodeType(value));
                     }
@@ -163,7 +163,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                             this.Body.Scalar["base"].Value);
                         var baseLayeredPath =
                             baseRelativePath + this.Path.Parent;
-                        return this.Proxy.SpecPool(baseLayeredPath);
+                        return Fetch(this.Proxy, baseLayeredPath);
                     }
                     catch (YAML.YAMLKeyUndefinedException)
                     {
@@ -178,6 +178,29 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// SpecRootインスタンスを取得する。
+        /// 過去に取得したインスタンスと同一パスであれば、同一インスタンスを返す。
+        /// これにより、同一パスのSpecRootインスタンスは唯一つ存在する。
+        /// Fetch SpecRoot instance.
+        /// If it is second fetching for the path, same instance will be returned.
+        /// Therefore, SpecRoot instance with same path is unique.
+        /// </summary>
+        /// <param name="proxy">The OutSideProxy for file or spec pool access.</param>
+        /// <param name="layeredPath">The spec file path.</param>
+        /// <param name="acceptAbsence">Accept absence of the spec file or not.</param>
+        /// <returns>The unique SpecRoot instance.</returns>
+        public static SpecRoot Fetch(
+            OutSideProxy proxy,
+            AgnosticPath layeredPath,
+            bool acceptAbsence = false)
+        {
+            return proxy.Singleton(
+                $"{typeof(SpecRoot)}.Fetch",
+                layeredPath,
+                () => new SpecRoot(proxy, layeredPath, acceptAbsence));
         }
 
         /// <summary>
@@ -284,8 +307,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     var type = DecodeType(
                         this.Body.Scalar["spawner"].Value);
-                    ISpawner<object>.ValidateSpawnerType(
-                        typeof(ISpawnerRoot<object>), type);
+                    Spawner.ValidateSpawnerType<ISpawnerRoot<object>>(type);
 
                     return type;
                 }

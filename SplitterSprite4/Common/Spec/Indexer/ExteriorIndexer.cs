@@ -26,7 +26,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 typeof(T).Name,
                 (path) =>
                 {
-                    var spec = parent.Proxy.SpecPool(path);
+                    var spec = SpecRoot.Fetch(parent.Proxy, path);
                     var spawner = (T)Activator.CreateInstance(
                         spec.SpawnerType);
                     spawner.Spec = spec;

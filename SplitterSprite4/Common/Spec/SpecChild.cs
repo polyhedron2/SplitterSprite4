@@ -66,8 +66,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     try
                     {
-                        ISpawner<object>.ValidateSpawnerType(
-                            this.bound, value);
+                        Spawner.ValidateSpawnerType(this.bound, value);
                         this.Body.Scalar["spawner"] =
                             new ScalarYAML(EncodeType(value));
                     }
@@ -173,8 +172,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 {
                     var type = DecodeType(
                         this.Body.Scalar["spawner"].Value);
-                    ISpawner<object>.ValidateSpawnerType(
-                        this.bound, type);
+                    Spawner.ValidateSpawnerType(this.bound, type);
 
                     return type;
                 }

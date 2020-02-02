@@ -85,8 +85,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             {
                 try
                 {
-                    ISpawner<object>.ValidateSpawnerType(
-                        typeof(T), defaultType);
+                    Spawner.ValidateSpawnerType<T>(defaultType);
                 }
                 catch (Exception ex)
                 {
