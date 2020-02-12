@@ -8,7 +8,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
 {
     using System;
     using System.Linq;
-    using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
@@ -3842,8 +3841,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         public void EncodeAndDecodeDefaultValForMoldingTest(string target)
         {
             // act
-            var encoded = Spec.EncodeDefaultValForMolding(target);
-            var decoded = Spec.DecodeDefaultValForMolding(encoded);
+            var encoded = Spec.EncodeCommas(target);
+            var decoded = Spec.DecodeCommas(encoded);
 
             // assert
             Assert.Equal(target, decoded);
@@ -3863,7 +3862,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // assert
             Assert.Throws<Spec.InvalidDefaultValEncoding>(() =>
             {
-                _ = Spec.DecodeDefaultValForMolding(target);
+                _ = Spec.DecodeCommas(target);
             });
         }
 

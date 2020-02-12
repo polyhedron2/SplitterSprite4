@@ -154,7 +154,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                             var accessCodeWithDefault =
                                 this.moldingAccessCode +
                                 ", " +
-                                Spec.EncodeDefaultValForMolding(
+                                Spec.EncodeCommas(
                                     defaultValForMolding);
 
                             this.parent.Mold[key] =

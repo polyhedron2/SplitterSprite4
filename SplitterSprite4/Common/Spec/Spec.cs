@@ -196,7 +196,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         /// <param name="target">Encoding target string.</param>
         /// <returns>Encoded string.</returns>
-        public static string EncodeDefaultValForMolding(string target)
+        public static string EncodeCommas(string target)
         {
             // Mold時の値は複数のパラメータをカンマ区切りでつなげる。
             // そのため、デフォルト値自体がカンマを含む場合には
@@ -212,7 +212,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         /// <param name="target">Decoding target string.</param>
         /// <returns>Decoded string.</returns>
-        public static string DecodeDefaultValForMolding(string target)
+        public static string DecodeCommas(string target)
         {
             var ret = string.Empty;
             var escaped = false;
