@@ -19,7 +19,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal LimitedKeywordIndexer(Spec parent, int limit)
             : base(
                 parent,
-                $"改行なし文字列({limit}文字以下)",
+                () => $"改行なし文字列({limit}文字以下)",
                 (value) =>
                 {
                     if (value.Contains("\n") || value.Length > limit)
@@ -38,7 +38,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
                     return value;
                 },
-                $"LimitedKeyword, {limit}",
+                () => $"LimitedKeyword, {limit}",
                 string.Empty)
         {
             if (limit < 0)

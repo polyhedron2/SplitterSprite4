@@ -43,7 +43,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             char parenthesisClose)
             : base(
                 parent,
-                $"整数({RangeText(parenthesisOpen, leftBound, rightBound, parenthesisClose)})",
+                () => $"整数({RangeText(parenthesisOpen, leftBound, rightBound, parenthesisClose)})",
                 (value) =>
                 {
                     var ret = int.Parse(value);
@@ -74,7 +74,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
                     return value.ToString();
                 },
-                MoldingAccessCode(
+                () => MoldingAccessCode(
                     parenthesisOpen,
                     leftBound,
                     rightBound,

@@ -15,44 +15,36 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <typeparam name="T">Type of value.</typeparam>
     public class LiteralIndexer<T>
     {
-        private Spec parent;
-        private string type;
         private Func<string, T> getter;
         private Func<T, string> setter;
-        private string moldingAccessCode;
-        private T moldingDefault;
         private ScalarIndexer<T> internalIndexer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LiteralIndexer{T}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="type">The access type string.</param>
+        /// <param name="typeGenerator">The access type string generator func.</param>
         /// <param name="getter">Translation function from string.</param>
         /// <param name="setter">Translation function to string.</param>
-        /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
+        /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
         internal LiteralIndexer(
             Spec parent,
-            string type,
+            Func<string> typeGenerator,
             Func<string, T> getter,
             Func<T, string> setter,
-            string moldingAccessCode,
+            Func<string> moldingAccessCodeGenerator,
             T moldingDefault)
         {
-            this.parent = parent;
-            this.type = type;
             this.getter = getter;
             this.setter = setter;
-            this.moldingAccessCode = moldingAccessCode;
-            this.moldingDefault = moldingDefault;
             this.internalIndexer = new ScalarIndexer<T>(
-                this.parent,
-                this.type,
+                parent,
+                typeGenerator,
                 (path, scalar) => this.getter(scalar),
                 (path, value) => this.setter(value),
-                this.moldingAccessCode,
-                this.moldingDefault,
+                moldingAccessCodeGenerator,
+                moldingDefault,
                 ImmutableList<string>.Empty);
         }
 

@@ -8,6 +8,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 {
     using System;
     using System.Collections.Immutable;
+    using System.Globalization;
+    using System.Threading;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -17,10 +19,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     internal class ScalarIndexer<T>
     {
         private Spec parent;
-        private string type;
+        private Func<string> typeGenerator;
         private Func<AgnosticPath, string, T> getter;
         private Func<AgnosticPath, T, string> setter;
-        private string moldingAccessCode;
+        private Func<string> moldingAccessCodeGenerator;
         private T moldingDefault;
         private ImmutableList<string> referredSpecs;
 
@@ -28,26 +30,89 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="ScalarIndexer{T}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="type">The access type string.</param>
+        /// <param name="typeGenerator">The access type string generator func.</param>
         /// <param name="getter">Translation function from spec path and string value in spec to indexed value.</param>
         /// <param name="setter">Translation function from spec path and indexed value to string value in spec.</param>
-        /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
+        /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
         /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
         internal ScalarIndexer(
             Spec parent,
-            string type,
+            Func<string> typeGenerator,
             Func<AgnosticPath, string, T> getter,
             Func<AgnosticPath, T, string> setter,
-            string moldingAccessCode,
+            Func<string> moldingAccessCodeGenerator,
             T moldingDefault,
             ImmutableList<string> referredSpecs)
         {
+            // spec上の値は"en-US"カルチャでのパース、文字列化を行うことで、
+            // 環境に依存しない処理とする。
+            // Strings for spec is translated with "en-US" culture,
+            // for independent processing from environment.
+            var specCulture = new CultureInfo("en-US");
+
             this.parent = parent;
-            this.type = type;
-            this.getter = getter;
-            this.setter = setter;
-            this.moldingAccessCode = moldingAccessCode;
+
+            this.typeGenerator = () =>
+            {
+                var prevCInfo = Thread.CurrentThread.CurrentCulture;
+
+                try
+                {
+                    Thread.CurrentThread.CurrentCulture = specCulture;
+                    return typeGenerator();
+                }
+                finally
+                {
+                    Thread.CurrentThread.CurrentCulture = prevCInfo;
+                }
+            };
+
+            this.getter = (path, str) =>
+            {
+                var prevCInfo = Thread.CurrentThread.CurrentCulture;
+
+                try
+                {
+                    Thread.CurrentThread.CurrentCulture = specCulture;
+                    return getter(path, str);
+                }
+                finally
+                {
+                    Thread.CurrentThread.CurrentCulture = prevCInfo;
+                }
+            };
+
+            this.setter = (path, t) =>
+            {
+                var prevCInfo = Thread.CurrentThread.CurrentCulture;
+
+                try
+                {
+                    Thread.CurrentThread.CurrentCulture = specCulture;
+                    return setter(path, t);
+                }
+                finally
+                {
+                    Thread.CurrentThread.CurrentCulture = prevCInfo;
+                }
+            };
+
+            this.moldingAccessCodeGenerator = () =>
+            {
+                var prevCInfo = Thread.CurrentThread.CurrentCulture;
+
+                try
+                {
+                    Thread.CurrentThread.CurrentCulture = specCulture;
+                    return moldingAccessCodeGenerator();
+                }
+                finally
+                {
+                    Thread.CurrentThread.CurrentCulture = prevCInfo;
+                }
+            };
+
             this.moldingDefault = moldingDefault;
             this.referredSpecs = referredSpecs;
         }
@@ -68,7 +133,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         if (this.parent.IsMolding)
                         {
                             this.parent.Mold[key] =
-                                new ScalarYAML(this.moldingAccessCode);
+                                new ScalarYAML(this.moldingAccessCodeGenerator());
                         }
 
                         return this.IndexGet(key);
@@ -83,7 +148,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             throw new Spec.InvalidSpecAccessException(
                                 $"{this.parent.Properties.ID}[{key}]",
-                                this.type,
+                                this.typeGenerator(),
                                 ex);
                         }
                     }
@@ -103,7 +168,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     {
                         throw new Spec.InvalidSpecAccessException(
                             $"{this.parent.Properties.ID}[{key}]",
-                            this.type,
+                            this.typeGenerator(),
                             ex);
                     }
                 }
@@ -152,7 +217,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         if (this.parent.IsMolding)
                         {
                             var accessCodeWithDefault =
-                                this.moldingAccessCode +
+                                this.moldingAccessCodeGenerator() +
                                 ", " +
                                 Spec.EncodeCommas(
                                     defaultValForMolding);
@@ -180,7 +245,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             throw new Spec.InvalidSpecAccessException(
                                 $"{this.parent.Properties.ID}[{key}]",
-                                this.type,
+                                this.typeGenerator(),
                                 ex);
                         }
                     }
@@ -214,10 +279,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 // base spec is referred.
                 return new ScalarIndexer<T>(
                     this.parent.Base,
-                    this.type,
+                    this.typeGenerator,
                     this.getter,
                     this.setter,
-                    this.moldingAccessCode,
+                    this.moldingAccessCodeGenerator,
                     this.moldingDefault,
                     this.referredSpecs.Add(this.parent.ID))
                     .IndexGet(key);

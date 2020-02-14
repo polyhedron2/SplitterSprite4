@@ -18,7 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal Double2Indexer(Spec parent)
             : base(
                 parent,
-                "実数x2",
+                () => "実数x2",
                 (value) =>
                 {
                     var splitValues = value.Split(',');
@@ -37,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     ret = ret.Substring(1, ret.Length - 2);
                     return ret;
                 },
-                "Double2",
+                () => "Double2",
                 (0.0, 0.0))
         {
         }

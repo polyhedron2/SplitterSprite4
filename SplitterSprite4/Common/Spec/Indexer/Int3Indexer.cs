@@ -18,7 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal Int3Indexer(Spec parent)
             : base(
                 parent,
-                "整数x3",
+                () => "整数x3",
                 (value) =>
                 {
                     var splitValues = value.Split(',');
@@ -38,7 +38,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     ret = ret.Substring(1, ret.Length - 2);
                     return ret;
                 },
-                "Int3",
+                () => "Int3",
                 (0, 0, 0))
         {
         }

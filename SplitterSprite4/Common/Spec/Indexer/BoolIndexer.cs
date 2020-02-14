@@ -18,10 +18,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal BoolIndexer(Spec parent)
             : base(
                 parent,
-                "真偽値",
+                () => "真偽値",
                 (value) => bool.Parse(value),
                 (value) => value.ToString(),
-                "Bool",
+                () => "Bool",
                 false)
         {
         }

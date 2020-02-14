@@ -18,7 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal OnOffIndexer(Spec parent)
             : base(
                 parent,
-                "ON/OFF",
+                () => "ON/OFF",
                 (value) =>
                 {
                     if (value.ToLower() == "on")
@@ -36,7 +36,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     }
                 },
                 (value) => value ? "on" : "off",
-                "OnOff",
+                () => "OnOff",
                 false)
         {
         }

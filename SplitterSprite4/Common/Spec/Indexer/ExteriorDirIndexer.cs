@@ -22,10 +22,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal ExteriorDirIndexer(Spec parent)
             : base(
                   parent,
-                  $"{typeof(T).Name}ディレクトリ",
+                  () => $"{typeof(T).Name}ディレクトリ",
                   (path) => new SpawnerDir<T>(parent.Proxy, path),
                   (spawnerDir) => spawnerDir.Dir.Path,
-                  $"ExteriorDir, {Spec.EncodeType(typeof(T))}",
+                  () => $"ExteriorDir, {Spec.EncodeType(typeof(T))}",
                   new DummySpawnerDir<T>())
         {
             // Call MoldingDefault method to validate type T.

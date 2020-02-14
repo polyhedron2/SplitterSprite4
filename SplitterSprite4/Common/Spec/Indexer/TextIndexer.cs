@@ -18,7 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal TextIndexer(Spec parent)
             : base(
                 parent,
-                "改行あり文字列",
+                () => "改行あり文字列",
                 (value) =>
                 {
                     // "YAML上の最終行が[End Of Text]"で
@@ -44,7 +44,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     // add constant line.
                     return value + "\n[End Of Text]";
                 },
-                "Text",
+                () => "Text",
                 string.Empty)
         {
         }

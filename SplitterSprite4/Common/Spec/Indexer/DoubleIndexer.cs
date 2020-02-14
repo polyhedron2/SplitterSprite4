@@ -18,10 +18,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal DoubleIndexer(Spec parent)
             : base(
                 parent,
-                "実数",
+                () => "実数",
                 (value) => double.Parse(value),
                 (value) => value.ToString(),
-                "Double",
+                () => "Double",
                 0.0)
         {
         }

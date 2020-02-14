@@ -19,7 +19,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal Double3Indexer(Spec parent)
             : base(
                 parent,
-                "実数x3",
+                () => "実数x3",
                 (value) =>
                 {
                     var splitValues = value.Split(',');
@@ -39,7 +39,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     ret = ret.Substring(1, ret.Length - 2);
                     return ret;
                 },
-                "Double3",
+                () => "Double3",
                 (0.0, 0.0, 0.0))
         {
         }

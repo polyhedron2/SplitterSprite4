@@ -18,7 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal YesNoIndexer(Spec parent)
             : base(
                 parent,
-                "YES/NO",
+                () => "YES/NO",
                 (value) =>
                 {
                     if (value.ToLower() == "yes")
@@ -36,7 +36,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     }
                 },
                 (value) => value ? "yes" : "no",
-                "YesNo",
+                () => "YesNo",
                 false)
         {
         }

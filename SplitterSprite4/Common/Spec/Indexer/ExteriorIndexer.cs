@@ -23,7 +23,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal ExteriorIndexer(Spec parent)
             : base(
                 parent,
-                typeof(T).Name,
+                () => typeof(T).Name,
                 (path) =>
                 {
                     var spec = SpecRoot.Fetch(parent.Proxy, path);
@@ -34,7 +34,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     return spawner;
                 },
                 (spawner) => spawner.Spec.Path,
-                $"Exterior, {Spec.EncodeType(typeof(T))}",
+                () => $"Exterior, {Spec.EncodeType(typeof(T))}",
                 CreateMoldingDefault(parent))
         {
         }

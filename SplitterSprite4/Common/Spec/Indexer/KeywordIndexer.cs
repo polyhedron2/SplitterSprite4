@@ -18,7 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal KeywordIndexer(Spec parent)
             : base(
                 parent,
-                "改行なし文字列",
+                () => "改行なし文字列",
                 (value) =>
                 {
                     if (value.Contains("\n"))
@@ -37,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
                     return value;
                 },
-                "Keyword",
+                () => "Keyword",
                 string.Empty)
         {
         }

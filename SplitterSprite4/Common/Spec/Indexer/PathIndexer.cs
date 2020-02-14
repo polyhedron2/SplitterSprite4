@@ -15,54 +15,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <typeparam name="T">Type of path associated value.</typeparam>
     public class PathIndexer<T>
     {
-        private Spec parent;
-        private string type;
-        private Func<AgnosticPath, T> getter;
-        private Func<T, AgnosticPath> setter;
-        private string moldingAccessCode;
-        private T moldingDefault;
         private ScalarIndexer<T> internalIndexer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PathIndexer{T}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="type">The access type string.</param>
+        /// <param name="typeGenerator">The access type string generator func.</param>
         /// <param name="getter">Translation function from agnostic path.</param>
         /// <param name="setter">Translation function to agnostic path.</param>
-        /// <param name="moldingAccessCode">The type and parameter information for molding.</param>
+        /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
         internal PathIndexer(
             Spec parent,
-            string type,
+            Func<string> typeGenerator,
             Func<AgnosticPath, T> getter,
             Func<T, AgnosticPath> setter,
-            string moldingAccessCode,
+            Func<string> moldingAccessCodeGenerator,
             T moldingDefault)
         {
-            this.parent = parent;
-            this.type = type;
-            this.getter = getter;
-            this.setter = setter;
-            this.moldingAccessCode = moldingAccessCode;
-            this.moldingDefault = moldingDefault;
             this.internalIndexer = new ScalarIndexer<T>(
-                this.parent,
-                this.type,
+                parent,
+                typeGenerator,
                 (path, scalar) =>
                 {
                     var relative = AgnosticPath.FromAgnosticPathString(scalar);
                     var fromExecutable = relative + path.Parent;
-                    return this.getter(fromExecutable);
+                    return getter(fromExecutable);
                 },
                 (path, value) =>
                 {
-                    var fromExecutable = this.setter(value);
+                    var fromExecutable = setter(value);
                     var relative = fromExecutable - path.Parent;
                     return relative.ToAgnosticPathString();
                 },
-                this.moldingAccessCode,
-                this.moldingDefault,
+                moldingAccessCodeGenerator,
+                moldingDefault,
                 ImmutableList<string>.Empty);
         }
 
