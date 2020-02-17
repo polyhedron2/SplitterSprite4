@@ -8,8 +8,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 {
     using System;
     using System.Collections.Immutable;
-    using System.Globalization;
-    using System.Threading;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -45,74 +43,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             T moldingDefault,
             ImmutableList<string> referredSpecs)
         {
-            // spec上の値は"en-US"カルチャでのパース、文字列化を行うことで、
-            // 環境に依存しない処理とする。
-            // Strings for spec is translated with "en-US" culture,
-            // for independent processing from environment.
-            var specCulture = new CultureInfo("en-US");
-
             this.parent = parent;
-
-            this.typeGenerator = () =>
-            {
-                var prevCInfo = Thread.CurrentThread.CurrentCulture;
-
-                try
-                {
-                    Thread.CurrentThread.CurrentCulture = specCulture;
-                    return typeGenerator();
-                }
-                finally
-                {
-                    Thread.CurrentThread.CurrentCulture = prevCInfo;
-                }
-            };
-
-            this.getter = (path, str) =>
-            {
-                var prevCInfo = Thread.CurrentThread.CurrentCulture;
-
-                try
-                {
-                    Thread.CurrentThread.CurrentCulture = specCulture;
-                    return getter(path, str);
-                }
-                finally
-                {
-                    Thread.CurrentThread.CurrentCulture = prevCInfo;
-                }
-            };
-
-            this.setter = (path, t) =>
-            {
-                var prevCInfo = Thread.CurrentThread.CurrentCulture;
-
-                try
-                {
-                    Thread.CurrentThread.CurrentCulture = specCulture;
-                    return setter(path, t);
-                }
-                finally
-                {
-                    Thread.CurrentThread.CurrentCulture = prevCInfo;
-                }
-            };
-
-            this.moldingAccessCodeGenerator = () =>
-            {
-                var prevCInfo = Thread.CurrentThread.CurrentCulture;
-
-                try
-                {
-                    Thread.CurrentThread.CurrentCulture = specCulture;
-                    return moldingAccessCodeGenerator();
-                }
-                finally
-                {
-                    Thread.CurrentThread.CurrentCulture = prevCInfo;
-                }
-            };
-
+            this.typeGenerator = Spec.CultureDecorate(typeGenerator);
+            this.getter = Spec.CultureDecorate(getter);
+            this.setter = Spec.CultureDecorate(setter);
+            this.moldingAccessCodeGenerator =
+                Spec.CultureDecorate(moldingAccessCodeGenerator);
             this.moldingDefault = moldingDefault;
             this.referredSpecs = referredSpecs;
         }

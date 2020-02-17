@@ -7,7 +7,9 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
+    using System.Globalization;
     using System.Linq;
+    using System.Threading;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec.Indexer;
@@ -267,6 +269,68 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public static Type DecodeType(string code)
         {
             return Type.GetType(code, true);
+        }
+
+        /// <summary>
+        /// spec上の値は"en-US"カルチャでのパース、文字列化を行うことで、
+        /// 環境に依存しない処理とする。
+        /// Strings for spec is translated with "en-US" culture,
+        /// for independent processing from environment.
+        /// </summary>
+        /// <typeparam name="TResult">Function's result type.</typeparam>
+        /// <param name="target">Function which will be decorated.</param>
+        /// <returns>Decorated function.</returns>
+        public static Func<TResult>
+            CultureDecorate<TResult>(Func<TResult> target)
+        {
+            var specCulture = new CultureInfo("en-US");
+
+            return () =>
+            {
+                var prevCInfo = Thread.CurrentThread.CurrentCulture;
+
+                try
+                {
+                    Thread.CurrentThread.CurrentCulture = specCulture;
+                    return target();
+                }
+                finally
+                {
+                    Thread.CurrentThread.CurrentCulture = prevCInfo;
+                }
+            };
+        }
+
+        /// <summary>
+        /// spec上の値は"en-US"カルチャでのパース、文字列化を行うことで、
+        /// 環境に依存しない処理とする。
+        /// Strings for spec is translated with "en-US" culture,
+        /// for independent processing from environment.
+        /// </summary>
+        /// <typeparam name="TResult">Function's result type.</typeparam>
+        /// <typeparam name="T1">Function's first arg type.</typeparam>
+        /// <typeparam name="T2">Function's second arg type.</typeparam>
+        /// <param name="target">Function which will be decorated.</param>
+        /// <returns>Decorated function.</returns>
+        public static Func<T1, T2, TResult>
+            CultureDecorate<T1, T2, TResult>(Func<T1, T2, TResult> target)
+        {
+            var specCulture = new CultureInfo("en-US");
+
+            return (x, y) =>
+            {
+                var prevCInfo = Thread.CurrentThread.CurrentCulture;
+
+                try
+                {
+                    Thread.CurrentThread.CurrentCulture = specCulture;
+                    return target(x, y);
+                }
+                finally
+                {
+                    Thread.CurrentThread.CurrentCulture = prevCInfo;
+                }
+            };
         }
 
         /// <summary>
