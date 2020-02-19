@@ -44,11 +44,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             ImmutableList<string> referredSpecs)
         {
             this.parent = parent;
-            this.typeGenerator = Spec.CultureDecorate(typeGenerator);
-            this.getter = Spec.CultureDecorate(getter);
-            this.setter = Spec.CultureDecorate(setter);
+            this.typeGenerator = Spec.FixCulture(typeGenerator);
+            this.getter = Spec.FixCulture(getter);
+            this.setter = Spec.FixCulture(setter);
             this.moldingAccessCodeGenerator =
-                Spec.CultureDecorate(moldingAccessCodeGenerator);
+                Spec.FixCulture(moldingAccessCodeGenerator);
             this.moldingDefault = moldingDefault;
             this.referredSpecs = referredSpecs;
         }

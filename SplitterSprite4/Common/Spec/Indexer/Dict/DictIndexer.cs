@@ -21,16 +21,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
     {
         private Spec parent;
 
-        private string keyType;
+        private Func<string> keyTypeGenerator;
         private Func<AgnosticPath, string, T_Key> keyGetter;
         private Func<AgnosticPath, T_Key, string> keySetter;
         private Func<T_Key, IComparable> keyOrder;
-        private string keyMoldingAccessCode;
+        private Func<string> keyMoldingAccessCodeGenerator;
 
-        private string valueType;
+        private Func<string> valueTypeGenerator;
         private Func<AgnosticPath, string, T_Value> valueGetter;
         private Func<AgnosticPath, T_Value, string> valueSetter;
-        private string valueMoldingAccessCode;
+        private Func<string> valueMoldingAccessCodeGenerator;
 
         private string type;
         private string moldingAccessCode;
@@ -41,7 +41,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// Initializes a new instance of the <see cref="DictIndexer{T_Key, T_Value}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="keyType">The access type string for key.</param>
+        /// <param name="keyTypeGenerator">
+        /// The access type string generator for key.
+        /// </param>
         /// <param name="keyGetter">
         /// Translation function
         /// from spec path and string key in spec
@@ -56,10 +58,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// Translation function
         /// from key to IComparable for sorting keys.
         /// </param>
-        /// <param name="keyMoldingAccessCode">
-        /// The key type and parameter information for molding.
+        /// <param name="keyMoldingAccessCodeGenerator">
+        /// The key type and parameter information generator for molding.
         /// </param>
-        /// <param name="valueType">The access type string for value.</param>
+        /// <param name="valueTypeGenerator">
+        /// The access type string generator for value.
+        /// </param>
         /// <param name="valueGetter">
         /// Translation function
         /// from spec path and string value in spec
@@ -70,43 +74,47 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// from spec path and indexed value
         /// to string value in spec.
         /// </param>
-        /// <param name="valueMoldingAccessCode">
-        /// The value type and parameter information for molding.
+        /// <param name="valueMoldingAccessCodeGenerator">
+        /// The value type and parameter information generator for molding.
         /// </param>
         /// <param name="referredSpecs">
         /// The spec IDs which are referred while base spec referring.
         /// </param>
         internal DictIndexer(
             Spec parent,
-            string keyType,
+            Func<string> keyTypeGenerator,
             Func<AgnosticPath, string, T_Key> keyGetter,
             Func<AgnosticPath, T_Key, string> keySetter,
             Func<T_Key, IComparable> keyOrder,
-            string keyMoldingAccessCode,
-            string valueType,
+            Func<string> keyMoldingAccessCodeGenerator,
+            Func<string> valueTypeGenerator,
             Func<AgnosticPath, string, T_Value> valueGetter,
             Func<AgnosticPath, T_Value, string> valueSetter,
-            string valueMoldingAccessCode,
+            Func<string> valueMoldingAccessCodeGenerator,
             ImmutableList<string> referredSpecs)
         {
             this.parent = parent;
 
-            this.keyType = keyType;
-            this.keyGetter = keyGetter;
-            this.keySetter = keySetter;
+            this.keyTypeGenerator = Spec.FixCulture(keyTypeGenerator);
+            this.keyGetter = Spec.FixCulture(keyGetter);
+            this.keySetter = Spec.FixCulture(keySetter);
             this.keyOrder = keyOrder;
-            this.keyMoldingAccessCode = keyMoldingAccessCode;
+            this.keyMoldingAccessCodeGenerator =
+                Spec.FixCulture(keyMoldingAccessCodeGenerator);
 
-            this.valueType = valueType;
-            this.valueGetter = valueGetter;
-            this.valueSetter = valueSetter;
-            this.valueMoldingAccessCode = valueMoldingAccessCode;
+            this.valueTypeGenerator = Spec.FixCulture(valueTypeGenerator);
+            this.valueGetter = Spec.FixCulture(valueGetter);
+            this.valueSetter = Spec.FixCulture(valueSetter);
+            this.valueMoldingAccessCodeGenerator =
+                Spec.FixCulture(valueMoldingAccessCodeGenerator);
 
-            this.type = $"マッピング({keyType}=>{valueType})";
+            this.type =
+                $"マッピング({this.keyTypeGenerator()}" +
+                $"=>{this.valueTypeGenerator()})";
             this.moldingAccessCode = string.Join(
                 ", ",
-                Spec.EncodeCommas(keyMoldingAccessCode),
-                Spec.EncodeCommas(valueMoldingAccessCode));
+                Spec.EncodeCommas(this.keyMoldingAccessCodeGenerator()),
+                Spec.EncodeCommas(this.valueMoldingAccessCodeGenerator()));
             this.moldingDefault = new Dictionary<T_Key, T_Value>();
             this.referredSpecs = referredSpecs;
         }
@@ -214,15 +222,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             {
                 var baseDict = new DictIndexer<T_Key, T_Value>(
                     this.parent.Base,
-                    this.keyType,
+                    this.keyTypeGenerator,
                     this.keyGetter,
                     this.keySetter,
                     this.keyOrder,
-                    this.keyMoldingAccessCode,
-                    this.valueType,
+                    this.keyMoldingAccessCodeGenerator,
+                    this.valueTypeGenerator,
                     this.valueGetter,
                     this.valueSetter,
-                    this.valueMoldingAccessCode,
+                    this.valueMoldingAccessCodeGenerator,
                     this.referredSpecs.Add(this.parent.ID))
                     .IndexGet(indexKey);
 
