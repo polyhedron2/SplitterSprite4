@@ -136,5 +136,86 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
             // Spawner instance must be created with constructor without parameters.
             return Activator.CreateInstance(type);
         }
+
+        /// <summary>
+        /// Spawn target with dummy args.
+        /// </summary>
+        /// <param name="spawner">Spawner for spawing.</param>
+        /// <typeparam name="T_Target">Spawn target class.</typeparam>
+        /// <returns>
+        /// Spawn target.
+        /// </returns>
+        public static T_Target DummySpawn<T_Target>(
+            ISpawner<T_Target> spawner)
+            where T_Target : class
+        {
+            object result = null;
+
+            var spawnerType = spawner.GetType();
+            foreach (var interf in spawnerType.GetInterfaces())
+            {
+                if (!interf.IsGenericType)
+                {
+                    continue;
+                }
+
+                var def = interf.GetGenericTypeDefinition();
+
+                if (def == typeof(ISpawnerRootWithoutArgs<>) ||
+                    def == typeof(ISpawnerChildWithoutArgs<>))
+                {
+                    var spawn_method =
+                        spawnerType.GetMethod("Spawn", Type.EmptyTypes);
+                    result = spawn_method.Invoke(spawner, null);
+                }
+
+                if (def == typeof(ISpawnerRootWithArgs<,>) ||
+                    def == typeof(ISpawnerChildWithArgs<,>))
+                {
+                    var dummy_args_property =
+                        spawnerType.GetProperty("DummyArgs");
+                    object dummy_args_tuple =
+                        dummy_args_property.GetValue(spawner, null);
+                    object[] dummy_args = { dummy_args_tuple };
+
+                    Type[] argsType = { interf.GetGenericArguments()[1] };
+                    var spawn_method =
+                        spawnerType.GetMethod("Spawn", argsType);
+                    result = spawn_method.Invoke(spawner, dummy_args);
+                }
+            }
+
+            if (result == null)
+            {
+                throw new InvalidSpawnerInterfaceImplementation(
+                    "ISpawnerの実装は" +
+                    "ISpawnerRootWithoutArgs, ISpawnerRootWithArgs, " +
+                    "ISpawnerChildWithoutArgs, ISpawnerChildWithArgs" +
+                    "のいずれかが必要です。");
+            }
+
+            return (T_Target)result;
+        }
+
+        /// <summary>
+        /// ISpawnerRootWithoutArgs, ISpawnerRootWithArgs,
+        /// ISpawnerChildWithoutArgs, ISpawnerChildWithArgs
+        /// の一つも実装していないISpawner実装である場合の例外。
+        /// The exception that is thrown when an attempt to
+        /// implement ISpanwer without
+        /// ISpawnerRootWithoutArgs, ISpawnerRootWithArgs,
+        /// ISpawnerChildWithoutArgs, or ISpawnerChildWithArgs.
+        /// </summary>
+        public class InvalidSpawnerInterfaceImplementation : Exception
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InvalidSpawnerInterfaceImplementation"/> class.
+            /// </summary>
+            /// <param name="message">The exception message.</param>
+            public InvalidSpawnerInterfaceImplementation(string message)
+                : base(message)
+            {
+            }
+        }
     }
 }

@@ -2921,7 +2921,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // valid pattern
             Assert.Equal(
                 "baz",
-                spec.Interior<ISpawnerChild0<string>>()["child"].Spawn());
+                spec.Interior<ISpawnerChildWithoutArgs<string>>()["child"].Spawn());
 
             // get value with default value.
             var defaultType = typeof(ValidSpawnerChildWithImplementedConstructor);
@@ -2971,18 +2971,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             // undefined type
             Assert.Equal(
                 "qux",
-                spec.Interior<ISpawnerChild1<string, bool>>()[
+                spec.Interior<ISpawnerChildWithArgs<string, bool>>()[
                     "type is not defined", defaultType].Spawn(true));
             Assert.Equal(
                 "quux",
-                spec.Interior<ISpawnerChild1<string, bool>>()[
+                spec.Interior<ISpawnerChildWithArgs<string, bool>>()[
                     "type is not defined", defaultType].Spawn(false));
 
             // valid pattern
             Assert.Equal(
                 "baz",
                 (spec.Interior<ISpawnerChild<string>>()[
-                    "child", defaultType] as ISpawnerChild0<string>).Spawn());
+                    "child", defaultType] as ISpawnerChildWithoutArgs<string>).Spawn());
 
             // act
             spec.Interior<ISpawnerChild<object>>()["child"] =
@@ -2993,11 +2993,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             Assert.Equal(
                 "qux",
                 spec.Interior<
-                    ISpawnerChild1<string, bool>>()["child"].Spawn(true));
+                    ISpawnerChildWithArgs<string, bool>>()["child"].Spawn(true));
             Assert.Equal(
                 "quux",
                 spec.Interior<
-                    ISpawnerChild1<string, bool>>()["child"].Spawn(false));
+                    ISpawnerChildWithArgs<string, bool>>()["child"].Spawn(false));
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
@@ -4038,7 +4038,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Valid implementation of SpawnerRoot.
         /// </summary>
         public class ValidSpawnerRootWithDefaultConstructor :
-            ISpawnerRoot0<string>
+            ISpawnerRootWithoutArgs<string>
         {
             /// <inheritdoc/>
             public SpecRoot Spec { get; set; }
@@ -4058,7 +4058,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Valid implementation of SpawnerRoot with 0 arg constructor.
         /// </summary>
         public class ValidSpawnerRootWithImplementedConstructor :
-            ISpawnerRoot1<string, bool>
+            ISpawnerRootWithArgs<string, bool>
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="ValidSpawnerRootWithImplementedConstructor"/> class.
@@ -4074,7 +4074,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             public string Note { get; } = "正しく実装されたSpawner";
 
             /// <inheritdoc/>
-            public bool DummyArg1 { get => true; }
+            public bool DummyArgs { get => true; }
 
             /// <inheritdoc/>
             public string Spawn(bool arg1)
@@ -4095,7 +4095,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Invalid implementation of SpawnerRoot without 0 arg constructor.
         /// </summary>
         public class SpawnerRootWithoutValidConstructor :
-            ISpawnerRoot2<string, bool, string>
+            ISpawnerRootWithArgs<string, (bool, string)>
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="SpawnerRootWithoutValidConstructor"/> class.
@@ -4113,14 +4113,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             public string Note { get; } = "誤って実装されたSpawner";
 
             /// <inheritdoc/>
-            public bool DummyArg1 { get => true; }
+            public (bool, string) DummyArgs { get => (true, "hoge"); }
 
             /// <inheritdoc/>
-            public string DummyArg2 { get => "hoge"; }
-
-            /// <inheritdoc/>
-            public string Spawn(bool arg1, string arg2)
+            public string Spawn((bool, string) args)
             {
+                (bool arg1, string arg2) = args;
+
                 try
                 {
                     if (arg1)
@@ -4144,7 +4143,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Valid implementation of SpawnerChild.
         /// </summary>
         public class ValidSpawnerChildWithDefaultConstructor :
-            ISpawnerChild0<string>
+            ISpawnerChildWithoutArgs<string>
         {
             /// <inheritdoc/>
             public SpecChild Spec { get; set; }
@@ -4164,7 +4163,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Valid implementation of SpawnerChild with 0 arg constructor.
         /// </summary>
         public class ValidSpawnerChildWithImplementedConstructor :
-            ISpawnerChild1<string, bool>
+            ISpawnerChildWithArgs<string, bool>
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="ValidSpawnerChildWithImplementedConstructor"/> class.
@@ -4180,7 +4179,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             public string Note { get; } = "正しく実装されたSpawner";
 
             /// <inheritdoc/>
-            public bool DummyArg1 { get => true; }
+            public bool DummyArgs { get => true; }
 
             /// <inheritdoc/>
             public string Spawn(bool arg1)
@@ -4201,7 +4200,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         /// Invalid implementation of SpawnerChild without 0 arg constructor.
         /// </summary>
         public class SpawnerChildWithoutValidConstructor :
-            ISpawnerChild2<string, bool, string>
+            ISpawnerChildWithArgs<string, (bool, string)>
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="SpawnerChildWithoutValidConstructor"/> class.
@@ -4219,14 +4218,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             public string Note { get; } = "誤って実装されたSpawner";
 
             /// <inheritdoc/>
-            public bool DummyArg1 { get => true; }
+            public (bool, string) DummyArgs { get => (true, "hoge"); }
 
             /// <inheritdoc/>
-            public string DummyArg2 { get => "hoge"; }
-
-            /// <inheritdoc/>
-            public string Spawn(bool arg1, string arg2)
+            public string Spawn((bool, string) args)
             {
+                (bool arg1, string arg2) = args;
+
                 try
                 {
                     if (arg1)

@@ -34,10 +34,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
             this.proxy = proxy;
             this.Dir = new LayeredDir(proxy.FileIO, path);
             this.spawners = this.Dir.EnumerateFiles().Select(
-                (path) => path + this.Dir.Path).Select(
-                (path) =>
+                (pth) => pth + this.Dir.Path).Select(
+                (pth) =>
                 {
-                    var spec = SpecRoot.Fetch(this.proxy, path);
+                    var spec = SpecRoot.Fetch(this.proxy, pth);
                     var spawner = (T_Spawner)Activator.CreateInstance(
                         spec.SpawnerType);
                     spawner.Spec = spec;

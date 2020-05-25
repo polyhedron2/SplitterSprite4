@@ -19,6 +19,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         /// <summary>
         /// Gets layered directory.
         /// </summary>
-        public LayeredDir Dir { get; }
+        LayeredDir Dir { get; }
     }
 }

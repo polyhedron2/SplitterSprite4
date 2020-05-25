@@ -147,7 +147,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         // If valid spawner type is defined in spec,
                         // call DummySpawn with dummy spec to mold calls in
                         // SpawnerChild.Spawn().
-                        spawner.DummySpawn();
+                        Spawner.DummySpawn<object>(spawner);
                     }
 
                     return spawner;

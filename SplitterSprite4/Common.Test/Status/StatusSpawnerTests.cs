@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IStatusSpawnerTests.cs" company="MagicKitchen">
+// <copyright file="StatusSpawnerTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Status
     /// <summary>
     /// Test the IStatusSpawner interface.
     /// </summary>
-    public class IStatusSpawnerTests
+    public class StatusSpawnerTests
     {
         /// <summary>
         /// Test the Spawn method of IStatusSpawner.
@@ -41,19 +41,19 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Status
             var specY = SpecRoot.Fetch(proxy, agnosticPathY);
 
             // act
-            ISpawnerRoot0<StatusA> spawnerAX1 = new StatusASpawner();
+            ISpawnerRootWithoutArgs<StatusA> spawnerAX1 = new StatusASpawner();
             spawnerAX1.Spec = specX;
             var statusAX1 = spawnerAX1.Spawn();
 
-            ISpawnerRoot0<StatusA> spawnerAX2 = new StatusASpawner();
+            ISpawnerRootWithoutArgs<StatusA> spawnerAX2 = new StatusASpawner();
             spawnerAX2.Spec = specX;
             var statusAX2 = spawnerAX2.Spawn();
 
-            ISpawnerRoot0<StatusA> spawnerAY = new StatusASpawner();
+            ISpawnerRootWithoutArgs<StatusA> spawnerAY = new StatusASpawner();
             spawnerAY.Spec = specY;
             var statusAY = spawnerAY.Spawn();
 
-            ISpawnerRoot0<StatusB> spawnerBX = new StatusBSpawner();
+            ISpawnerRootWithoutArgs<StatusB> spawnerBX = new StatusBSpawner();
             spawnerBX.Spec = specX;
             var statusBX = spawnerBX.Spawn();
 
@@ -74,25 +74,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Status
         {
         }
 
-        private class StatusASpawner : IStatusSpawner<StatusA>
+        private class StatusASpawner : StatusSpawner<StatusA>
         {
-            public SpecRoot Spec { get; set; }
+            public override string Note { get; } = "StatusA";
 
-            public string Note { get; } = "StatusA";
-
-            public StatusA SpawnStatus()
+            protected override StatusA SpawnStatus()
             {
                 return new StatusA();
             }
         }
 
-        private class StatusBSpawner : IStatusSpawner<StatusB>
+        private class StatusBSpawner : StatusSpawner<StatusB>
         {
-            public SpecRoot Spec { get; set; }
+            public override string Note { get; } = "StatusB";
 
-            public string Note { get; } = "StatusB";
-
-            public StatusB SpawnStatus()
+            protected override StatusB SpawnStatus()
             {
                 return new StatusB();
             }

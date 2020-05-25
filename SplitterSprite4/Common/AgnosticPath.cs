@@ -45,7 +45,7 @@ namespace MagicKitchen.SplitterSprite4.Common
 
             // 末尾に区切り文字を含まない形を正規形とする。
             // Canonical form doesn't have separator char at the end of it.
-            if (this.InternalPath.EndsWith(InternalSeparatorChar))
+            if (this.InternalPath.EndsWith($"{InternalSeparatorChar}"))
             {
                 this.InternalPath = this.InternalPath.Substring(
                     0, this.InternalPath.Length - 1);
@@ -69,7 +69,7 @@ namespace MagicKitchen.SplitterSprite4.Common
                 var dummyPrefixedUri = new Uri(DummyUri, this.InternalUri);
                 var dummyPrefixedUriStr = dummyPrefixedUri.ToString();
                 dummyPrefixedUriStr =
-                    dummyPrefixedUriStr.EndsWith(InternalSeparatorChar) ?
+                    dummyPrefixedUriStr.EndsWith($"{InternalSeparatorChar}") ?
                     dummyPrefixedUriStr.Substring(
                         0, dummyPrefixedUriStr.Length - 1) :
                     dummyPrefixedUriStr;
@@ -173,7 +173,7 @@ namespace MagicKitchen.SplitterSprite4.Common
 
             // origin pathはディレクトリとして解釈するため、'/'をつける。
             // Add '/' to interpret origin path as directory.
-            if (!origUri.ToString().EndsWith('/'))
+            if (!origUri.ToString().EndsWith("/"))
             {
                 origUri = new Uri(origUri.ToString() + '/');
             }
@@ -181,7 +181,7 @@ namespace MagicKitchen.SplitterSprite4.Common
             // destination pathとorigin pathの相対関係を維持するため、
             // destination pathにも'/'をつける。
             // Add '/' to interpret dest path as same as origin path.
-            if (!destUri.ToString().EndsWith('/'))
+            if (!destUri.ToString().EndsWith("/"))
             {
                 destUri = new Uri(destUri.ToString() + '/');
             }

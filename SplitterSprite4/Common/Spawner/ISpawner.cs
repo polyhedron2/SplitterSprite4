@@ -18,11 +18,5 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         /// Gets explanation note for this spawner class.
         /// </summary>
         string Note { get; }
-
-        /// <summary>
-        /// Spawn target with dummy args.
-        /// </summary>
-        /// <returns>Spawn target.</returns>
-        T_Target DummySpawn();
     }
 }
