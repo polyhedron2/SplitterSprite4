@@ -1,4 +1,10 @@
-﻿namespace MagicKitchen.SplitterSprite4.CrossPlatformDesktop
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace MagicKitchen.SplitterSprite4.CrossPlatformDesktop
 {
     using System;
     using MagicKitchen.SplitterSprite4.Framework;

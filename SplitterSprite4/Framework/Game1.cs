@@ -1,4 +1,10 @@
-﻿namespace MagicKitchen.SplitterSprite4.Framework
+﻿// -----------------------------------------------------------------------
+// <copyright file="Game1.cs" company="MagicKitchen">
+// Copyright (c) MagicKitchen. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace MagicKitchen.SplitterSprite4.Framework
 {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
