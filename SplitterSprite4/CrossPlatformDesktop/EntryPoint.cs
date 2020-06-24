@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Program.cs" company="MagicKitchen">
+// <copyright file="EntryPoint.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -12,7 +12,7 @@ namespace MagicKitchen.SplitterSprite4.CrossPlatformDesktop
     /// <summary>
     /// The main class.
     /// </summary>
-    public static class Program
+    public static class EntryPoint
     {
         /// <summary>
         /// The main entry point for the application.
@@ -20,7 +20,7 @@ namespace MagicKitchen.SplitterSprite4.CrossPlatformDesktop
         [STAThread]
         public static void Main()
         {
-            using (var game = new Game1())
+            using (var game = new Game())
             {
                 game.Run();
             }

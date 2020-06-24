@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Game1.cs" company="MagicKitchen">
+// <copyright file="Game.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -13,12 +13,12 @@ namespace MagicKitchen.SplitterSprite4.Framework
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class Game : Microsoft.Xna.Framework.Game
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
-        public Game1()
+        public Game()
         {
             this.graphics = new GraphicsDeviceManager(this);
             this.Content.RootDirectory = "Content";
