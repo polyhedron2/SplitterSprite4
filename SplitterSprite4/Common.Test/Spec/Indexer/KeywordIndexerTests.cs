@@ -12,7 +12,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the KeywordIndexer class.
     /// </summary>
-    public class KeywordIndexerTests
+    public class KeywordIndexerTests : ScalarIndexerTests
     {
         /// <summary>
         /// Test the string accessor without line feed code.
@@ -22,7 +22,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void KeywordTest(string path)
+        public override void ScalarAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

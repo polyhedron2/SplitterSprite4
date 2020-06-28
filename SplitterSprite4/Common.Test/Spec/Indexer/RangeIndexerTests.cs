@@ -12,7 +12,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the RangeIndexer class.
     /// </summary>
-    public class RangeIndexerTests
+    public class RangeIndexerTests : ScalarIndexerTests
     {
         /// <summary>
         /// Test the ranged integer accessor.
@@ -22,7 +22,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void RangeTest(string path)
+        public override void ScalarAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

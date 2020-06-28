@@ -12,7 +12,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the TextIndexer class.
     /// </summary>
-    public class TextIndexerTests
+    public class TextIndexerTests : ScalarIndexerTests
     {
         /// <summary>
         /// Test the multi line string accessor.
@@ -22,7 +22,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void TextTest(string path)
+        public override void ScalarAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

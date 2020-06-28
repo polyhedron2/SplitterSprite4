@@ -13,7 +13,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the ExteriorDirIndexer class.
     /// </summary>
-    public class ExteriorDirIndexerTests
+    public class ExteriorDirIndexerTests : ScalarIndexerTests
     {
         /// <summary>
         /// Test the SpawnerDir accessor.
@@ -23,7 +23,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void ExteriorDirTest(string path)
+        public override void ScalarAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
