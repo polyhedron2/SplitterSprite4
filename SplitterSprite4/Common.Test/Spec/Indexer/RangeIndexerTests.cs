@@ -18,10 +18,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         /// Test the ranged integer accessor.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        [Theory]
-        [InlineData("foo.spec")]
-        [InlineData("dir/bar.spec")]
-        [InlineData("dir1/dir2/baz.spec")]
         public override void ScalarAccessTest(string path)
         {
             // arrange

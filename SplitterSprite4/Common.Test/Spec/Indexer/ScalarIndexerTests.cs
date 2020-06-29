@@ -19,34 +19,36 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         /// Test the scalar accessor.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
         public abstract void ScalarAccessTest(string path);
 
         /// <summary>
         /// Test the scalar accessor with multi cultures.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
+        /// <param name="cultureName">The culture name for testing.</param>
         [Theory]
-        [InlineData("foo.spec")]
-        [InlineData("dir/bar.spec")]
-        [InlineData("dir1/dir2/baz.spec")]
-        public void MultiCultureScalarAccessTest(string path)
+        [InlineData("foo.spec", "ja-JP")]
+        [InlineData("foo.spec", "en-US")]
+        [InlineData("foo.spec", "eo-001")]
+        [InlineData("dir/bar.spec", "ja-JP")]
+        [InlineData("dir1/dir2/baz.spec", "ja-JP")]
+        public void MultiCultureScalarAccessTest(string path, string cultureName)
         {
-            var cultureNames = new string[] { "en-US", "ja-JP", "eo-001" };
+            var testCInfo = new CultureInfo(cultureName);
+            var prevCInfo = Thread.CurrentThread.CurrentCulture;
 
-            foreach (var cultureName in cultureNames)
+            try
             {
-                var testCInfo = new CultureInfo(cultureName);
-                var prevCInfo = Thread.CurrentThread.CurrentCulture;
-
-                try
-                {
-                    Thread.CurrentThread.CurrentCulture = testCInfo;
-                    this.ScalarAccessTest(path);
-                }
-                finally
-                {
-                    Thread.CurrentThread.CurrentCulture = prevCInfo;
-                }
+                Thread.CurrentThread.CurrentCulture = testCInfo;
+                this.ScalarAccessTest(path);
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = prevCInfo;
             }
         }
     }

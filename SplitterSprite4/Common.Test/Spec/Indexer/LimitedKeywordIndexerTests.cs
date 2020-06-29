@@ -19,10 +19,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         /// The string length is bounded.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        [Theory]
-        [InlineData("foo.spec")]
-        [InlineData("dir/bar.spec")]
-        [InlineData("dir1/dir2/baz.spec")]
         public override void ScalarAccessTest(string path)
         {
             // arrange
