@@ -28,6 +28,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                 "  \"invalid\": |+",
                 "    \"1st line\"",
                 "    \"2nd line\"",
+                "  \"magic\": \"__magic word__\"",
+                "  \"non-magic\": \"____non-magic word____\"",
                 "  \"father name\": \"masuo\"",
                 "  \"mother name\": \"sazae\"",
                 "  \"children names\":",
@@ -42,6 +44,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
             {
                 _ = spec.Keyword["invalid"];
             });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = spec.Keyword["magic"];
+            });
+            Assert.Equal("__non-magic word__", spec.Keyword["non-magic"]);
             Assert.Equal("masuo", spec.Keyword["father name"]);
             Assert.Equal("sazae", spec.Keyword["mother name"]);
             Assert.Equal(
@@ -69,6 +76,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
             });
 
             // act
+            spec.Keyword["non-magic"] = "__new non-magic word__";
             spec.Keyword["grand father name"] = "namihei";
             spec.Keyword["grand mother name"] = "fune";
             spec["children names"].Keyword["second"] = "hitode";
@@ -87,6 +95,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                     "  \"invalid\": |+",
                     "    \"1st line\"",
                     "    \"2nd line\"",
+                    "  \"magic\": \"__magic word__\"",
+                    "  \"non-magic\": \"____new non-magic word____\"",
                     "  \"father name\": \"masuo\"",
                     "  \"mother name\": \"sazae\"",
                     "  \"children names\":",
@@ -108,6 +118,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                     "  \"invalid\": |+",
                     "    \"1st line\"",
                     "    \"2nd line\"",
+                    "  \"magic\": \"__magic word__\"",
+                    "  \"non-magic\": \"____new non-magic word____\"",
                     "  \"father name\": \"masuo\"",
                     "  \"mother name\": \"sazae\"",
                     "  \"children names\":",

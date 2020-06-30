@@ -16,6 +16,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <typeparam name="T">Type of value.</typeparam>
     internal class ScalarIndexer<T>
     {
+        private static string magicWordDecorator = "__";
         private Spec parent;
         private Func<string> typeGenerator;
         private Func<AgnosticPath, string, T> getter;
@@ -97,8 +98,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 {
                     try
                     {
+                        var scalarVal = this.ToScalar(
+                            this.setter(this.parent.Path, value));
                         this.parent.Properties[key] =
-                            new ScalarYAML(this.setter(this.parent.Path, value));
+                            new ScalarYAML(scalarVal);
                     }
                     catch (Exception ex)
                     {
@@ -189,6 +192,32 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             }
         }
 
+        public void SetMagicWord(string key, string word)
+        {
+            // Magic word decorated word cannot be magic word.
+            if (this.CheckMagicWord(word))
+            {
+                throw new InvalidMagicWordException(word);
+            }
+
+            lock (this.parent.Properties)
+            {
+                try
+                {
+                    var scalarVal = this.DecorateAsMagicWord(word);
+                    this.parent.Properties[key] =
+                        new ScalarYAML(scalarVal);
+                }
+                catch (Exception ex)
+                {
+                    throw new Spec.InvalidSpecAccessException(
+                        $"{this.parent.Properties.ID}[{key}]",
+                        this.typeGenerator(),
+                        ex);
+                }
+            }
+        }
+
         /// <summary>
         /// Common index getter process.
         /// </summary>
@@ -198,9 +227,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             try
             {
-                return this.getter(
-                    this.parent.Path,
+                var val = this.FromScalar(
                     this.parent.Properties.Scalar[key].Value);
+                return this.getter(this.parent.Path, val);
             }
             catch (YAML.YAMLKeyUndefinedException ex)
             {
@@ -222,6 +251,83 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     this.moldingDefault,
                     this.referredSpecs.Add(this.parent.ID))
                     .IndexGet(key);
+            }
+        }
+
+        private bool CheckMagicWord(string val)
+        {
+            return
+                val.StartsWith(magicWordDecorator) &&
+                val.EndsWith(magicWordDecorator);
+        }
+
+        private string DecorateAsMagicWord(string val)
+        {
+            return magicWordDecorator + val + magicWordDecorator;
+        }
+
+        private string UndecorateAsMagicWord(string val)
+        {
+            return val.Substring(
+                magicWordDecorator.Length,
+                val.Length - (2 * magicWordDecorator.Length));
+        }
+
+        private string FromScalar(string scalar)
+        {
+            // Basically, the original scalar string is used.
+            if (!this.CheckMagicWord(scalar))
+            {
+                return scalar;
+            }
+
+            var innerStr = this.UndecorateAsMagicWord(scalar);
+
+            // In __xxx__ case, xxx is used as magic word.
+            if (!this.CheckMagicWord(innerStr))
+            {
+                throw new MagicWordException(innerStr);
+            }
+
+            // If you want to use __xxx__ as non-magic word,
+            // ____xxx____ in ScalarYAML works.
+            return innerStr;
+        }
+
+        private string ToScalar(string value)
+        {
+            // Basically, the original value is used.
+            if (!this.CheckMagicWord(value))
+            {
+                return value;
+            }
+
+            // In __xxx__ case, ____xxx____ will be in ScalarYAML.
+            return this.DecorateAsMagicWord(value);
+        }
+
+        private string ToMagicScalar(string word)
+        {
+            // "__xxx__" is used for magic word "xxx".
+            return this.DecorateAsMagicWord(word);
+        }
+
+        // Exception for special definition values.
+        internal class MagicWordException : Exception
+        {
+            internal MagicWordException(string word)
+            {
+                this.Word = word;
+            }
+
+            internal string Word { get; }
+        }
+
+        internal class InvalidMagicWordException : Exception
+        {
+            internal InvalidMagicWordException(string word)
+                : base($"{word}はMagic Wordの対象として不正です。")
+            {
             }
         }
     }
