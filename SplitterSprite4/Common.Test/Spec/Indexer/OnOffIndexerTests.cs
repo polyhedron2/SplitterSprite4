@@ -12,13 +12,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the OnOffIndexer class.
     /// </summary>
-    public class OnOffIndexerTests : ScalarIndexerTests
+    public class OnOffIndexerTests : LiteralIndexerTests
     {
         /// <summary>
         /// Test the boolean accessor with "on" or "off".
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        public override void ScalarAccessTest(string path)
+        public override void LiteralAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

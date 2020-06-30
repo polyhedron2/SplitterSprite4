@@ -12,13 +12,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the KeywordIndexer class.
     /// </summary>
-    public class KeywordIndexerTests : ScalarIndexerTests
+    public class KeywordIndexerTests : LiteralIndexerTests
     {
         /// <summary>
         /// Test the string accessor without line feed code.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        public override void ScalarAccessTest(string path)
+        public override void LiteralAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

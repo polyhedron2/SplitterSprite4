@@ -12,13 +12,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the DoubleIndexer class.
     /// </summary>
-    public class DoubleIndexerTests : ScalarIndexerTests
+    public class DoubleIndexerTests : LiteralIndexerTests
     {
         /// <summary>
         /// Test the double precision floating point number accessor.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        public override void ScalarAccessTest(string path)
+        public override void LiteralAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

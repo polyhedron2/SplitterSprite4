@@ -13,13 +13,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the ExteriorDirIndexer class.
     /// </summary>
-    public class ExteriorDirIndexerTests : ScalarIndexerTests
+    public class ExteriorDirIndexerTests : LiteralIndexerTests
     {
         /// <summary>
         /// Test the SpawnerDir accessor.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        public override void ScalarAccessTest(string path)
+        public override void LiteralAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

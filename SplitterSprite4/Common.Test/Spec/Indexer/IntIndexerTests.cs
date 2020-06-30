@@ -12,13 +12,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test the IntIndexer class.
     /// </summary>
-    public class IntIndexerTests : ScalarIndexerTests
+    public class IntIndexerTests : LiteralIndexerTests
     {
         /// <summary>
         /// Test the integer accessor.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>
-        public override void ScalarAccessTest(string path)
+        public override void LiteralAccessTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();

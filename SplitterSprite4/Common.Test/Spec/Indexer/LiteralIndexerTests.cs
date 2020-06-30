@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ScalarIndexerTests.cs" company="MagicKitchen">
+// <copyright file="LiteralIndexerTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// <summary>
     /// Test class for common implementation of ScalarIndexer.
     /// </summary>
-    public abstract class ScalarIndexerTests
+    public abstract class LiteralIndexerTests
     {
         /// <summary>
         /// Test the scalar accessor.
@@ -23,7 +23,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public abstract void ScalarAccessTest(string path);
+        public abstract void LiteralAccessTest(string path);
 
         /// <summary>
         /// Test the scalar accessor with multi cultures.
@@ -36,7 +36,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
         [InlineData("foo.spec", "eo-001")]
         [InlineData("dir/bar.spec", "ja-JP")]
         [InlineData("dir1/dir2/baz.spec", "ja-JP")]
-        public void MultiCultureScalarAccessTest(string path, string cultureName)
+        public void MultiCultureLiteralAccessTest(string path, string cultureName)
         {
             var testCInfo = new CultureInfo(cultureName);
             var prevCInfo = Thread.CurrentThread.CurrentCulture;
@@ -44,7 +44,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
             try
             {
                 Thread.CurrentThread.CurrentCulture = testCInfo;
-                this.ScalarAccessTest(path);
+                this.LiteralAccessTest(path);
             }
             finally
             {
