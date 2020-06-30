@@ -16,7 +16,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <typeparam name="T">Type of value.</typeparam>
     internal class ScalarIndexer<T>
     {
-        private static string magicWordDecorator = "__";
+        private static readonly string MAGICWORDDECORATOR = "__";
+        private static readonly string HIDDEN = "HIDDEN";
         private Spec parent;
         private Func<string> typeGenerator;
         private Func<AgnosticPath, string, T> getter;
@@ -169,6 +170,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             return this.IndexGet(key);
                         }
+                        catch (HiddenKeyException)
+                        {
+                            return lazyDefaultVal();
+                        }
                         catch (YAML.YAMLKeyUndefinedException)
                         {
                             return lazyDefaultVal();
@@ -192,7 +197,62 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             }
         }
 
-        public void SetMagicWord(string key, string word)
+        /// <summary>
+        /// Common index getter process.
+        /// </summary>
+        /// <param name="key">The string key for the value.</param>
+        /// <returns>The translated value.</returns>
+        internal T IndexGet(string key)
+        {
+            try
+            {
+                var val = this.FromScalar(
+                    this.parent.Properties.Scalar[key].Value);
+                return this.getter(this.parent.Path, val);
+            }
+            catch (MagicWordException ex)
+            {
+                if (ex.Word == HIDDEN)
+                {
+                    throw new HiddenKeyException(this.parent.ID, key);
+                }
+
+                throw ex;
+            }
+            catch (YAML.YAMLKeyUndefinedException ex)
+            {
+                var isLooped = this.referredSpecs.Contains(
+                    this.parent.ID);
+                if (this.parent.Base == null || isLooped)
+                {
+                    throw ex;
+                }
+
+                // Only if base spec is defined and not looped,
+                // base spec is referred.
+                return new ScalarIndexer<T>(
+                    this.parent.Base,
+                    this.typeGenerator,
+                    this.getter,
+                    this.setter,
+                    this.moldingAccessCodeGenerator,
+                    this.moldingDefault,
+                    this.referredSpecs.Add(this.parent.ID))
+                    .IndexGet(key);
+            }
+        }
+
+        internal void Remove(string key)
+        {
+            this.parent.Properties.Remove(key);
+        }
+
+        internal void Hide(string key)
+        {
+            this.SetMagicWord(key, HIDDEN);
+        }
+
+        private void SetMagicWord(string key, string word)
         {
             // Magic word decorated word cannot be magic word.
             if (this.CheckMagicWord(word))
@@ -218,59 +278,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             }
         }
 
-        /// <summary>
-        /// Common index getter process.
-        /// </summary>
-        /// <param name="key">The string key for the value.</param>
-        /// <returns>The translated value.</returns>
-        internal T IndexGet(string key)
-        {
-            try
-            {
-                var val = this.FromScalar(
-                    this.parent.Properties.Scalar[key].Value);
-                return this.getter(this.parent.Path, val);
-            }
-            catch (YAML.YAMLKeyUndefinedException ex)
-            {
-                var isLooped = this.referredSpecs.Contains(
-                    this.parent.ID);
-                if (this.parent.Base == null || isLooped)
-                {
-                    throw ex;
-                }
-
-                // Only if base spec is defined and not looped,
-                // base spec is referred.
-                return new ScalarIndexer<T>(
-                    this.parent.Base,
-                    this.typeGenerator,
-                    this.getter,
-                    this.setter,
-                    this.moldingAccessCodeGenerator,
-                    this.moldingDefault,
-                    this.referredSpecs.Add(this.parent.ID))
-                    .IndexGet(key);
-            }
-        }
-
         private bool CheckMagicWord(string val)
         {
             return
-                val.StartsWith(magicWordDecorator) &&
-                val.EndsWith(magicWordDecorator);
+                val.StartsWith(MAGICWORDDECORATOR) &&
+                val.EndsWith(MAGICWORDDECORATOR);
         }
 
         private string DecorateAsMagicWord(string val)
         {
-            return magicWordDecorator + val + magicWordDecorator;
+            return MAGICWORDDECORATOR + val + MAGICWORDDECORATOR;
         }
 
         private string UndecorateAsMagicWord(string val)
         {
             return val.Substring(
-                magicWordDecorator.Length,
-                val.Length - (2 * magicWordDecorator.Length));
+                MAGICWORDDECORATOR.Length,
+                val.Length - (2 * MAGICWORDDECORATOR.Length));
         }
 
         private string FromScalar(string scalar)
@@ -327,6 +351,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             internal InvalidMagicWordException(string word)
                 : base($"{word}はMagic Wordの対象として不正です。")
+            {
+            }
+        }
+
+        internal class HiddenKeyException : Exception
+        {
+            internal HiddenKeyException(string id, string key)
+                : base($"\"{id}\"上のキー\"{key}\"は隠蔽されています。")
             {
             }
         }

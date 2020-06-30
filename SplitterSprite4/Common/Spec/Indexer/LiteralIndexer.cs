@@ -82,5 +82,25 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 return this.internalIndexer[key, defaultVal];
             }
         }
+
+        /// <summary>
+        /// Remove the key from the spec.
+        /// If base spec contains the key, the base value will be referred.
+        /// </summary>
+        /// <param name="key">The string key for the literal value.</param>
+        public void Remove(string key)
+        {
+            this.internalIndexer.Remove(key);
+        }
+
+        /// <summary>
+        /// Add special value into the key of the spec.
+        /// If base spec contains the key, the base value will be hidden.
+        /// </summary>
+        /// <param name="key">The string key for the literal value.</param>
+        public void Hide(string key)
+        {
+            this.internalIndexer.Hide(key);
+        }
     }
 }
