@@ -79,14 +79,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             }
         }
 
-        /// <summary>
-        /// Remove spawner type for this spec.
-        /// </summary>
-        public void RemoveSpawnerType()
-        {
-            this.Body.Remove("spawner");
-        }
-
         /// <inheritdoc/>
         public override MappingYAML Mold
         {
@@ -165,6 +157,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         internal SpecChild BaseAsChild
         {
             get => this.parent.Base?.Child[this.accessKey, this.bound];
+        }
+
+        /// <summary>
+        /// Remove spawner type for this spec.
+        /// </summary>
+        public void RemoveSpawnerType()
+        {
+            this.Body.Remove("spawner");
         }
 
         /// <summary>

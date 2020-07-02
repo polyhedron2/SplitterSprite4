@@ -96,14 +96,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             }
         }
 
-        /// <summary>
-        /// Remove spawner type for this spec.
-        /// </summary>
-        public void RemoveSpawnerType()
-        {
-            this.Body.Remove("spawner");
-        }
-
         /// <inheritdoc/>
         public override MappingYAML Mold
         {
@@ -189,14 +181,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Remove base spec reference.
-        /// </summary>
-        public void RemoveBase()
-        {
-            this.Body.Remove("base");
-        }
-
-        /// <summary>
         /// SpecRootインスタンスを取得する。
         /// 過去に取得したインスタンスと同一パスであれば、同一インスタンスを返す。
         /// これにより、同一パスのSpecRootインスタンスは唯一つ存在する。
@@ -217,6 +201,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 $"{typeof(SpecRoot)}.Fetch",
                 layeredPath,
                 () => new SpecRoot(proxy, layeredPath, acceptAbsence));
+        }
+
+        /// <summary>
+        /// Remove spawner type for this spec.
+        /// </summary>
+        public void RemoveSpawnerType()
+        {
+            this.Body.Remove("spawner");
+        }
+
+        /// <summary>
+        /// Remove base spec reference.
+        /// </summary>
+        public void RemoveBase()
+        {
+            this.Body.Remove("base");
         }
 
         /// <summary>
