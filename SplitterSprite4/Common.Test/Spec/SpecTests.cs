@@ -1100,6 +1100,107 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
+        /// Base SpecのRemove機能をテスト。
+        /// Test Remove method for base spec.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A spec's os-agnostic path which is base spec.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void RemoveBaseTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\": \"11\"",
+                    "  \"second\": \"12\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\": \"22\"",
+                    "  \"third\": \"23\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+
+            Assert.Equal(11, derivedSpec.Int["first"]);
+            Assert.Equal(12, derivedSpec.Int["second"]);
+            Assert.Equal(23, derivedSpec.Int["third"]);
+
+            // act
+            derivedSpec.RemoveBase();
+
+            // assert
+            Assert.Equal(11, derivedSpec.Int["first"]);
+            Assert.Equal(12, derivedSpec.Int["second"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Int["third"];
+            });
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"first\": \"11\"",
+                    "  \"second\": \"12\""),
+                derivedSpec.ToString());
+        }
+
+        /// <summary>
         /// LiteralIndexer上のRemove機能をテスト。
         /// Test Remove method on LiteralIndexer.
         /// </summary>

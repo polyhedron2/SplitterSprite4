@@ -181,6 +181,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Remove base spec reference.
+        /// </summary>
+        public void RemoveBase()
+        {
+            this.Body.Remove("base");
+        }
+
+        /// <summary>
         /// SpecRootインスタンスを取得する。
         /// 過去に取得したインスタンスと同一パスであれば、同一インスタンスを返す。
         /// これにより、同一パスのSpecRootインスタンスは唯一つ存在する。
