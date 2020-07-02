@@ -1113,7 +1113,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// A base spec's layer name.
         /// </param>
         /// <param name="baseSpecPathStr">
-        /// A spec's os-agnostic path which is base spec.
+        /// A base spec's os-agnostic path.
         /// </param>
         /// <param name="relativePathFromDerivedToBaseStr">
         /// The relative path string from the derived spec to the base spec.
@@ -1214,7 +1214,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// A base spec's layer name.
         /// </param>
         /// <param name="baseSpecPathStr">
-        /// A spec's os-agnostic path which is base of intermediate spec.
+        /// A base spec's os-agnostic path.
         /// </param>
         /// <param name="relativePathFromDerivedToBaseStr">
         /// The relative path string from the derived spec to the base spec.
@@ -1331,7 +1331,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// A base spec's layer name.
         /// </param>
         /// <param name="baseSpecPathStr">
-        /// A spec's os-agnostic path which is base of intermediate spec.
+        /// A base spec's os-agnostic path.
         /// </param>
         /// <param name="relativePathFromDerivedToBaseStr">
         /// The relative path string from the derived spec to the base spec.
@@ -1449,7 +1449,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// A derived spec's os-agnostic path.
         /// </param>
         /// <param name="baseSpecPathStr">
-        /// A spec's os-agnostic path which is base of intermediate spec.
+        /// A base spec's os-agnostic path.
         /// </param>
         /// <param name="referredPathStr11">
         /// The first tested path on derived spec.
@@ -1657,7 +1657,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// A derived spec's os-agnostic path.
         /// </param>
         /// <param name="baseSpecPathStr">
-        /// A spec's os-agnostic path which is base of intermediate spec.
+        /// A base spec's os-agnostic path.
         /// </param>
         /// <param name="referredPathStr11">
         /// The first tested path on derived spec.
