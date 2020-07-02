@@ -96,6 +96,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             }
         }
 
+        /// <summary>
+        /// Remove spawner type for this spec.
+        /// </summary>
+        public void RemoveSpawnerType()
+        {
+            this.Body.Remove("spawner");
+        }
+
         /// <inheritdoc/>
         public override MappingYAML Mold
         {

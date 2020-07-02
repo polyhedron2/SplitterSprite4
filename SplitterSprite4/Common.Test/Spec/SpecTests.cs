@@ -1201,6 +1201,107 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
+        /// SpawnerTypeのRemove機能をテスト。
+        /// Test Remove method for spawner type.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void RemoveSpawnerTypeTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            var derivedRootType = typeof(ValidSpawnerRootWithDefaultConstructor);
+            var derivedChildType = typeof(ValidSpawnerChildWithDefaultConstructor);
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": {relativePathFromDerivedToBaseStr}",
+                    $"\"spawner\": \"{Spec.EncodeType(derivedRootType)}\"",
+                    "\"properties\":",
+                    "  \"child\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(derivedChildType)}\""));
+
+            var baseRootType = typeof(ValidSpawnerRootWithImplementedConstructor);
+            var baseChildType = typeof(ValidSpawnerChildWithImplementedConstructor);
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    $"\"spawner\": \"{Spec.EncodeType(baseRootType)}\"",
+                    "\"properties\":",
+                    "  \"child\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(baseChildType)}\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var childSpec =
+                derivedSpec.Child["child", typeof(ISpawnerChild<object>)];
+
+            Assert.Equal(derivedRootType, derivedSpec.SpawnerType);
+            Assert.Equal(derivedChildType, childSpec.SpawnerType);
+
+            // act
+            derivedSpec.RemoveSpawnerType();
+            childSpec.RemoveSpawnerType();
+
+            // assert
+            Assert.Equal(baseRootType, derivedSpec.SpawnerType);
+            Assert.Equal(baseChildType, childSpec.SpawnerType);
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\""),
+                derivedSpec.ToString());
+        }
+
+        /// <summary>
         /// LiteralIndexer上のRemove機能をテスト。
         /// Test Remove method on LiteralIndexer.
         /// </summary>
