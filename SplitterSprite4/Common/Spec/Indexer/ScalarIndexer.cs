@@ -19,10 +19,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         private static readonly string MAGICWORDDECORATOR = "__";
         private static readonly string HIDDEN = "HIDDEN";
         private Spec parent;
-        private Func<string> typeGenerator;
-        private Func<AgnosticPath, string, T> getter;
-        private Func<AgnosticPath, T, string> setter;
-        private Func<string> moldingAccessCodeGenerator;
         private T moldingDefault;
         private ImmutableList<string> referredSpecs;
 
@@ -46,14 +42,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             ImmutableList<string> referredSpecs)
         {
             this.parent = parent;
-            this.typeGenerator = Spec.FixCulture(typeGenerator);
-            this.getter = Spec.FixCulture(getter);
-            this.setter = Spec.FixCulture(setter);
-            this.moldingAccessCodeGenerator =
+            this.TypeGenerator = Spec.FixCulture(typeGenerator);
+            this.Getter = Spec.FixCulture(getter);
+            this.Setter = Spec.FixCulture(setter);
+            this.MoldingAccessCodeGenerator =
                 Spec.FixCulture(moldingAccessCodeGenerator);
             this.moldingDefault = moldingDefault;
             this.referredSpecs = referredSpecs;
         }
+
+        internal Func<string> TypeGenerator { get; }
+
+        internal Func<AgnosticPath, string, T> Getter { get; }
+
+        internal Func<AgnosticPath, T, string> Setter { get; }
+
+        internal Func<string> MoldingAccessCodeGenerator { get; }
 
         /// <summary>
         /// Indexer for value.
@@ -71,7 +75,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         if (this.parent.IsMolding)
                         {
                             this.parent.Mold[key] =
-                                new ScalarYAML(this.moldingAccessCodeGenerator());
+                                new ScalarYAML(this.MoldingAccessCodeGenerator());
                         }
 
                         return this.IndexGet(key);
@@ -86,7 +90,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             throw new Spec.InvalidSpecAccessException(
                                 $"{this.parent.Properties.ID}[{key}]",
-                                this.typeGenerator(),
+                                this.TypeGenerator(),
                                 ex);
                         }
                     }
@@ -100,7 +104,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     try
                     {
                         var scalarVal = this.ToScalar(
-                            this.setter(this.parent.Path, value));
+                            this.Setter(this.parent.Path, value));
                         this.parent.Properties[key] =
                             new ScalarYAML(scalarVal);
                     }
@@ -108,7 +112,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     {
                         throw new Spec.InvalidSpecAccessException(
                             $"{this.parent.Properties.ID}[{key}]",
-                            this.typeGenerator(),
+                            this.TypeGenerator(),
                             ex);
                     }
                 }
@@ -126,7 +130,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             get => this[
                 key,
                 () => defaultVal,
-                this.setter(this.parent.Path, defaultVal)];
+                this.Setter(this.parent.Path, defaultVal)];
         }
 
         /// <summary>
@@ -139,7 +143,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             get => this[
                 key,
-                () => this.getter(this.parent.Path, defaultValInSpec),
+                () => this.Getter(this.parent.Path, defaultValInSpec),
                 defaultValInSpec];
         }
 
@@ -157,7 +161,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         if (this.parent.IsMolding)
                         {
                             var accessCodeWithDefault =
-                                this.moldingAccessCodeGenerator() +
+                                this.MoldingAccessCodeGenerator() +
                                 ", " +
                                 Spec.EncodeCommas(
                                     defaultValForMolding);
@@ -189,7 +193,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             throw new Spec.InvalidSpecAccessException(
                                 $"{this.parent.Properties.ID}[{key}]",
-                                this.typeGenerator(),
+                                this.TypeGenerator(),
                                 ex);
                         }
                     }
@@ -208,7 +212,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             {
                 var val = this.FromScalar(
                     this.parent.Properties.Scalar[key].Value);
-                return this.getter(this.parent.Path, val);
+                return this.Getter(this.parent.Path, val);
             }
             catch (MagicWordException ex)
             {
@@ -232,10 +236,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 // base spec is referred.
                 return new ScalarIndexer<T>(
                     this.parent.Base,
-                    this.typeGenerator,
-                    this.getter,
-                    this.setter,
-                    this.moldingAccessCodeGenerator,
+                    this.TypeGenerator,
+                    this.Getter,
+                    this.Setter,
+                    this.MoldingAccessCodeGenerator,
                     this.moldingDefault,
                     this.referredSpecs.Add(this.parent.ID))
                     .IndexGet(key);
@@ -272,7 +276,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 {
                     throw new Spec.InvalidSpecAccessException(
                         $"{this.parent.Properties.ID}[{key}]",
-                        this.typeGenerator(),
+                        this.TypeGenerator(),
                         ex);
                 }
             }

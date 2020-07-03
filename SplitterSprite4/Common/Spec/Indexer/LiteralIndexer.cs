@@ -17,7 +17,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     {
         private Func<string, T> getter;
         private Func<T, string> setter;
-        private ScalarIndexer<T> internalIndexer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LiteralIndexer{T}"/> class.
@@ -38,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             this.getter = getter;
             this.setter = setter;
-            this.internalIndexer = new ScalarIndexer<T>(
+            this.InternalIndexer = new ScalarIndexer<T>(
                 parent,
                 typeGenerator,
                 (path, scalar) => this.getter(scalar),
@@ -48,6 +47,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 ImmutableList<string>.Empty);
         }
 
+        internal ScalarIndexer<T> InternalIndexer { get; }
+
         /// <summary>
         /// Indexer for literal value.
         /// </summary>
@@ -55,8 +56,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <returns>The translated value.</returns>
         public T this[string key]
         {
-            get => this.internalIndexer[key];
-            set { this.internalIndexer[key] = value; }
+            get => this.InternalIndexer[key];
+            set { this.InternalIndexer[key] = value; }
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         "デフォルト値がSpecの値として不正です。", ex);
                 }
 
-                return this.internalIndexer[key, defaultVal];
+                return this.InternalIndexer[key, defaultVal];
             }
         }
 
@@ -90,7 +91,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="key">The string key for the literal value.</param>
         public void Remove(string key)
         {
-            this.internalIndexer.Remove(key);
+            this.InternalIndexer.Remove(key);
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="key">The string key for the literal value.</param>
         public void Hide(string key)
         {
-            this.internalIndexer.Hide(key);
+            this.InternalIndexer.Hide(key);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DictIndexer.cs" company="MagicKitchen">
+// <copyright file="DictIndexerWithScalarValue.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -17,7 +17,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
     /// </summary>
     /// <typeparam name="T_Key">Type of dictionary key.</typeparam>
     /// <typeparam name="T_Value">Type of dictionary value.</typeparam>
-    public class DictIndexer<T_Key, T_Value>
+    public class DictIndexerWithScalarValue<T_Key, T_Value>
     {
         private Spec parent;
 
@@ -38,7 +38,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         private ImmutableList<string> referredSpecs;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DictIndexer{T_Key, T_Value}"/> class.
+        /// Initializes a new instance of the <see cref="DictIndexerWithScalarValue{T_Key, T_Value}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
         /// <param name="keyTypeGenerator">
@@ -80,7 +80,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// <param name="referredSpecs">
         /// The spec IDs which are referred while base spec referring.
         /// </param>
-        internal DictIndexer(
+        internal DictIndexerWithScalarValue(
             Spec parent,
             Func<string> keyTypeGenerator,
             Func<AgnosticPath, string, T_Key> keyGetter,
@@ -220,7 +220,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 
             if (this.parent.Base != null)
             {
-                var baseDict = new DictIndexer<T_Key, T_Value>(
+                var baseDict = new DictIndexerWithScalarValue<T_Key, T_Value>(
                     this.parent.Base,
                     this.keyTypeGenerator,
                     this.keyGetter,
