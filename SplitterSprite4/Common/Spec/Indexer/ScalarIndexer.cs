@@ -411,7 +411,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal class DefaultKeyException : Exception
         {
             internal DefaultKeyException(string id, string key)
-                : base($"\"{id}\"上のキー\"{key}\"は隠蔽されています。")
+                : base($"\"{id}\"上のキー\"{key}\"は明示的にデフォルト値が指定されています。")
             {
             }
         }
