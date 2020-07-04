@@ -15,7 +15,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="TextIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        internal TextIndexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal TextIndexer(Spec parent, bool allowHiddenValue)
             : base(
                 parent,
                 () => "改行あり文字列",
@@ -45,7 +46,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     return value + "\n[End Of Text]";
                 },
                 () => "Text",
-                string.Empty)
+                string.Empty,
+                allowHiddenValue)
         {
         }
     }

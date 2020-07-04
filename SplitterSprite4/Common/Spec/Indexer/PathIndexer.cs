@@ -13,7 +13,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// Indexer class for instances which associated with file paths.
     /// </summary>
     /// <typeparam name="T">Type of path associated value.</typeparam>
-    public class PathIndexer<T>
+    public class PathIndexer<T> : IIndexerWithDefault<T, string>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PathIndexer{T}"/> class.
@@ -24,13 +24,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="setter">Translation function to agnostic path.</param>
         /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
         internal PathIndexer(
             Spec parent,
             Func<string> typeGenerator,
             Func<AgnosticPath, T> getter,
             Func<T, AgnosticPath> setter,
             Func<string> moldingAccessCodeGenerator,
-            T moldingDefault)
+            T moldingDefault,
+            bool allowHiddenValue)
         {
             this.InternalIndexer = new ScalarIndexer<T>(
                 parent,
@@ -49,6 +51,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 },
                 moldingAccessCodeGenerator,
                 moldingDefault,
+                allowHiddenValue,
                 ImmutableList<string>.Empty);
         }
 

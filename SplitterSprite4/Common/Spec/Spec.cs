@@ -83,7 +83,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public IntIndexer Int
         {
-            get => new IntIndexer(this);
+            get => new IntIndexer(this, false);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public DoubleIndexer Double
         {
-            get => new DoubleIndexer(this);
+            get => new DoubleIndexer(this, false);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public BoolIndexer Bool
         {
-            get => new BoolIndexer(this);
+            get => new BoolIndexer(this, false);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public YesNoIndexer YesNo
         {
-            get => new YesNoIndexer(this);
+            get => new YesNoIndexer(this, false);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public OnOffIndexer OnOff
         {
-            get => new OnOffIndexer(this);
+            get => new OnOffIndexer(this, false);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public Int2Indexer Int2
         {
-            get => new Int2Indexer(this);
+            get => new Int2Indexer(this, false);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public Int3Indexer Int3
         {
-            get => new Int3Indexer(this);
+            get => new Int3Indexer(this, false);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public Double2Indexer Double2
         {
-            get => new Double2Indexer(this);
+            get => new Double2Indexer(this, false);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public Double3Indexer Double3
         {
-            get => new Double3Indexer(this);
+            get => new Double3Indexer(this, false);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public KeywordIndexer Keyword
         {
-            get => new KeywordIndexer(this);
+            get => new KeywordIndexer(this, false);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public TextIndexer Text
         {
-            get => new TextIndexer(this);
+            get => new TextIndexer(this, false);
         }
 
         /// <summary>
@@ -366,7 +366,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 parenthesisOpen,
                 leftBound,
                 rightBound,
-                parenthesisClose);
+                parenthesisClose,
+                false);
         }
 
         /// <summary>
@@ -403,7 +404,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 parenthesisOpen,
                 leftBound,
                 rightBound,
-                parenthesisClose);
+                parenthesisClose,
+                false);
         }
 
         /// <summary>
@@ -446,7 +448,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <returns>Indexer for limited keyword accessor.</returns>
         public LimitedKeywordIndexer LimitedKeyword(int limit)
         {
-            return new LimitedKeywordIndexer(this, limit);
+            return new LimitedKeywordIndexer(this, limit, false);
         }
 
         /// <summary>
@@ -457,7 +459,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ExteriorIndexer<T> Exterior<T>()
             where T : ISpawnerRoot<object>
         {
-            return new ExteriorIndexer<T>(this);
+            return new ExteriorIndexer<T>(this, false);
         }
 
         /// <summary>
@@ -468,7 +470,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public ExteriorDirIndexer<T> ExteriorDir<T>()
             where T : ISpawnerRoot<object>
         {
-            return new ExteriorDirIndexer<T>(this);
+            return new ExteriorDirIndexer<T>(this, false);
         }
 
         /// <summary>

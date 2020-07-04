@@ -15,6 +15,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// </summary>
     /// <typeparam name="T">Expected SpawnerChild type.</typeparam>
     public class InteriorIndexer<T>
+        : IIndexerWithDefault<T, Type>
         where T : ISpawnerChild<object>
     {
         private Spec parent;

@@ -68,100 +68,100 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Bool.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, bool> Bool
+        public DictIndexerGetSet<T_Key, bool> Bool
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new BoolIndexer(this.parent).InternalIndexer);
+                spec => new BoolIndexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is YesNo.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, bool> YesNo
+        public DictIndexerGetSet<T_Key, bool> YesNo
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new YesNoIndexer(this.parent).InternalIndexer);
+                spec => new YesNoIndexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is OnOff.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, bool> OnOff
+        public DictIndexerGetSet<T_Key, bool> OnOff
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new OnOffIndexer(this.parent).InternalIndexer);
+                spec => new OnOffIndexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Int.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, int> Int
+        public DictIndexerGetSet<T_Key, int> Int
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new IntIndexer(this.parent).InternalIndexer);
+                spec => new IntIndexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Int2.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, (int, int)> Int2
+        public DictIndexerGetSet<T_Key, (int, int)> Int2
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new Int2Indexer(this.parent).InternalIndexer);
+                spec => new Int2Indexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Int3.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, (int, int, int)> Int3
+        public DictIndexerGetSet<T_Key, (int, int, int)> Int3
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new Int3Indexer(this.parent).InternalIndexer);
+                spec => new Int3Indexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Double.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, double> Double
+        public DictIndexerGetSet<T_Key, double> Double
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new DoubleIndexer(this.parent).InternalIndexer);
+                spec => new DoubleIndexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Double2.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, (double, double)> Double2
+        public DictIndexerGetSet<T_Key, (double, double)> Double2
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new Double2Indexer(this.parent).InternalIndexer);
+                spec => new Double2Indexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Double3.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, (double, double, double)> Double3
+        public DictIndexerGetSet<T_Key, (double, double, double)> Double3
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new Double3Indexer(this.parent).InternalIndexer);
+                spec => new Double3Indexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Keyword.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, string> Keyword
+        public DictIndexerGetSet<T_Key, string> Keyword
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new KeywordIndexer(this.parent).InternalIndexer);
+                spec => new KeywordIndexer(spec, true));
         }
 
         /// <summary>
         /// Gets DictIndexer whose value-indexer is Text.
         /// </summary>
-        public DictIndexerWithScalarValue<T_Key, string> Text
+        public DictIndexerGetSet<T_Key, string> Text
         {
             get => this.GenerateDictIndexerWithScalarValue(
-                new TextIndexer(this.parent).InternalIndexer);
+                spec => new TextIndexer(spec, true));
         }
 
         /// <summary>
@@ -169,10 +169,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// </summary>
         /// <param name="limit">The bound of keyword length.</param>
         /// <returns>DictIndexer whose value-indexer is LimitedKeyword.</returns>
-        public DictIndexerWithScalarValue<T_Key, string> LimitedKeyword(int limit)
+        public DictIndexerGetSet<T_Key, string> LimitedKeyword(int limit)
         {
             return this.GenerateDictIndexerWithScalarValue(
-                new LimitedKeywordIndexer(this.parent, limit).InternalIndexer);
+                spec => new LimitedKeywordIndexer(spec, limit, true));
         }
 
         /// <summary>
@@ -197,20 +197,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// The character must be in ')', ']', or '['.
         /// </param>
         /// <returns>DictIndexer whose value-indexer is Range.</returns>
-        public DictIndexerWithScalarValue<T_Key, int> Range(
+        public DictIndexerGetSet<T_Key, int> Range(
             char parenthesisOpen,
             double leftBound,
             double rightBound,
             char parenthesisClose)
         {
             return this.GenerateDictIndexerWithScalarValue(
-                new RangeIndexer(
-                    this.parent,
+                spec => new RangeIndexer(
+                    spec,
                     parenthesisOpen,
                     leftBound,
                     rightBound,
-                    parenthesisClose)
-                .InternalIndexer);
+                    parenthesisClose,
+                    true));
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// The right bound of the interval.
         /// </param>
         /// <returns>DictIndexer whose value-indexer is Range.</returns>
-        public DictIndexerWithScalarValue<T_Key, int> Range(
+        public DictIndexerGetSet<T_Key, int> Range(
             double leftBound,
             double rightBound)
         {
@@ -240,7 +240,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// The right bound of the interval.
         /// </param>
         /// <returns>DictIndexer whose value-indexer is Range.</returns>
-        public DictIndexerWithScalarValue<T_Key, int> Range(double rightBound)
+        public DictIndexerGetSet<T_Key, int> Range(double rightBound)
         {
             return this.Range(0.0, rightBound);
         }
@@ -267,20 +267,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// The character must be in ')', ']', or '['.
         /// </param>
         /// <returns>DictIndexer whose value-indexer is Interval.</returns>
-        public DictIndexerWithScalarValue<T_Key, double> Interval(
+        public DictIndexerGetSet<T_Key, double> Interval(
             char parenthesisOpen,
             double leftBound,
             double rightBound,
             char parenthesisClose)
         {
             return this.GenerateDictIndexerWithScalarValue(
-                new IntervalIndexer(
-                    this.parent,
+                spec => new IntervalIndexer(
+                    spec,
                     parenthesisOpen,
                     leftBound,
                     rightBound,
-                    parenthesisClose)
-                .InternalIndexer);
+                    parenthesisClose,
+                    true));
         }
 
         /// <summary>
@@ -288,11 +288,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// </summary>
         /// <typeparam name="T_Spawner">Expected SpawnerRoot type.</typeparam>
         /// <returns>DictIndexer whose value-indexer is Exterior.</returns>
-        public DictIndexerWithScalarValue<T_Key, T_Spawner> Exterior<T_Spawner>()
+        public DictIndexerGetSet<T_Key, T_Spawner> Exterior<T_Spawner>()
             where T_Spawner : ISpawnerRoot<object>
         {
             return this.GenerateDictIndexerWithScalarValue(
-                new ExteriorIndexer<T_Spawner>(this.parent).InternalIndexer);
+                spec => new ExteriorIndexer<T_Spawner>(spec, true));
         }
 
         /// <summary>
@@ -300,29 +300,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// </summary>
         /// <typeparam name="T_Spawner">Expected SpawnerRoot type.</typeparam>
         /// <returns>DictIndexer whose value-indexer is ExteriorDir.</returns>
-        public DictIndexerWithScalarValue<T_Key, ISpawnerDir<T_Spawner>>
+        public DictIndexerGetSet<T_Key, ISpawnerDir<T_Spawner>>
             ExteriorDir<T_Spawner>()
             where T_Spawner : ISpawnerRoot<object>
         {
             return this.GenerateDictIndexerWithScalarValue(
-                new ExteriorDirIndexer<T_Spawner>(this.parent).InternalIndexer);
+                spec => new ExteriorDirIndexer<T_Spawner>(spec, true));
         }
 
-        private DictIndexerWithScalarValue<T_Key, T_Value>
-            GenerateDictIndexerWithScalarValue<T_Value>(
-            ScalarIndexer<T_Value> valueIndexer)
+        private DictIndexerWithDefault<T_Key, T_Value, T_Default>
+            GenerateDictIndexerWithScalarValue<T_Value, T_Default>(
+            Func<Spec, IIndexerWithDefault<T_Value, T_Default>> valueIndexerGenerator)
         {
-            return new DictIndexerWithScalarValue<T_Key, T_Value>(
+            return new DictIndexerWithDefault<T_Key, T_Value, T_Default>(
                 this.parent,
                 this.keyTypeGenerator,
                 this.keyGetter,
                 this.keySetter,
                 this.keyOrder,
                 this.keyMoldingAccessCodeGenerator,
-                valueIndexer.TypeGenerator,
-                valueIndexer.Getter,
-                valueIndexer.Setter,
-                valueIndexer.MoldingAccessCodeGenerator,
+                valueIndexerGenerator,
                 ImmutableList<string>.Empty);
         }
     }

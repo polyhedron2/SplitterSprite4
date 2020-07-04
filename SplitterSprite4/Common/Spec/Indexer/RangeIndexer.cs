@@ -35,12 +35,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Parenthesis close character for interval in accordance with ISO 31-11.
         /// The character must be in ')', ']', or '['.
         /// </param>
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
         internal RangeIndexer(
             Spec parent,
             char parenthesisOpen,
             double leftBound,
             double rightBound,
-            char parenthesisClose)
+            char parenthesisClose,
+            bool allowHiddenValue)
             : base(
                 parent,
                 () => $"整数({RangeText(parenthesisOpen, leftBound, rightBound, parenthesisClose)})",
@@ -83,7 +85,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     parenthesisOpen,
                     leftBound,
                     rightBound,
-                    parenthesisClose))
+                    parenthesisClose),
+                allowHiddenValue)
         {
             if (parenthesisOpen != '(' &&
                 parenthesisOpen != '[' &&

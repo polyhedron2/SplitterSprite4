@@ -13,7 +13,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// Indexer class for literal values (Int, Double, and Bool etc).
     /// </summary>
     /// <typeparam name="T">Type of value.</typeparam>
-    public class LiteralIndexer<T>
+    public class LiteralIndexer<T> : IIndexerWithDefault<T, T>
     {
         private Func<string, T> getter;
         private Func<T, string> setter;
@@ -27,13 +27,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="setter">Translation function to string.</param>
         /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
         internal LiteralIndexer(
             Spec parent,
             Func<string> typeGenerator,
             Func<string, T> getter,
             Func<T, string> setter,
             Func<string> moldingAccessCodeGenerator,
-            T moldingDefault)
+            T moldingDefault,
+            bool allowHiddenValue)
         {
             this.getter = getter;
             this.setter = setter;
@@ -44,6 +46,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 (path, value) => this.setter(value),
                 moldingAccessCodeGenerator,
                 moldingDefault,
+                allowHiddenValue,
                 ImmutableList<string>.Empty);
         }
 

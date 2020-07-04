@@ -15,14 +15,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="BoolIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        internal BoolIndexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal BoolIndexer(Spec parent, bool allowHiddenValue)
             : base(
                 parent,
                 () => "真偽値",
                 (value) => bool.Parse(value),
                 (value) => value.ToString(),
                 () => "Bool",
-                false)
+                false,
+                allowHiddenValue)
         {
         }
     }

@@ -15,14 +15,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="IntIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        internal IntIndexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal IntIndexer(Spec parent, bool allowHiddenValue)
             : base(
                 parent,
                 () => "整数",
                 (value) => int.Parse(value),
                 (value) => value.ToString(),
                 () => "Int",
-                0)
+                0,
+                allowHiddenValue)
         {
         }
     }

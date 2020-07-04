@@ -9,7 +9,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <summary>
     /// Indexer class for SubSpec.
     /// </summary>
-    public class SubSpecIndexer
+    public class SubSpecIndexer : IIndexerGet<SubSpec>
     {
         private Spec parent;
 

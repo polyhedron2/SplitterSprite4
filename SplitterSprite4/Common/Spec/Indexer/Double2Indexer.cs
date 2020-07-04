@@ -15,7 +15,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="Double2Indexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        internal Double2Indexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal Double2Indexer(Spec parent, bool allowHiddenValue)
             : base(
                 parent,
                 () => "実数x2",
@@ -38,7 +39,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     return ret;
                 },
                 () => "Double2",
-                (0.0, 0.0))
+                (0.0, 0.0),
+                allowHiddenValue)
         {
         }
     }

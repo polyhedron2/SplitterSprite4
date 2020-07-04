@@ -15,7 +15,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="YesNoIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        internal YesNoIndexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal YesNoIndexer(Spec parent, bool allowHiddenValue)
             : base(
                 parent,
                 () => "YES/NO",
@@ -37,7 +38,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 },
                 (value) => value ? "yes" : "no",
                 () => "YesNo",
-                false)
+                false,
+                allowHiddenValue)
         {
         }
     }
