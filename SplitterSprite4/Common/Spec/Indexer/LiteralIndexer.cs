@@ -106,5 +106,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             this.InternalIndexer.Hide(key);
         }
+
+        /// <summary>
+        /// Add special value into the key of the spec.
+        /// Even if base spec contains the key, the default value will be used.
+        /// </summary>
+        /// <param name="key">The string key for the value.</param>
+        public void ExplicitDefault(string key)
+        {
+            this.InternalIndexer.ExplicitDefault(key);
+        }
     }
 }

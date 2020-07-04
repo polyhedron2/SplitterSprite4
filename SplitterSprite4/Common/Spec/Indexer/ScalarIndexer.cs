@@ -18,6 +18,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     {
         private static readonly string MAGICWORDDECORATOR = "__";
         private static readonly string HIDDEN = "HIDDEN";
+        private static readonly string DEFAULT = "DEFAULT";
         private Spec parent;
         private T moldingDefault;
         private ImmutableList<string> referredSpecs;
@@ -199,6 +200,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                             return lazyDefaultVal();
                         }
                     }
+                    catch (DefaultKeyException)
+                    {
+                        return lazyDefaultVal();
+                    }
                     catch (HiddenKeyException ex)
                     {
                         if (this.allowHiddenValue)
@@ -241,6 +246,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             }
             catch (MagicWordException ex)
             {
+                if (ex.Word == DEFAULT)
+                {
+                    throw new DefaultKeyException(this.parent.ID, key);
+                }
+
                 if (ex.Word == HIDDEN)
                 {
                     throw new HiddenKeyException(this.parent.ID, key);
@@ -280,6 +290,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal void Hide(string key)
         {
             this.SetMagicWord(key, HIDDEN);
+        }
+
+        internal void ExplicitDefault(string key)
+        {
+            this.SetMagicWord(key, DEFAULT);
         }
 
         private void SetMagicWord(string key, string word)
@@ -388,6 +403,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         internal class HiddenKeyException : Exception
         {
             internal HiddenKeyException(string id, string key)
+                : base($"\"{id}\"上のキー\"{key}\"は隠蔽されています。")
+            {
+            }
+        }
+
+        internal class DefaultKeyException : Exception
+        {
+            internal DefaultKeyException(string id, string key)
                 : base($"\"{id}\"上のキー\"{key}\"は隠蔽されています。")
             {
             }
