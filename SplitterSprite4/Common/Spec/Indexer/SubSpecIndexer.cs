@@ -12,14 +12,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     public class SubSpecIndexer : IIndexerGet<SubSpec>
     {
         private Spec parent;
+        private bool allowHiddenValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubSpecIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec instance.</param>
-        internal SubSpecIndexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal SubSpecIndexer(Spec parent, bool allowHiddenValue)
         {
             this.parent = parent;
+            this.allowHiddenValue = allowHiddenValue;
         }
 
         /// <summary>
@@ -29,7 +32,35 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <returns>The sub spec.</returns>
         public SubSpec this[string key]
         {
-            get => new SubSpec(this.parent, key);
+            get
+            {
+                if (this.parent.IsHidden(key) && this.allowHiddenValue)
+                {
+                    throw new Spec.HiddenKeyException(this.parent.ID, key);
+                }
+
+                return new SubSpec(this.parent, key);
+            }
+        }
+
+        /// <summary>
+        /// Remove this sub spec from parent.
+        /// If base spec contains the sub spec, the base values will be referred.
+        /// </summary>
+        /// <param name="key">The string key for the literal value.</param>
+        public void Remove(string key)
+        {
+            new SubSpec(this.parent, key).Remove();
+        }
+
+        /// <summary>
+        /// Hide this sub spec from parent.
+        /// If base spec contains the sub spec, the base values will be hidden.
+        /// </summary>
+        /// <param name="key">The string key for the literal value.</param>
+        public void Hide(string key)
+        {
+            new SubSpec(this.parent, key).Hide();
         }
     }
 }

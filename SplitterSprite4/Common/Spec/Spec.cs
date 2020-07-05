@@ -71,7 +71,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public SubSpecIndexer SubSpec
         {
-            get => new SubSpecIndexer(this);
+            get => new SubSpecIndexer(this, false);
         }
 
         /// <summary>

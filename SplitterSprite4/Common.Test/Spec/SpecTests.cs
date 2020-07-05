@@ -2647,6 +2647,279 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
+        /// SubSpecIndexer上のRemove機能をテスト。
+        /// Test Remove method on SubSpecIndexer.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void SubSpecRemoveTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\":",
+                    "    \"inner\": \"11\"",
+                    "  \"second\":",
+                    "    \"inner\": \"12\"",
+                    "  \"third\":",
+                    "    \"inner\": \"13\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\":",
+                    "    \"inner\": \"22\"",
+                    "  \"third\":",
+                    "    \"inner\": \"23\"",
+                    "  \"fourth\":",
+                    "    \"inner\": \"24\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
+
+            Assert.Equal(11, derivedSpec["first"].Int["inner"]);
+            Assert.Equal(12, derivedSpec["second"].Int["inner"]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner"]);
+            Assert.Equal(24, derivedSpec["fourth"].Int["inner"]);
+            Assert.Equal(11, derivedSpec["first"].Int["inner", 31]);
+            Assert.Equal(12, derivedSpec["second"].Int["inner", 32]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner", 33]);
+            Assert.Equal(24, derivedSpec["fourth"].Int["inner", 34]);
+
+            // act
+            derivedSpec.SubSpec.Remove("first");
+            derivedSpec.SubSpec.Remove("second");
+            baseSpec.SubSpec.Remove("third");
+            baseSpec.SubSpec.Remove("fourth");
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["first"].Int["inner"];
+            });
+            Assert.Equal(22, derivedSpec["second"].Int["inner"]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["fourth"].Int["inner"];
+            });
+            Assert.Equal(31, derivedSpec["first"].Int["inner", 31]);
+            Assert.Equal(22, derivedSpec["second"].Int["inner", 32]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner", 33]);
+            Assert.Equal(34, derivedSpec["fourth"].Int["inner", 34]);
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"third\":",
+                    "    \"inner\": \"13\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\":",
+                    "    \"inner\": \"22\""),
+                baseSpec.ToString());
+        }
+
+        /// <summary>
+        /// SubSpecIndexer上のHide機能をテスト。
+        /// Test Hide method on SubSpecIndexer.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void SubSpecHideTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\":",
+                    "    \"inner\": \"11\"",
+                    "  \"second\":",
+                    "    \"inner\": \"12\"",
+                    "  \"third\":",
+                    "    \"inner\": \"13\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\":",
+                    "    \"inner\": \"22\"",
+                    "  \"third\":",
+                    "    \"inner\": \"23\"",
+                    "  \"fourth\":",
+                    "    \"inner\": \"24\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
+
+            Assert.Equal(11, derivedSpec["first"].Int["inner"]);
+            Assert.Equal(12, derivedSpec["second"].Int["inner"]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner"]);
+            Assert.Equal(24, derivedSpec["fourth"].Int["inner"]);
+            Assert.Equal(11, derivedSpec["first"].Int["inner", 31]);
+            Assert.Equal(12, derivedSpec["second"].Int["inner", 32]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner", 33]);
+            Assert.Equal(24, derivedSpec["fourth"].Int["inner", 34]);
+
+            // act
+            derivedSpec.SubSpec.Hide("first");
+            derivedSpec.SubSpec.Hide("second");
+            baseSpec.SubSpec.Hide("third");
+            baseSpec.SubSpec.Hide("fourth");
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["first"].Int["inner"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["second"].Int["inner"];
+            });
+            Assert.Equal(13, derivedSpec["third"].Int["inner"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["fourth"].Int["inner"];
+            });
+            Assert.Equal(31, derivedSpec["first"].Int["inner", 31]);
+            Assert.Equal(32, derivedSpec["second"].Int["inner", 32]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner", 33]);
+            Assert.Equal(34, derivedSpec["fourth"].Int["inner", 34]);
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\": \"__HIDDEN__\"",
+                    "  \"second\": \"__HIDDEN__\"",
+                    "  \"third\":",
+                    "    \"inner\": \"13\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\":",
+                    "    \"inner\": \"22\"",
+                    "  \"third\": \"__HIDDEN__\"",
+                    "  \"fourth\": \"__HIDDEN__\""),
+                baseSpec.ToString());
+        }
+
+        /// <summary>
         /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
         /// Test the MoldSpec method.
         /// </summary>

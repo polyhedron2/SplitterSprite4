@@ -35,7 +35,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// <inheritdoc/>
         public override Spec Base
         {
-            get => this.parent.Base?.SubSpec[this.accessKey];
+            get
+            {
+                if (this.parent.IsHidden(this.accessKey))
+                {
+                    return null;
+                }
+
+                return this.parent.Base?.SubSpec[this.accessKey];
+            }
         }
 
         /// <inheritdoc/>
@@ -65,6 +73,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 lock (this.parent.Properties)
                 {
+                    if (this.parent.IsHidden(this.accessKey))
+                    {
+                        return new MappingYAML();
+                    }
+
                     var childYaml = this.parent.Properties.Mapping[
                         this.accessKey, new MappingYAML()];
                     childYaml.ID =
@@ -86,6 +99,24 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         internal override OutSideProxy Proxy
         {
             get => this.parent.Proxy;
+        }
+
+        /// <summary>
+        /// Remove this sub spec from parent.
+        /// If base spec contains the sub spec, the base values will be referred.
+        /// </summary>
+        public void Remove()
+        {
+            this.parent.Properties.Remove(this.accessKey);
+        }
+
+        /// <summary>
+        /// Hide this sub spec from parent.
+        /// If base spec contains the sub spec, the base values will be hidden.
+        /// </summary>
+        public void Hide()
+        {
+            this.parent.SetMagicWord(this.accessKey, Spec.HIDDEN);
         }
     }
 }
