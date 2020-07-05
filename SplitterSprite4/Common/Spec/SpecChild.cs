@@ -168,6 +168,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
+        /// Declare that spawner type come from default type.
+        /// </summary>
+        public void ExplicitDefaultSpawnerType()
+        {
+            this.parent[this.accessKey].SetMagicWord("spawner", Spec.DEFAULT);
+
+            try
+            {
+                // Ensure that "properties" follows "spawner".
+                var propYAML = this.Body.Mapping["properties"];
+                this.Body.Remove("properties");
+                this.Body.Mapping["properties"] = propYAML;
+            }
+            catch (YAML.YAMLKeyUndefinedException)
+            {
+                // If "properties" not contained, do nothing.
+            }
+        }
+
+        /// <summary>
         /// Internal spawner getter method for base spec access.
         /// </summary>
         /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
@@ -178,11 +198,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 try
                 {
-                    var type = DecodeType(
-                        this.Body.Scalar["spawner"].Value);
+                    var type = DecodeType(FromScalar(
+                        this.Body.Scalar["spawner"].Value));
                     Spawner.ValidateSpawnerType(this.bound, type);
 
                     return type;
+                }
+                catch (MagicWordException ex)
+                {
+                    if (ex.Word == DEFAULT)
+                    {
+                        throw new DefaultKeyException(this.ID, "spawner");
+                    }
+
+                    throw new InvalidSpecAccessException(
+                        $"{this.ID}[spawner]", "Spawner", ex);
                 }
                 catch (YAML.YAMLKeyUndefinedException ex)
                 {

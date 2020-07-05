@@ -109,6 +109,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             return specChild.SpawnerType;
                         }
+                        catch (Spec.DefaultKeyException)
+                        {
+                            return defaultType;
+                        }
                         catch (YAML.YAMLKeyUndefinedException)
                         {
                             return defaultType;
@@ -116,6 +120,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     },
                     moldingAccessCode);
             }
+        }
+
+        /// <summary>
+        /// Add special value into the key of the spec.
+        /// Even if base spec contains the key, the default value will be used.
+        /// </summary>
+        /// <param name="key">The string key for the value.</param>
+        public void ExplicitDefault(string key)
+        {
+            this.parent.Child[key, typeof(T)].ExplicitDefaultSpawnerType();
         }
 
         private T IndexGet(
