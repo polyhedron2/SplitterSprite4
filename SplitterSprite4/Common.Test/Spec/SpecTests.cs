@@ -1559,6 +1559,138 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
+        /// LiteralIndexer上のExplicitDefault機能をテスト。
+        /// Test ExplicitDefault method on LiteralIndexer.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void LiteralExplicitDefaultTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\": \"11\"",
+                    "  \"second\": \"12\"",
+                    "  \"third\": \"13\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\": \"22\"",
+                    "  \"third\": \"23\"",
+                    "  \"fourth\": \"24\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
+
+            Assert.Equal(11, derivedSpec.Int["first"]);
+            Assert.Equal(12, derivedSpec.Int["second"]);
+            Assert.Equal(13, derivedSpec.Int["third"]);
+            Assert.Equal(24, derivedSpec.Int["fourth"]);
+            Assert.Equal(11, derivedSpec.Int["first", 31]);
+            Assert.Equal(12, derivedSpec.Int["second", 32]);
+            Assert.Equal(13, derivedSpec.Int["third", 33]);
+            Assert.Equal(24, derivedSpec.Int["fourth", 34]);
+
+            // act
+            derivedSpec.Int.ExplicitDefault("first");
+            derivedSpec.Int.ExplicitDefault("second");
+            baseSpec.Int.ExplicitDefault("third");
+            baseSpec.Int.ExplicitDefault("fourth");
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Int["first"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Int["second"];
+            });
+            Assert.Equal(13, derivedSpec.Int["third"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Int["fourth"];
+            });
+            Assert.Equal(31, derivedSpec.Int["first", 31]);
+            Assert.Equal(32, derivedSpec.Int["second", 32]);
+            Assert.Equal(13, derivedSpec.Int["third", 33]);
+            Assert.Equal(34, derivedSpec.Int["fourth", 34]);
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\": \"__DEFAULT__\"",
+                    "  \"second\": \"__DEFAULT__\"",
+                    "  \"third\": \"13\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\": \"22\"",
+                    "  \"third\": \"__DEFAULT__\"",
+                    "  \"fourth\": \"__DEFAULT__\""),
+                baseSpec.ToString());
+        }
+
+        /// <summary>
         /// LiteralIndexer上のRemove機能をテスト。
         /// Test Remove method on LiteralIndexer.
         /// </summary>
@@ -2191,6 +2323,326 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     $"  \"second\": \"{(referredSpecPath22 - baseSpecPath.Parent).ToAgnosticPathString()}\"",
                     "  \"third\": \"__HIDDEN__\"",
                     "  \"fourth\": \"__HIDDEN__\""),
+                baseSpec.ToString());
+        }
+
+        /// <summary>
+        /// LiteralIndexer上のExplicitDefault機能をテスト。
+        /// Test ExplicitDefault method on LiteralIndexer.
+        /// </summary>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="referredPathStr11">
+        /// The first tested path on derived spec.
+        /// </param>
+        /// <param name="referredPathStr12">
+        /// The second tested path on derived spec.
+        /// </param>
+        /// <param name="referredPathStr13">
+        /// The third tested path on derived spec.
+        /// </param>
+        /// <param name="referredPathStr22">
+        /// The second tested path on base spec.
+        /// </param>
+        /// <param name="referredPathStr23">
+        /// The third tested path on base spec.
+        /// </param>
+        /// <param name="referredPathStr24">
+        /// The fourth tested path on base spec.
+        /// </param>
+        /// <param name="referredPathStr31">
+        /// The first tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr32">
+        /// The second tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr33">
+        /// The third tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr34">
+        /// The fourth tested path for default spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "derived.spec",
+            "base.spec",
+            "11.spec",
+            "12.spec",
+            "13.spec",
+            "22.spec",
+            "23.spec",
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
+        [InlineData(
+            "derived.spec",
+            "dir/base.spec",
+            "11/referred.spec",
+            "12/referred.spec",
+            "13/referred.spec",
+            "22/referred.spec",
+            "23/referred.spec",
+            "24/referred.spec",
+            "31/referred.spec",
+            "32/referred.spec",
+            "33/referred.spec",
+            "34/referred.spec")]
+        [InlineData(
+            "dir/derived.spec",
+            "base.spec",
+            "11.spec",
+            "12.spec",
+            "13.spec",
+            "22.spec",
+            "23.spec",
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
+        [InlineData(
+            "derived.spec",
+            "dir/base.spec",
+            "11.spec",
+            "12.spec",
+            "13.spec",
+            "22.spec",
+            "23.spec",
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
+        public void PathExplicitDefaultTest(
+            string derivedSpecPathStr,
+            string baseSpecPathStr,
+            string referredPathStr11,
+            string referredPathStr12,
+            string referredPathStr13,
+            string referredPathStr22,
+            string referredPathStr23,
+            string referredPathStr24,
+            string referredPathStr31,
+            string referredPathStr32,
+            string referredPathStr33,
+            string referredPathStr34)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var referredSpecPath11 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr11);
+            var referredSpecPath12 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr12);
+            var referredSpecPath13 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr13);
+            var referredSpecPath22 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr22);
+            var referredSpecPath23 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr23);
+            var referredSpecPath24 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr24);
+            var referredSpecPath31 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr31);
+            var referredSpecPath32 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr32);
+            var referredSpecPath33 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr33);
+            var referredSpecPath34 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr34);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{(baseSpecPath - derivedSpecPath.Parent).ToAgnosticPathString()}\"",
+                    "\"properties\":",
+                    $"  \"first\": \"{(referredSpecPath11 - derivedSpecPath.Parent).ToAgnosticPathString()}\"",
+                    $"  \"second\": \"{(referredSpecPath12 - derivedSpecPath.Parent).ToAgnosticPathString()}\"",
+                    $"  \"third\": \"{(referredSpecPath13 - derivedSpecPath.Parent).ToAgnosticPathString()}\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    $"  \"second\": \"{(referredSpecPath22 - baseSpecPath.Parent).ToAgnosticPathString()}\"",
+                    $"  \"third\": \"{(referredSpecPath23 - baseSpecPath.Parent).ToAgnosticPathString()}\"",
+                    $"  \"fourth\": \"{(referredSpecPath24 - baseSpecPath.Parent).ToAgnosticPathString()}\""));
+
+            var type = typeof(ValidSpawnerRootWithDefaultConstructor);
+            Utility.SetupSpecFile(proxy, referredPathStr11, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"11\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr12, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"12\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr13, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"13\"",
+                "    \"[End Of Text]\""));
+
+            Utility.SetupSpecFile(proxy, referredPathStr22, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"22\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr23, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"23\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr24, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"24\"",
+                "    \"[End Of Text]\""));
+
+            Utility.SetupSpecFile(proxy, referredPathStr31, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"31\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr32, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"32\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr33, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"33\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr34, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"34\"",
+                "    \"[End Of Text]\""));
+
+            var defaultPathStr1 =
+                (referredSpecPath31 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr2 =
+                (referredSpecPath32 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr3 =
+                (referredSpecPath33 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr4 =
+                (referredSpecPath34 - derivedSpecPath.Parent).ToAgnosticPathString();
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
+
+            Assert.Equal(
+                "11",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first"].Spawn());
+            Assert.Equal(
+                "12",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second"].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third"].Spawn());
+            Assert.Equal(
+                "24",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth"].Spawn());
+
+            Assert.Equal(
+                "11",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first", defaultPathStr1].Spawn());
+            Assert.Equal(
+                "12",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second", defaultPathStr2].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third", defaultPathStr3].Spawn());
+            Assert.Equal(
+                "24",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth", defaultPathStr4].Spawn());
+
+            // act
+            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("first");
+            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("second");
+            baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("third");
+            baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("fourth");
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["first"];
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["second"];
+            });
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third"].Spawn());
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["fourth"];
+            });
+
+            Assert.Equal(
+                "31",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first", defaultPathStr1].Spawn());
+            Assert.Equal(
+                "32",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second", defaultPathStr2].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third", defaultPathStr3].Spawn());
+            Assert.Equal(
+                "34",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth", defaultPathStr4].Spawn());
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{(baseSpecPath - derivedSpecPath.Parent).ToAgnosticPathString()}\"",
+                    "\"properties\":",
+                    "  \"first\": \"__DEFAULT__\"",
+                    "  \"second\": \"__DEFAULT__\"",
+                    $"  \"third\": \"{(referredSpecPath13 - derivedSpecPath.Parent).ToAgnosticPathString()}\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    $"  \"second\": \"{(referredSpecPath22 - baseSpecPath.Parent).ToAgnosticPathString()}\"",
+                    "  \"third\": \"__DEFAULT__\"",
+                    "  \"fourth\": \"__DEFAULT__\""),
                 baseSpec.ToString());
         }
 
