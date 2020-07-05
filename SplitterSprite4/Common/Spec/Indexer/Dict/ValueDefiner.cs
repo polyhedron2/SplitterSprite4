@@ -165,6 +165,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         }
 
         /// <summary>
+        /// Gets DictIndexer whose value-indexer is SubSpec.
+        /// </summary>
+        /// <returns>DictIndexer whose value-indexer is SubSpec.</returns>
+        public DictIndexerGet<T_Key, SubSpec> SubSpec
+        {
+            get => this.GenerateDictIndexerWithIndexerGet(
+                spec => new SubSpecIndexer(spec, true));
+        }
+
+        /// <summary>
         /// Gets DictIndexer whose value-indexer is LimitedKeyword.
         /// </summary>
         /// <param name="limit">The bound of keyword length.</param>
@@ -318,16 +328,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         {
             return this.GenerateDictIndexerWithIndexerWithDefault(
                 spec => new InteriorIndexer<T_Spawner>(spec, true));
-        }
-
-        /// <summary>
-        /// Gets DictIndexer whose value-indexer is SubSpec.
-        /// </summary>
-        /// <returns>DictIndexer whose value-indexer is SubSpec.</returns>
-        public DictIndexerGet<T_Key, SubSpec> SubSpec()
-        {
-            return this.GenerateDictIndexerWithIndexerGet(
-                spec => new SubSpecIndexer(spec, true));
         }
 
         private DictIndexerGet<T_Key, T_Value>
