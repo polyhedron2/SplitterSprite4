@@ -16,9 +16,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// <typeparam name="T">Type of value.</typeparam>
     internal class ScalarIndexer<T>
     {
-        private static readonly string MAGICWORDDECORATOR = "__";
-        private static readonly string HIDDEN = "HIDDEN";
-        private static readonly string DEFAULT = "DEFAULT";
         private Spec parent;
         private T moldingDefault;
         private ImmutableList<string> referredSpecs;
@@ -85,7 +82,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
                         return this.IndexGet(key);
                     }
-                    catch (HiddenKeyException ex)
+                    catch (Spec.HiddenKeyException ex)
                     {
                         if (this.allowHiddenValue)
                         {
@@ -124,7 +121,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 {
                     try
                     {
-                        var scalarVal = this.ToScalar(
+                        var scalarVal = Spec.ToScalar(
                             this.Setter(this.parent.Path, value));
                         this.parent.Properties[key] =
                             new ScalarYAML(scalarVal);
@@ -200,11 +197,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                             return lazyDefaultVal();
                         }
                     }
-                    catch (DefaultKeyException)
+                    catch (Spec.DefaultKeyException)
                     {
                         return lazyDefaultVal();
                     }
-                    catch (HiddenKeyException ex)
+                    catch (Spec.HiddenKeyException ex)
                     {
                         if (this.allowHiddenValue)
                         {
@@ -240,20 +237,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             try
             {
-                var val = this.FromScalar(
+                var val = Spec.FromScalar(
                     this.parent.Properties.Scalar[key].Value);
                 return this.Getter(this.parent.Path, val);
             }
-            catch (MagicWordException ex)
+            catch (Spec.MagicWordException ex)
             {
-                if (ex.Word == DEFAULT)
+                if (ex.Word == Spec.DEFAULT)
                 {
-                    throw new DefaultKeyException(this.parent.ID, key);
+                    throw new Spec.DefaultKeyException(this.parent.ID, key);
                 }
 
-                if (ex.Word == HIDDEN)
+                if (ex.Word == Spec.HIDDEN)
                 {
-                    throw new HiddenKeyException(this.parent.ID, key);
+                    throw new Spec.HiddenKeyException(this.parent.ID, key);
                 }
 
                 throw ex;
@@ -289,131 +286,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
         internal void Hide(string key)
         {
-            this.SetMagicWord(key, HIDDEN);
+            this.parent.SetMagicWord(key, Spec.HIDDEN);
         }
 
         internal void ExplicitDefault(string key)
         {
-            this.SetMagicWord(key, DEFAULT);
-        }
-
-        private void SetMagicWord(string key, string word)
-        {
-            // Magic word decorated word cannot be magic word.
-            if (this.CheckMagicWord(word))
-            {
-                throw new InvalidMagicWordException(word);
-            }
-
-            lock (this.parent.Properties)
-            {
-                try
-                {
-                    var scalarVal = this.DecorateAsMagicWord(word);
-                    this.parent.Properties[key] =
-                        new ScalarYAML(scalarVal);
-                }
-                catch (Exception ex)
-                {
-                    throw new Spec.InvalidSpecAccessException(
-                        $"{this.parent.Properties.ID}[{key}]",
-                        this.TypeGenerator(),
-                        ex);
-                }
-            }
-        }
-
-        private bool CheckMagicWord(string val)
-        {
-            return
-                val.StartsWith(MAGICWORDDECORATOR) &&
-                val.EndsWith(MAGICWORDDECORATOR);
-        }
-
-        private string DecorateAsMagicWord(string val)
-        {
-            return MAGICWORDDECORATOR + val + MAGICWORDDECORATOR;
-        }
-
-        private string UndecorateAsMagicWord(string val)
-        {
-            return val.Substring(
-                MAGICWORDDECORATOR.Length,
-                val.Length - (2 * MAGICWORDDECORATOR.Length));
-        }
-
-        private string FromScalar(string scalar)
-        {
-            // Basically, the original scalar string is used.
-            if (!this.CheckMagicWord(scalar))
-            {
-                return scalar;
-            }
-
-            var innerStr = this.UndecorateAsMagicWord(scalar);
-
-            // In __xxx__ case, xxx is used as magic word.
-            if (!this.CheckMagicWord(innerStr))
-            {
-                throw new MagicWordException(innerStr);
-            }
-
-            // If you want to use __xxx__ as non-magic word,
-            // ____xxx____ in ScalarYAML works.
-            return innerStr;
-        }
-
-        private string ToScalar(string value)
-        {
-            // Basically, the original value is used.
-            if (!this.CheckMagicWord(value))
-            {
-                return value;
-            }
-
-            // In __xxx__ case, ____xxx____ will be in ScalarYAML.
-            return this.DecorateAsMagicWord(value);
-        }
-
-        private string ToMagicScalar(string word)
-        {
-            // "__xxx__" is used for magic word "xxx".
-            return this.DecorateAsMagicWord(word);
-        }
-
-        // Exception for special definition values.
-        internal class MagicWordException : Exception
-        {
-            internal MagicWordException(string word)
-            {
-                this.Word = word;
-            }
-
-            internal string Word { get; }
-        }
-
-        internal class InvalidMagicWordException : Exception
-        {
-            internal InvalidMagicWordException(string word)
-                : base($"{word}はMagic Wordの対象として不正です。")
-            {
-            }
-        }
-
-        internal class HiddenKeyException : Exception
-        {
-            internal HiddenKeyException(string id, string key)
-                : base($"\"{id}\"上のキー\"{key}\"は隠蔽されています。")
-            {
-            }
-        }
-
-        internal class DefaultKeyException : Exception
-        {
-            internal DefaultKeyException(string id, string key)
-                : base($"\"{id}\"上のキー\"{key}\"は明示的にデフォルト値が指定されています。")
-            {
-            }
+            this.parent.SetMagicWord(key, Spec.DEFAULT);
         }
     }
 }

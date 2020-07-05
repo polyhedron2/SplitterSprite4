@@ -134,7 +134,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                                 ret[this.KeyGetter(this.Parent.Path, key)] =
                                     indexer[key];
                             }
-                            catch (ScalarIndexer<T_Value>.HiddenKeyException)
+                            catch (Spec.HiddenKeyException)
                             {
                                 continue;
                             }

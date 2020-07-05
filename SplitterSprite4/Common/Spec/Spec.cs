@@ -21,6 +21,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     /// </summary>
     public abstract class Spec
     {
+        internal static readonly string MAGICWORDDECORATOR = "__";
+        internal static readonly string HIDDEN = "HIDDEN";
+        internal static readonly string DEFAULT = "DEFAULT";
+
         /// <summary>
         /// Gets an os-agnostic path of this spec file.
         /// </summary>
@@ -522,6 +526,90 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 $"\"{spawnerType.Name}\"が使用されています。");
         }
 
+        public void SetMagicWord(string key, string word)
+        {
+            // Magic word decorated word cannot be magic word.
+            if (CheckMagicWord(word))
+            {
+                throw new InvalidMagicWordException(word);
+            }
+
+            lock (this.Properties)
+            {
+                try
+                {
+                    var scalarVal = DecorateAsMagicWord(word);
+                    this.Properties[key] =
+                        new ScalarYAML(scalarVal);
+                }
+                catch (Exception ex)
+                {
+                    throw new Spec.InvalidSpecAccessException(
+                        $"{this.Properties.ID}[{key}]",
+                        "Magic word設定",
+                        ex);
+                }
+            }
+        }
+
+        internal static bool CheckMagicWord(string val)
+        {
+            return
+                val.StartsWith(MAGICWORDDECORATOR) &&
+                val.EndsWith(MAGICWORDDECORATOR);
+        }
+
+        internal static string DecorateAsMagicWord(string val)
+        {
+            return MAGICWORDDECORATOR + val + MAGICWORDDECORATOR;
+        }
+
+        internal static string UndecorateAsMagicWord(string val)
+        {
+            return val.Substring(
+                MAGICWORDDECORATOR.Length,
+                val.Length - (2 * MAGICWORDDECORATOR.Length));
+        }
+
+        internal static string FromScalar(string scalar)
+        {
+            // Basically, the original scalar string is used.
+            if (!CheckMagicWord(scalar))
+            {
+                return scalar;
+            }
+
+            var innerStr = UndecorateAsMagicWord(scalar);
+
+            // In __xxx__ case, xxx is used as magic word.
+            if (!CheckMagicWord(innerStr))
+            {
+                throw new MagicWordException(innerStr);
+            }
+
+            // If you want to use __xxx__ as non-magic word,
+            // ____xxx____ in ScalarYAML works.
+            return innerStr;
+        }
+
+        internal static string ToScalar(string value)
+        {
+            // Basically, the original value is used.
+            if (!CheckMagicWord(value))
+            {
+                return value;
+            }
+
+            // In __xxx__ case, ____xxx____ will be in ScalarYAML.
+            return DecorateAsMagicWord(value);
+        }
+
+        internal static string ToMagicScalar(string word)
+        {
+            // "__xxx__" is used for magic word "xxx".
+            return DecorateAsMagicWord(word);
+        }
+
         /// <summary>
         /// Specの持つ値が不正である場合の例外
         /// The exception that is thrown when an attempt to
@@ -618,6 +706,41 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             internal InvalidDefaultValEncoding(string target)
                 : base(
                       $"\"{target}\"はMold時のデフォルト値エンコードとして不正です。")
+            {
+            }
+        }
+
+        // Exception for special definition values.
+        internal class MagicWordException : Exception
+        {
+            internal MagicWordException(string word)
+            {
+                this.Word = word;
+            }
+
+            internal string Word { get; }
+        }
+
+        internal class InvalidMagicWordException : Exception
+        {
+            internal InvalidMagicWordException(string word)
+                : base($"{word}はMagic Wordの対象として不正です。")
+            {
+            }
+        }
+
+        internal class HiddenKeyException : Exception
+        {
+            internal HiddenKeyException(string id, string key)
+                : base($"\"{id}\"上のキー\"{key}\"は隠蔽されています。")
+            {
+            }
+        }
+
+        internal class DefaultKeyException : Exception
+        {
+            internal DefaultKeyException(string id, string key)
+                : base($"\"{id}\"上のキー\"{key}\"は明示的にデフォルト値が指定されています。")
             {
             }
         }
