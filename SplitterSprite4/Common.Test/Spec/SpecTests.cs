@@ -1691,8 +1691,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
-        /// LiteralIndexer上のRemove機能をテスト。
-        /// Test Remove method on LiteralIndexer.
+        /// PathIndexer上のRemove機能をテスト。
+        /// Test Remove method on PathIndexer.
         /// </summary>
         /// <param name="derivedSpecPathStr">
         /// A derived spec's os-agnostic path.
@@ -2007,8 +2007,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
-        /// LiteralIndexer上のHide機能をテスト。
-        /// Test Hide method on LiteralIndexer.
+        /// PathIndexer上のHide機能をテスト。
+        /// Test Hide method on PathIndexer.
         /// </summary>
         /// <param name="derivedSpecPathStr">
         /// A derived spec's os-agnostic path.
@@ -2327,8 +2327,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
-        /// LiteralIndexer上のExplicitDefault機能をテスト。
-        /// Test ExplicitDefault method on LiteralIndexer.
+        /// PathIndexer上のExplicitDefault機能をテスト。
+        /// Test ExplicitDefault method on PathIndexer.
         /// </summary>
         /// <param name="derivedSpecPathStr">
         /// A derived spec's os-agnostic path.
