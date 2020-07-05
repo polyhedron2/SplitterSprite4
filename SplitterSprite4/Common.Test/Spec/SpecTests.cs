@@ -1386,6 +1386,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             Assert.Equal(12, derivedSpec.Int["second"]);
             Assert.Equal(13, derivedSpec.Int["third"]);
             Assert.Equal(24, derivedSpec.Int["fourth"]);
+            Assert.Equal(11, derivedSpec.Int["first", 31]);
+            Assert.Equal(12, derivedSpec.Int["second", 32]);
+            Assert.Equal(13, derivedSpec.Int["third", 33]);
+            Assert.Equal(24, derivedSpec.Int["fourth", 34]);
 
             // act
             derivedSpec.Int.Remove("first");
@@ -1404,6 +1408,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             {
                 _ = derivedSpec.Int["fourth"];
             });
+            Assert.Equal(31, derivedSpec.Int["first", 31]);
+            Assert.Equal(22, derivedSpec.Int["second", 32]);
+            Assert.Equal(13, derivedSpec.Int["third", 33]);
+            Assert.Equal(34, derivedSpec.Int["fourth", 34]);
 
             Assert.Equal(
                 Utility.JoinLines(
@@ -1503,6 +1511,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             Assert.Equal(12, derivedSpec.Int["second"]);
             Assert.Equal(13, derivedSpec.Int["third"]);
             Assert.Equal(24, derivedSpec.Int["fourth"]);
+            Assert.Equal(11, derivedSpec.Int["first", 31]);
+            Assert.Equal(12, derivedSpec.Int["second", 32]);
+            Assert.Equal(13, derivedSpec.Int["third", 33]);
+            Assert.Equal(24, derivedSpec.Int["fourth", 34]);
 
             // act
             derivedSpec.Int.Hide("first");
@@ -1524,6 +1536,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             {
                 _ = derivedSpec.Int["fourth"];
             });
+            Assert.Equal(31, derivedSpec.Int["first", 31]);
+            Assert.Equal(32, derivedSpec.Int["second", 32]);
+            Assert.Equal(13, derivedSpec.Int["third", 33]);
+            Assert.Equal(34, derivedSpec.Int["fourth", 34]);
 
             Assert.Equal(
                 Utility.JoinLines(
@@ -1570,6 +1586,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// <param name="referredPathStr24">
         /// The fourth tested path on base spec.
         /// </param>
+        /// <param name="referredPathStr31">
+        /// The first tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr32">
+        /// The second tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr33">
+        /// The third tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr34">
+        /// The fourth tested path for default spec.
+        /// </param>
         [Theory]
         [InlineData(
             "derived.spec",
@@ -1579,7 +1607,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13.spec",
             "22.spec",
             "23.spec",
-            "24.spec")]
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
         [InlineData(
             "derived.spec",
             "dir/base.spec",
@@ -1588,7 +1620,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13/referred.spec",
             "22/referred.spec",
             "23/referred.spec",
-            "24/referred.spec")]
+            "24/referred.spec",
+            "31/referred.spec",
+            "32/referred.spec",
+            "33/referred.spec",
+            "34/referred.spec")]
         [InlineData(
             "dir/derived.spec",
             "base.spec",
@@ -1597,7 +1633,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13.spec",
             "22.spec",
             "23.spec",
-            "24.spec")]
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
         [InlineData(
             "derived.spec",
             "dir/base.spec",
@@ -1606,7 +1646,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13.spec",
             "22.spec",
             "23.spec",
-            "24.spec")]
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
         public void PathRemoveTest(
             string derivedSpecPathStr,
             string baseSpecPathStr,
@@ -1615,7 +1659,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             string referredPathStr13,
             string referredPathStr22,
             string referredPathStr23,
-            string referredPathStr24)
+            string referredPathStr24,
+            string referredPathStr31,
+            string referredPathStr32,
+            string referredPathStr33,
+            string referredPathStr34)
         {
             // arrange
             var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
@@ -1634,6 +1682,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 referredPathStr23);
             var referredSpecPath24 = AgnosticPath.FromAgnosticPathString(
                 referredPathStr24);
+            var referredSpecPath31 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr31);
+            var referredSpecPath32 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr32);
+            var referredSpecPath33 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr33);
+            var referredSpecPath34 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr34);
             var proxy = Utility.TestOutSideProxy();
 
             Utility.SetupSpecFile(
@@ -1693,6 +1749,40 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 "    \"24\"",
                 "    \"[End Of Text]\""));
 
+            Utility.SetupSpecFile(proxy, referredPathStr31, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"31\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr32, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"32\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr33, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"33\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr34, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"34\"",
+                "    \"[End Of Text]\""));
+
+            var defaultPathStr1 =
+                (referredSpecPath31 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr2 =
+                (referredSpecPath32 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr3 =
+                (referredSpecPath33 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr4 =
+                (referredSpecPath34 - derivedSpecPath.Parent).ToAgnosticPathString();
+
             var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
             var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
 
@@ -1712,6 +1802,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 "24",
                 derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "fourth"].Spawn());
+
+            Assert.Equal(
+                "11",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first", defaultPathStr1].Spawn());
+            Assert.Equal(
+                "12",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second", defaultPathStr2].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third", defaultPathStr3].Spawn());
+            Assert.Equal(
+                "24",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth", defaultPathStr4].Spawn());
 
             // act
             derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().Remove("first");
@@ -1736,6 +1843,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             {
                 _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["fourth"];
             });
+
+            Assert.Equal(
+                "31",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first", defaultPathStr1].Spawn());
+            Assert.Equal(
+                "22",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second", defaultPathStr2].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third", defaultPathStr3].Spawn());
+            Assert.Equal(
+                "34",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth", defaultPathStr4].Spawn());
 
             Assert.Equal(
                 Utility.JoinLines(
@@ -1778,6 +1902,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         /// <param name="referredPathStr24">
         /// The fourth tested path on base spec.
         /// </param>
+        /// <param name="referredPathStr31">
+        /// The first tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr32">
+        /// The second tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr33">
+        /// The third tested path for default spec.
+        /// </param>
+        /// <param name="referredPathStr34">
+        /// The fourth tested path for default spec.
+        /// </param>
         [Theory]
         [InlineData(
             "derived.spec",
@@ -1787,7 +1923,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13.spec",
             "22.spec",
             "23.spec",
-            "24.spec")]
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
         [InlineData(
             "derived.spec",
             "dir/base.spec",
@@ -1796,7 +1936,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13/referred.spec",
             "22/referred.spec",
             "23/referred.spec",
-            "24/referred.spec")]
+            "24/referred.spec",
+            "31/referred.spec",
+            "32/referred.spec",
+            "33/referred.spec",
+            "34/referred.spec")]
         [InlineData(
             "dir/derived.spec",
             "base.spec",
@@ -1805,7 +1949,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13.spec",
             "22.spec",
             "23.spec",
-            "24.spec")]
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
         [InlineData(
             "derived.spec",
             "dir/base.spec",
@@ -1814,7 +1962,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "13.spec",
             "22.spec",
             "23.spec",
-            "24.spec")]
+            "24.spec",
+            "31.spec",
+            "32.spec",
+            "33.spec",
+            "34.spec")]
         public void PathHideTest(
             string derivedSpecPathStr,
             string baseSpecPathStr,
@@ -1823,7 +1975,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             string referredPathStr13,
             string referredPathStr22,
             string referredPathStr23,
-            string referredPathStr24)
+            string referredPathStr24,
+            string referredPathStr31,
+            string referredPathStr32,
+            string referredPathStr33,
+            string referredPathStr34)
         {
             // arrange
             var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
@@ -1842,6 +1998,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 referredPathStr23);
             var referredSpecPath24 = AgnosticPath.FromAgnosticPathString(
                 referredPathStr24);
+            var referredSpecPath31 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr31);
+            var referredSpecPath32 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr32);
+            var referredSpecPath33 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr33);
+            var referredSpecPath34 = AgnosticPath.FromAgnosticPathString(
+                referredPathStr34);
             var proxy = Utility.TestOutSideProxy();
 
             Utility.SetupSpecFile(
@@ -1901,6 +2065,40 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 "    \"24\"",
                 "    \"[End Of Text]\""));
 
+            Utility.SetupSpecFile(proxy, referredPathStr31, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"31\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr32, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"32\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr33, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"33\"",
+                "    \"[End Of Text]\""));
+            Utility.SetupSpecFile(proxy, referredPathStr34, Utility.JoinLines(
+                $"\"spawner\": \"{Spec.EncodeType(type)}\"",
+                "\"properties\":",
+                "  \"return value\": |+",
+                "    \"34\"",
+                "    \"[End Of Text]\""));
+
+            var defaultPathStr1 =
+                (referredSpecPath31 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr2 =
+                (referredSpecPath32 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr3 =
+                (referredSpecPath33 - derivedSpecPath.Parent).ToAgnosticPathString();
+            var defaultPathStr4 =
+                (referredSpecPath34 - derivedSpecPath.Parent).ToAgnosticPathString();
+
             var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
             var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
 
@@ -1920,6 +2118,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 "24",
                 derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "fourth"].Spawn());
+
+            Assert.Equal(
+                "11",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first", defaultPathStr1].Spawn());
+            Assert.Equal(
+                "12",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second", defaultPathStr2].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third", defaultPathStr3].Spawn());
+            Assert.Equal(
+                "24",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth", defaultPathStr4].Spawn());
 
             // act
             derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().Hide("first");
@@ -1944,6 +2159,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             {
                 _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["fourth"];
             });
+
+            Assert.Equal(
+                "31",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "first", defaultPathStr1].Spawn());
+            Assert.Equal(
+                "32",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second", defaultPathStr2].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "third", defaultPathStr3].Spawn());
+            Assert.Equal(
+                "34",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "fourth", defaultPathStr4].Spawn());
 
             Assert.Equal(
                 Utility.JoinLines(
