@@ -2533,6 +2533,53 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
+        /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
+        /// ただし、specファイルにMagic wordが含まれる。
+        /// Test the MoldSpec method with if-clause.
+        /// The flag will be gotten from another key.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void MoldSpecWithMagicWordTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"hidden1\": \"__HIDDEN__\"",
+                "  \"default1\": \"__DEFAULT__\"",
+                "  \"hidden2\": \"__HIDDEN__\"",
+                "  \"default2\": \"__DEFAULT__\""));
+
+            // act
+            var spec = SpecRoot.Fetch(proxy, agnosticPath, true);
+            Action<Spec> action = (sp) =>
+            {
+                _ = sp.Int["hidden1"];
+                _ = sp.Int["default1"];
+                _ = sp.Int["hidden2", 10];
+                _ = sp.Int["default2", 20];
+            };
+            var mold = spec.MoldSpec(action);
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"base\": \"Spec\"",
+                    $"\"spawner\": \"Spawner, {Spec.EncodeType(typeof(ISpawnerRoot<object>))}\"",
+                    "\"properties\":",
+                    "  \"hidden1\": \"Int\"",
+                    "  \"default1\": \"Int\"",
+                    "  \"hidden2\": \"Int, 10\"",
+                    "  \"default2\": \"Int, 20\""),
+                mold.ToString());
+        }
+
+        /// <summary>
         /// MoldSpecメソッドのBase Specによる挙動の変化をテスト。
         /// Test the MoldSpec method with base spec.
         /// </summary>
