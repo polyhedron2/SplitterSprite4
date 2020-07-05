@@ -266,5 +266,405 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                     "        \"[End Of Text]\""),
                 reloadedSpec.ToString());
         }
+
+        /// <summary>
+        /// InternalIndexer上のRemove機能をテスト。
+        /// Test Remove method on InternalIndexer.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void InternalRemoveTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"11\"",
+                    "        \"[End Of Text]\"",
+                    "  \"second\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"12\"",
+                    "        \"[End Of Text]\"",
+                    "  \"third\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"13\"",
+                    "        \"[End Of Text]\"",
+                    "  \"fourth\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"first\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "  \"second\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"22\"",
+                    "        \"[End Of Text]\"",
+                    "  \"third\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"23\"",
+                    "        \"[End Of Text]\"",
+                    "  \"fourth\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"24\"",
+                    "        \"[End Of Text]\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
+
+            Assert.Equal(
+                "11",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["first"].Spawn());
+            Assert.Equal(
+                "12",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["second"].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["third"].Spawn());
+            Assert.Equal(
+                "24",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["fourth"].Spawn());
+
+            // act
+            derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>().Remove("first");
+            derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>().Remove("second");
+            baseSpec.Interior<ISpawnerChildWithoutArgs<string>>().Remove("third");
+            baseSpec.Interior<ISpawnerChildWithoutArgs<string>>().Remove("fourth");
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["first"].Spawn();
+            });
+            Assert.Equal(
+                "22",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["second"].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["third"].Spawn());
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["fourth"].Spawn();
+            });
+
+            var defaultType = typeof(ValidSpawnerChildWithDefaultConstructor);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "first", defaultType].Spawn();
+            });
+            Assert.Equal(
+                "22",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "second", defaultType].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "third", defaultType].Spawn());
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "fourth", defaultType].Spawn();
+            });
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"third\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"13\"",
+                    "        \"[End Of Text]\"",
+                    "  \"fourth\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"first\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "  \"second\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"22\"",
+                    "        \"[End Of Text]\""),
+                baseSpec.ToString());
+        }
+
+        /// <summary>
+        /// InternalIndexer上のHide機能をテスト。
+        /// Test Hide method on InternalIndexer.
+        /// </summary>
+        /// <param name="derivedSpecLayerName">
+        /// A derived spec's layer name.
+        /// </param>
+        /// <param name="derivedSpecPathStr">
+        /// A derived spec's os-agnostic path.
+        /// </param>
+        /// <param name="baseSpecLayerName">
+        /// A base spec's layer name.
+        /// </param>
+        /// <param name="baseSpecPathStr">
+        /// A base spec's os-agnostic path.
+        /// </param>
+        /// <param name="relativePathFromDerivedToBaseStr">
+        /// The relative path string from the derived spec to the base spec.
+        /// </param>
+        [Theory]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "base.spec",
+            "base.spec")]
+        [InlineData(
+            "layer",
+            "derived.spec",
+            "layer",
+            "dir/base.spec",
+            "dir/base.spec")]
+        [InlineData(
+            "layer",
+            "dir/derived.spec",
+            "layer",
+            "base.spec",
+            "../base.spec")]
+        [InlineData(
+            "layer1",
+            "derived.spec",
+            "layer2",
+            "dir/base.spec",
+            "dir/base.spec")]
+        public void InternalHideTest(
+            string derivedSpecLayerName,
+            string derivedSpecPathStr,
+            string baseSpecLayerName,
+            string baseSpecPathStr,
+            string relativePathFromDerivedToBaseStr)
+        {
+            // arrange
+            var derivedSpecPath = AgnosticPath.FromAgnosticPathString(
+                derivedSpecPathStr);
+            var baseSpecPath = AgnosticPath.FromAgnosticPathString(
+                baseSpecPathStr);
+            var proxy = Utility.TestOutSideProxy();
+
+            Utility.SetupSpecFile(
+                proxy,
+                derivedSpecLayerName,
+                derivedSpecPathStr,
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"11\"",
+                    "        \"[End Of Text]\"",
+                    "  \"second\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"12\"",
+                    "        \"[End Of Text]\"",
+                    "  \"third\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"13\"",
+                    "        \"[End Of Text]\"",
+                    "  \"fourth\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\""));
+            Utility.SetupSpecFile(
+                proxy,
+                baseSpecLayerName,
+                baseSpecPathStr,
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"first\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "  \"second\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"22\"",
+                    "        \"[End Of Text]\"",
+                    "  \"third\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"23\"",
+                    "        \"[End Of Text]\"",
+                    "  \"fourth\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"24\"",
+                    "        \"[End Of Text]\""));
+
+            var derivedSpec = SpecRoot.Fetch(proxy, derivedSpecPath);
+            var baseSpec = SpecRoot.Fetch(proxy, baseSpecPath);
+
+            Assert.Equal(
+                "11",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["first"].Spawn());
+            Assert.Equal(
+                "12",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["second"].Spawn());
+            Assert.Equal(
+                "13",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["third"].Spawn());
+            Assert.Equal(
+                "24",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["fourth"].Spawn());
+
+            // act
+            derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>().Hide("first");
+            derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>().Hide("second");
+            baseSpec.Interior<ISpawnerChildWithoutArgs<string>>().Hide("third");
+            baseSpec.Interior<ISpawnerChildWithoutArgs<string>>().Hide("fourth");
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["first"].Spawn();
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["second"].Spawn();
+            });
+            Assert.Equal(
+                "13",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["third"].Spawn());
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()["fourth"].Spawn();
+            });
+
+            var defaultType = typeof(ValidSpawnerChildWithDefaultConstructor);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "first", defaultType].Spawn();
+            });
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "second", defaultType].Spawn();
+            });
+            Assert.Equal(
+                "13",
+                derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "third", defaultType].Spawn());
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec.Interior<ISpawnerChildWithoutArgs<string>>()[
+                    "fourth", defaultType].Spawn();
+            });
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\": \"__HIDDEN__\"",
+                    "  \"second\": \"__HIDDEN__\"",
+                    "  \"third\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"13\"",
+                    "        \"[End Of Text]\"",
+                    "  \"fourth\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"first\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "  \"second\":",
+                    $"    \"spawner\": \"{Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "    \"properties\":",
+                    "      \"return value\": |+",
+                    "        \"22\"",
+                    "        \"[End Of Text]\"",
+                    "  \"third\": \"__HIDDEN__\"",
+                    "  \"fourth\": \"__HIDDEN__\""),
+                baseSpec.ToString());
+        }
     }
 }

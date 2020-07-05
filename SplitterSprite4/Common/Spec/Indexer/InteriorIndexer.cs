@@ -19,17 +19,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         where T : ISpawnerChild<object>
     {
         private Spec parent;
+        private bool allowHiddenValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InteriorIndexer{T}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        internal InteriorIndexer(Spec parent)
+        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        internal InteriorIndexer(Spec parent, bool allowHiddenValue)
         {
             // molding default process validates type parameter T.
             parent.MoldingDefault<T>().GetType();
 
             this.parent = parent;
+            this.allowHiddenValue = allowHiddenValue;
         }
 
         /// <summary>
@@ -39,10 +42,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <returns>The SpecChild instance.</returns>
         public T this[string key]
         {
-            get => this.IndexGet(
-                key,
-                (specChild) => specChild.SpawnerType,
-                $"Spawner, {Spec.EncodeType(typeof(T))}");
+            get
+            {
+                return this.IndexGet(
+                    key,
+                    (specChild) => specChild.SpawnerType,
+                    $"Spawner, {Spec.EncodeType(typeof(T))}");
+            }
 
             set
             {
@@ -123,6 +129,26 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         }
 
         /// <summary>
+        /// Remove this child spec from parent.
+        /// If base spec contains the child spec, the base values will be referred.
+        /// </summary>
+        /// <param name="key">The string key for the literal value.</param>
+        public void Remove(string key)
+        {
+            this.parent.Child[key, typeof(T)].Remove();
+        }
+
+        /// <summary>
+        /// Hide this child spec from parent.
+        /// If base spec contains the child spec, the base values will be hidden.
+        /// </summary>
+        /// <param name="key">The string key for the literal value.</param>
+        public void Hide(string key)
+        {
+            this.parent.Child[key, typeof(T)].Hide();
+        }
+
+        /// <summary>
         /// Add special value into the key of the spec.
         /// Even if base spec contains the key, the default value will be used.
         /// </summary>
@@ -148,6 +174,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         _ = childSpec.Mold;
                         this.parent.Mold[key]["spawner"] =
                             new ScalarYAML(moldingAccessCode);
+                    }
+
+                    if (this.parent.IsHidden(key) && this.allowHiddenValue)
+                    {
+                        throw new Spec.HiddenKeyException(this.parent.ID, key);
                     }
 
                     var type = getSpawnerType(childSpec);

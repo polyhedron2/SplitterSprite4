@@ -115,6 +115,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 lock (this.parent.Properties)
                 {
+                    if (this.parent.IsHidden(this.accessKey))
+                    {
+                        return new MappingYAML();
+                    }
+
                     var childYaml = this.parent.Properties.Mapping[
                         this.accessKey, new MappingYAML()];
                     childYaml.ID =
@@ -156,7 +161,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         internal SpecChild BaseAsChild
         {
-            get => this.parent.Base?.Child[this.accessKey, this.bound];
+            get
+            {
+                if (this.parent.IsHidden(this.accessKey))
+                {
+                    return null;
+                }
+
+                return this.parent.Base?.Child[this.accessKey, this.bound];
+            }
         }
 
         /// <summary>
@@ -165,6 +178,24 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public void RemoveSpawnerType()
         {
             this.Body.Remove("spawner");
+        }
+
+        /// <summary>
+        /// Remove this child spec from parent.
+        /// If base spec contains the child spec, the base values will be referred.
+        /// </summary>
+        public void Remove()
+        {
+            this.parent.Properties.Remove(this.accessKey);
+        }
+
+        /// <summary>
+        /// Hide this child spec from parent.
+        /// If base spec contains the child spec, the base values will be hidden.
+        /// </summary>
+        public void Hide()
+        {
+            this.parent.SetMagicWord(this.accessKey, Spec.HIDDEN);
         }
 
         /// <summary>

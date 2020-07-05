@@ -485,7 +485,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public InteriorIndexer<T> Interior<T>()
             where T : ISpawnerChild<object>
         {
-            return new InteriorIndexer<T>(this);
+            return new InteriorIndexer<T>(this, false);
         }
 
         /// <inheritdoc/>
@@ -550,6 +550,28 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                         ex);
                 }
             }
+        }
+
+        public bool IsHidden(string key)
+        {
+            try
+            {
+                FromScalar(this.Properties.Scalar[key].Value);
+            }
+            catch (YAML.YAMLTypeSlipException<ScalarYAML>)
+            {
+                return false;
+            }
+            catch (YAML.YAMLKeyUndefinedException)
+            {
+                return false;
+            }
+            catch (MagicWordException ex)
+            {
+                return ex.Word == HIDDEN;
+            }
+
+            return false;
         }
 
         internal static bool CheckMagicWord(string val)
