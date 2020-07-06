@@ -16,8 +16,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// </summary>
         /// <param name="parent">The parent spec.</param>
         /// <param name="limit">The bound of keyword length.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
-        internal LimitedKeywordIndexer(Spec parent, int limit, bool allowHiddenValue)
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
+        internal LimitedKeywordIndexer(Spec parent, int limit, bool dictMode)
             : base(
                 parent,
                 () => $"改行なし文字列({limit}文字以下)",
@@ -41,7 +41,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 },
                 () => $"LimitedKeyword, {limit}",
                 string.Empty,
-                allowHiddenValue)
+                dictMode)
         {
             if (limit < 0)
             {

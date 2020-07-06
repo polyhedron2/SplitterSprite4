@@ -20,8 +20,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="ExteriorIndexer{T}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
-        internal ExteriorIndexer(Spec parent, bool allowHiddenValue)
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
+        internal ExteriorIndexer(Spec parent, bool dictMode)
             : base(
                 parent,
                 () => typeof(T).Name,
@@ -37,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 (spawner) => spawner.Spec.Path,
                 () => $"Exterior, {Spec.EncodeType(typeof(T))}",
                 CreateMoldingDefault(parent),
-                allowHiddenValue)
+                dictMode)
         {
         }
 

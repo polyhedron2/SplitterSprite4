@@ -15,8 +15,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="KeywordIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
-        internal KeywordIndexer(Spec parent, bool allowHiddenValue)
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
+        internal KeywordIndexer(Spec parent, bool dictMode)
             : base(
                 parent,
                 () => "改行なし文字列",
@@ -40,7 +40,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 },
                 () => "Keyword",
                 string.Empty,
-                allowHiddenValue)
+                dictMode)
         {
         }
     }

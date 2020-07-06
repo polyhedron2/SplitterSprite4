@@ -12,17 +12,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     public class SubSpecIndexer : IIndexerGet<SubSpec>
     {
         private Spec parent;
-        private bool allowHiddenValue;
+        private bool dictMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubSpecIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec instance.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
-        internal SubSpecIndexer(Spec parent, bool allowHiddenValue)
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
+        internal SubSpecIndexer(Spec parent, bool dictMode)
         {
             this.parent = parent;
-            this.allowHiddenValue = allowHiddenValue;
+            this.dictMode = dictMode;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             get
             {
-                if (this.parent.IsHidden(key) && this.allowHiddenValue)
+                if (this.parent.IsHidden(key) && this.dictMode)
                 {
                     throw new Spec.HiddenKeyException(this.parent.ID, key);
                 }

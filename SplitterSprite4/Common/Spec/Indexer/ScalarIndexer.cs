@@ -19,7 +19,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         private Spec parent;
         private T moldingDefault;
         private ImmutableList<string> referredSpecs;
-        private bool allowHiddenValue;
+        private bool dictMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScalarIndexer{T}"/> class.
@@ -30,7 +30,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="setter">Translation function from spec path and indexed value to string value in spec.</param>
         /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
         /// <param name="referredSpecs">The spec IDs which are referred while base spec referring.</param>
         internal ScalarIndexer(
             Spec parent,
@@ -39,7 +39,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             Func<AgnosticPath, T, string> setter,
             Func<string> moldingAccessCodeGenerator,
             T moldingDefault,
-            bool allowHiddenValue,
+            bool dictMode,
             ImmutableList<string> referredSpecs)
         {
             this.parent = parent;
@@ -49,7 +49,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             this.MoldingAccessCodeGenerator =
                 Spec.FixCulture(moldingAccessCodeGenerator);
             this.moldingDefault = moldingDefault;
-            this.allowHiddenValue = allowHiddenValue;
+            this.dictMode = dictMode;
             this.referredSpecs = referredSpecs;
         }
 
@@ -84,7 +84,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     }
                     catch (Spec.HiddenKeyException ex)
                     {
-                        if (this.allowHiddenValue)
+                        if (this.dictMode)
                         {
                             throw ex;
                         }
@@ -203,7 +203,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     }
                     catch (Spec.HiddenKeyException ex)
                     {
-                        if (this.allowHiddenValue)
+                        if (this.dictMode)
                         {
                             throw ex;
                         }
@@ -273,7 +273,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     this.Setter,
                     this.MoldingAccessCodeGenerator,
                     this.moldingDefault,
-                    this.allowHiddenValue,
+                    this.dictMode,
                     this.referredSpecs.Add(this.parent.ID))
                     .IndexGet(key);
             }

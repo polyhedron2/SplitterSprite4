@@ -15,8 +15,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="BoolIndexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
-        internal BoolIndexer(Spec parent, bool allowHiddenValue)
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
+        internal BoolIndexer(Spec parent, bool dictMode)
             : base(
                 parent,
                 () => "真偽値",
@@ -24,7 +24,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 (value) => value.ToString(),
                 () => "Bool",
                 false,
-                allowHiddenValue)
+                dictMode)
         {
         }
     }

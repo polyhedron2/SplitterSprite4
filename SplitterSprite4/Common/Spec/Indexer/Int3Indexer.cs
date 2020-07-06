@@ -15,8 +15,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// Initializes a new instance of the <see cref="Int3Indexer"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
-        internal Int3Indexer(Spec parent, bool allowHiddenValue)
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
+        internal Int3Indexer(Spec parent, bool dictMode)
             : base(
                 parent,
                 () => "整数x3",
@@ -41,7 +41,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 },
                 () => "Int3",
                 (0, 0, 0),
-                allowHiddenValue)
+                dictMode)
         {
         }
     }

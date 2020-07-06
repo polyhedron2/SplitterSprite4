@@ -27,7 +27,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="setter">Translation function to string.</param>
         /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
         internal LiteralIndexer(
             Spec parent,
             Func<string> typeGenerator,
@@ -35,7 +35,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             Func<T, string> setter,
             Func<string> moldingAccessCodeGenerator,
             T moldingDefault,
-            bool allowHiddenValue)
+            bool dictMode)
         {
             this.getter = getter;
             this.setter = setter;
@@ -46,7 +46,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 (path, value) => this.setter(value),
                 moldingAccessCodeGenerator,
                 moldingDefault,
-                allowHiddenValue,
+                dictMode,
                 ImmutableList<string>.Empty);
         }
 

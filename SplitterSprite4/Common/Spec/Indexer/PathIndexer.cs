@@ -24,7 +24,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <param name="setter">Translation function to agnostic path.</param>
         /// <param name="moldingAccessCodeGenerator">The generator func of type and parameter information for molding.</param>
         /// <param name="moldingDefault">The default value for molding.</param>
-        /// <param name="allowHiddenValue">This spec allows hidden value or not.</param>
+        /// <param name="dictMode">This spec is on dictionary value or not.</param>
         internal PathIndexer(
             Spec parent,
             Func<string> typeGenerator,
@@ -32,7 +32,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             Func<T, AgnosticPath> setter,
             Func<string> moldingAccessCodeGenerator,
             T moldingDefault,
-            bool allowHiddenValue)
+            bool dictMode)
         {
             this.InternalIndexer = new ScalarIndexer<T>(
                 parent,
@@ -51,7 +51,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                 },
                 moldingAccessCodeGenerator,
                 moldingDefault,
-                allowHiddenValue,
+                dictMode,
                 ImmutableList<string>.Empty);
         }
 
