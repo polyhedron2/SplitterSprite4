@@ -563,24 +563,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
 
         public bool IsHidden(string key)
         {
-            try
-            {
-                FromScalar(this.Properties.Scalar[key].Value);
-            }
-            catch (YAML.YAMLTypeSlipException<ScalarYAML>)
-            {
-                return false;
-            }
-            catch (YAML.YAMLKeyUndefinedException)
-            {
-                return false;
-            }
-            catch (MagicWordException ex)
-            {
-                return ex.Word == HIDDEN;
-            }
+            return this.IsMagic(key, HIDDEN);
+        }
 
-            return false;
+        public bool IsHeld(string key)
+        {
+            return this.IsMagic(key, HELD);
         }
 
         internal static bool CheckMagicWord(string val)
@@ -639,6 +627,28 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         {
             // "__xxx__" is used for magic word "xxx".
             return DecorateAsMagicWord(word);
+        }
+
+        private bool IsMagic(string key, string magicWord)
+        {
+            try
+            {
+                FromScalar(this.Properties.Scalar[key].Value);
+            }
+            catch (YAML.YAMLTypeSlipException<ScalarYAML>)
+            {
+                return false;
+            }
+            catch (YAML.YAMLKeyUndefinedException)
+            {
+                return false;
+            }
+            catch (MagicWordException ex)
+            {
+                return ex.Word == magicWord;
+            }
+
+            return false;
         }
 
         /// <summary>

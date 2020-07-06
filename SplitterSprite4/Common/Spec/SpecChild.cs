@@ -115,7 +115,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 lock (this.parent.Properties)
                 {
-                    if (this.parent.IsHidden(this.accessKey))
+                    if (this.parent.IsHidden(this.accessKey) ||
+                        this.parent.IsHeld(this.accessKey))
                     {
                         return new MappingYAML();
                     }
@@ -203,19 +204,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         /// </summary>
         public void Hold()
         {
-            this.parent[this.accessKey].SetMagicWord("spawner", Spec.HELD);
-
-            try
-            {
-                // Ensure that "properties" follows "spawner".
-                var propYAML = this.Body.Mapping["properties"];
-                this.Body.Remove("properties");
-                this.Body.Mapping["properties"] = propYAML;
-            }
-            catch (YAML.YAMLKeyUndefinedException)
-            {
-                // If "properties" not contained, do nothing.
-            }
+            this.parent.SetMagicWord(this.accessKey, Spec.HELD);
         }
 
         /// <summary>
@@ -234,16 +223,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                     Spawner.ValidateSpawnerType(this.bound, type);
 
                     return type;
-                }
-                catch (MagicWordException ex)
-                {
-                    if (ex.Word == HELD)
-                    {
-                        throw new DefaultKeyException(this.ID, "spawner");
-                    }
-
-                    throw new InvalidSpecAccessException(
-                        $"{this.ID}[spawner]", "Spawner", ex);
                 }
                 catch (YAML.YAMLKeyUndefinedException ex)
                 {
