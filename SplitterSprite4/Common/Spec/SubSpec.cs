@@ -73,7 +73,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 lock (this.parent.Properties)
                 {
-                    if (this.parent.IsHidden(this.accessKey))
+                    if (this.parent.IsHidden(this.accessKey) ||
+                        this.parent.IsHeld(this.accessKey))
                     {
                         return new MappingYAML();
                     }
@@ -117,6 +118,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public void Hide()
         {
             this.parent.SetMagicWord(this.accessKey, Spec.HIDDEN);
+        }
+
+        /// <summary>
+        /// Ensure that spawner spec exists, even if the spec is empty.
+        /// </summary>
+        public void Hold()
+        {
+            this.parent.SetMagicWord(this.accessKey, Spec.HELD);
         }
     }
 }

@@ -13,5 +13,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     public interface IIndexerGet<T_Value>
     {
         T_Value this[string key] { get; }
+
+        void Remove(string key);
+
+        void Hide(string key);
+
+        void Hold(string key);
     }
 }

@@ -62,5 +62,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         {
             new SubSpec(this.parent, key).Hide();
         }
+
+        /// <summary>
+        /// Add special value into the key of the spec.
+        /// Ensure that spawner spec exists, even if the spec is empty.
+        /// </summary>
+        /// <param name="key">The string key for the value.</param>
+        public void Hold(string key)
+        {
+            new SubSpec(this.parent, key).Hold();
+        }
     }
 }
