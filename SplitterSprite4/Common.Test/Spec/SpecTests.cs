@@ -1602,7 +1602,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "layer2",
             "dir/base.spec",
             "dir/base.spec")]
-        public void LiteralExplicitDefaultTest(
+        public void LiteralHoldTest(
             string derivedSpecLayerName,
             string derivedSpecPathStr,
             string baseSpecLayerName,
@@ -1649,10 +1649,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             Assert.Equal(24, derivedSpec.Int["fourth", 34]);
 
             // act
-            derivedSpec.Int.ExplicitDefault("first");
-            derivedSpec.Int.ExplicitDefault("second");
-            baseSpec.Int.ExplicitDefault("third");
-            baseSpec.Int.ExplicitDefault("fourth");
+            derivedSpec.Int.Hold("first");
+            derivedSpec.Int.Hold("second");
+            baseSpec.Int.Hold("third");
+            baseSpec.Int.Hold("fourth");
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -1677,16 +1677,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 Utility.JoinLines(
                     $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
                     "\"properties\":",
-                    "  \"first\": \"__DEFAULT__\"",
-                    "  \"second\": \"__DEFAULT__\"",
+                    "  \"first\": \"__HELD__\"",
+                    "  \"second\": \"__HELD__\"",
                     "  \"third\": \"13\""),
                 derivedSpec.ToString());
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
                     "  \"second\": \"22\"",
-                    "  \"third\": \"__DEFAULT__\"",
-                    "  \"fourth\": \"__DEFAULT__\""),
+                    "  \"third\": \"__HELD__\"",
+                    "  \"fourth\": \"__HELD__\""),
                 baseSpec.ToString());
         }
 
@@ -2419,7 +2419,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             "32.spec",
             "33.spec",
             "34.spec")]
-        public void PathExplicitDefaultTest(
+        public void PathHoldTest(
             string derivedSpecPathStr,
             string baseSpecPathStr,
             string referredPathStr11,
@@ -2589,10 +2589,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     "fourth", defaultPathStr4].Spawn());
 
             // act
-            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("first");
-            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("second");
-            baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("third");
-            baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().ExplicitDefault("fourth");
+            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().Hold("first");
+            derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().Hold("second");
+            baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().Hold("third");
+            baseSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>().Hold("fourth");
 
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
@@ -2633,16 +2633,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 Utility.JoinLines(
                     $"\"base\": \"{(baseSpecPath - derivedSpecPath.Parent).ToAgnosticPathString()}\"",
                     "\"properties\":",
-                    "  \"first\": \"__DEFAULT__\"",
-                    "  \"second\": \"__DEFAULT__\"",
+                    "  \"first\": \"__HELD__\"",
+                    "  \"second\": \"__HELD__\"",
                     $"  \"third\": \"{(referredSpecPath13 - derivedSpecPath.Parent).ToAgnosticPathString()}\""),
                 derivedSpec.ToString());
             Assert.Equal(
                 Utility.JoinLines(
                     "\"properties\":",
                     $"  \"second\": \"{(referredSpecPath22 - baseSpecPath.Parent).ToAgnosticPathString()}\"",
-                    "  \"third\": \"__DEFAULT__\"",
-                    "  \"fourth\": \"__DEFAULT__\""),
+                    "  \"third\": \"__HELD__\"",
+                    "  \"fourth\": \"__HELD__\""),
                 baseSpec.ToString());
         }
 

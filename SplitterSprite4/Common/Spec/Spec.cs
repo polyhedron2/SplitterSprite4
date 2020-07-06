@@ -24,7 +24,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     {
         internal static readonly string MAGICWORDDECORATOR = "__";
         internal static readonly string HIDDEN = "HIDDEN";
-        internal static readonly string DEFAULT = "DEFAULT";
+        internal static readonly string HELD = "HELD";
 
         /// <summary>
         /// Gets an os-agnostic path of this spec file.

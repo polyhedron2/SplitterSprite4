@@ -199,11 +199,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         }
 
         /// <summary>
-        /// Declare that spawner type come from default type.
+        /// Ensure that spawner spec exists, even if the spec is empty.
         /// </summary>
-        public void ExplicitDefaultSpawnerType()
+        public void Hold()
         {
-            this.parent[this.accessKey].SetMagicWord("spawner", Spec.DEFAULT);
+            this.parent[this.accessKey].SetMagicWord("spawner", Spec.HELD);
 
             try
             {
@@ -237,7 +237,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 }
                 catch (MagicWordException ex)
                 {
-                    if (ex.Word == DEFAULT)
+                    if (ex.Word == HELD)
                     {
                         throw new DefaultKeyException(this.ID, "spawner");
                     }

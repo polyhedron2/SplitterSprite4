@@ -150,12 +150,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
         /// <summary>
         /// Add special value into the key of the spec.
-        /// Even if base spec contains the key, the default value will be used.
+        /// Ensure that spawner spec exists, even if the spec is empty.
         /// </summary>
         /// <param name="key">The string key for the value.</param>
-        public void ExplicitDefault(string key)
+        public void Hold(string key)
         {
-            this.parent.Child[key, typeof(T)].ExplicitDefaultSpawnerType();
+            this.parent.Child[key, typeof(T)].Hold();
         }
 
         private T IndexGet(

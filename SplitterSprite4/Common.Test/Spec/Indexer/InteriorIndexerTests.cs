@@ -169,7 +169,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
             spec.Interior<ISpawnerChild<object>>()["child"] =
                 spec.Interior<ISpawnerChild<object>>()[
                     "type is not defined", defaultType];
-            spec.Interior<ISpawnerChild<object>>().ExplicitDefault("type is not defined");
+            spec.Interior<ISpawnerChild<object>>().Hold("type is not defined");
 
             // assert
             Assert.Equal(
@@ -214,7 +214,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                     "        \"quux\"",
                     "        \"[End Of Text]\"",
                     "  \"type is not defined\":",
-                    $"    \"spawner\": \"__DEFAULT__\"",
+                    $"    \"spawner\": \"__HELD__\"",
                     "    \"properties\":",
                     "      \"true\": |+",
                     "        \"qux\"",
@@ -256,7 +256,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                     "        \"quux\"",
                     "        \"[End Of Text]\"",
                     "  \"type is not defined\":",
-                    $"    \"spawner\": \"__DEFAULT__\"",
+                    $"    \"spawner\": \"__HELD__\"",
                     "    \"properties\":",
                     "      \"true\": |+",
                     "        \"qux\"",

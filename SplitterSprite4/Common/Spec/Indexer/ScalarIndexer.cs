@@ -243,7 +243,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             }
             catch (Spec.MagicWordException ex)
             {
-                if (ex.Word == Spec.DEFAULT)
+                if (ex.Word == Spec.HELD)
                 {
                     throw new Spec.DefaultKeyException(this.parent.ID, key);
                 }
@@ -289,9 +289,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             this.parent.SetMagicWord(key, Spec.HIDDEN);
         }
 
-        internal void ExplicitDefault(string key)
+        internal void Hold(string key)
         {
-            this.parent.SetMagicWord(key, Spec.DEFAULT);
+            this.parent.SetMagicWord(key, Spec.HELD);
         }
     }
 }
