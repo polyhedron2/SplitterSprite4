@@ -13,6 +13,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec.Indexer;
+    using MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -168,6 +169,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public TextIndexer Text
         {
             get => new TextIndexer(this, false);
+        }
+
+        /// <summary>
+        /// Gets KeyDefiner for starting point of DictIndexer.
+        /// </summary>
+        public KeyDefiner Dict
+        {
+            get => new KeyDefiner(this);
         }
 
         /// <summary>

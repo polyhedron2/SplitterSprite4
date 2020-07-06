@@ -21,25 +21,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// Initializes a new instance of the <see cref="DictIndexerGetSet{T_Key, T_Value}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="keyTypeGenerator">
-        /// The access type string generator for key.
-        /// </param>
-        /// <param name="keyGetter">
-        /// Translation function
-        /// from spec path and string key in spec
-        /// to indexed key.
-        /// </param>
-        /// <param name="keySetter">
-        /// Translation function
-        /// from spec path and indexed key
-        /// to string key in spec.
-        /// </param>
         /// <param name="keyOrder">
         /// Translation function
         /// from key to IComparable for sorting keys.
         /// </param>
-        /// <param name="keyMoldingAccessCodeGenerator">
-        /// The key type and parameter information generator for molding.
+        /// <param name="keyScalarIndexer">
+        /// ScalarIndexer object for key access.
         /// </param>
         /// <param name="valueIndexerGenerator">
         /// The value indexer generator.
@@ -49,20 +36,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// </param>
         internal DictIndexerGetSet(
             Spec parent,
-            Func<string> keyTypeGenerator,
-            Func<AgnosticPath, string, T_Key> keyGetter,
-            Func<AgnosticPath, T_Key, string> keySetter,
             Func<T_Key, IComparable> keyOrder,
-            Func<string> keyMoldingAccessCodeGenerator,
+            ScalarIndexer<T_Key> keyScalarIndexer,
             Func<Spec, IIndexerGetSet<T_Value>> valueIndexerGenerator,
             ImmutableList<string> referredSpecs)
             : base(
                   parent,
-                  keyTypeGenerator,
-                  keyGetter,
-                  keySetter,
                   keyOrder,
-                  keyMoldingAccessCodeGenerator,
+                  keyScalarIndexer,
                   valueIndexerGenerator,
                   referredSpecs)
         {

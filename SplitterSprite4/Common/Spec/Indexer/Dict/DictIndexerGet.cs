@@ -23,25 +23,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// Initializes a new instance of the <see cref="DictIndexerGet{T_Key, T_Value}"/> class.
         /// </summary>
         /// <param name="parent">The parent spec.</param>
-        /// <param name="keyTypeGenerator">
-        /// The access type string generator for key.
-        /// </param>
-        /// <param name="keyGetter">
-        /// Translation function
-        /// from spec path and string key in spec
-        /// to indexed key.
-        /// </param>
-        /// <param name="keySetter">
-        /// Translation function
-        /// from spec path and indexed key
-        /// to string key in spec.
-        /// </param>
         /// <param name="keyOrder">
         /// Translation function
         /// from key to IComparable for sorting keys.
         /// </param>
-        /// <param name="keyMoldingAccessCodeGenerator">
-        /// The key type and parameter information generator for molding.
+        /// <param name="keyScalarIndexer">
+        /// ScalarIndexer object for key access.
         /// </param>
         /// <param name="valueIndexerGenerator">
         /// The value indexer generator.
@@ -51,22 +38,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// </param>
         internal DictIndexerGet(
             Spec parent,
-            Func<string> keyTypeGenerator,
-            Func<AgnosticPath, string, T_Key> keyGetter,
-            Func<AgnosticPath, T_Key, string> keySetter,
             Func<T_Key, IComparable> keyOrder,
-            Func<string> keyMoldingAccessCodeGenerator,
+            ScalarIndexer<T_Key> keyScalarIndexer,
             Func<Spec, IIndexerGet<T_Value>> valueIndexerGenerator,
             ImmutableList<string> referredSpecs)
         {
             this.Parent = parent;
 
-            this.KeyTypeGenerator = Spec.FixCulture(keyTypeGenerator);
-            this.KeyGetter = Spec.FixCulture(keyGetter);
-            this.KeySetter = Spec.FixCulture(keySetter);
             this.KeyOrder = keyOrder;
+            this.KeyScalarIndexer = keyScalarIndexer;
+            this.KeyTypeGenerator = keyScalarIndexer.TypeGenerator;
+            this.KeyGetter = keyScalarIndexer.Getter;
+            this.KeySetter = keyScalarIndexer.Setter;
             this.KeyMoldingAccessCodeGenerator =
-                Spec.FixCulture(keyMoldingAccessCodeGenerator);
+                keyScalarIndexer.MoldingAccessCodeGenerator;
 
             this.ValueIndexerGetGenerator = valueIndexerGenerator;
 
@@ -83,13 +68,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 
         protected Spec Parent { get; }
 
+        protected Func<T_Key, IComparable> KeyOrder { get; }
+
+        protected ScalarIndexer<T_Key> KeyScalarIndexer { get; }
+
         protected Func<string> KeyTypeGenerator { get; }
 
         protected Func<AgnosticPath, string, T_Key> KeyGetter { get; }
 
         protected Func<AgnosticPath, T_Key, string> KeySetter { get; }
-
-        protected Func<T_Key, IComparable> KeyOrder { get; }
 
         protected Func<string> KeyMoldingAccessCodeGenerator { get; }
 
@@ -174,11 +161,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             {
                 ret = new DictIndexerGet<T_Key, T_Value>(
                     this.Parent.Base,
-                    this.KeyTypeGenerator,
-                    this.KeyGetter,
-                    this.KeySetter,
                     this.KeyOrder,
-                    this.KeyMoldingAccessCodeGenerator,
+                    this.KeyScalarIndexer,
                     this.ValueIndexerGetGenerator,
                     this.ReferredSpecs.Add(this.Parent.ID))
                     .Keys(indexKey);

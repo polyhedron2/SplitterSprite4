@@ -14,7 +14,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
     /// Common indexer class for scalar value in spec file.
     /// </summary>
     /// <typeparam name="T">Type of value.</typeparam>
-    internal class ScalarIndexer<T>
+    public class ScalarIndexer<T>
     {
         private Spec parent;
         private T moldingDefault;
