@@ -1559,8 +1559,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
-        /// LiteralIndexer上のExplicitDefault機能をテスト。
-        /// Test ExplicitDefault method on LiteralIndexer.
+        /// LiteralIndexer上のHold機能をテスト。
+        /// Test Hold method on LiteralIndexer.
         /// </summary>
         /// <param name="derivedSpecLayerName">
         /// A derived spec's layer name.
@@ -2327,8 +2327,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         }
 
         /// <summary>
-        /// PathIndexer上のExplicitDefault機能をテスト。
-        /// Test ExplicitDefault method on PathIndexer.
+        /// PathIndexer上のHold機能をテスト。
+        /// Test Hold method on PathIndexer.
         /// </summary>
         /// <param name="derivedSpecPathStr">
         /// A derived spec's os-agnostic path.
