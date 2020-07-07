@@ -9,6 +9,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Linq;
 
     /// <summary>
     /// Indexer class for dictionary type value in spec file.
@@ -68,12 +69,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 {
                     try
                     {
-                        foreach (var kv in value)
+                        this.ValidateKeys(value.Keys);
+                        this.Parent.SubSpec.Remove(indexKey);
+
+                        foreach (var key in value.Keys.OrderBy(this.KeyOrder))
                         {
-                            var key = this.KeySetter(this.Parent.Path, kv.Key);
                             var indexer = this.ValueIndexerGetSetGenerator(
                                 this.Parent[indexKey][this.DictBodyIndex]);
-                            indexer[key] = kv.Value;
+                            indexer[this.KeySetter(this.Parent.Path, key)] = value[key];
                         }
                     }
                     catch (Exception ex)

@@ -1659,17 +1659,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             {
                 _ = derivedSpec.Int["first"];
             });
-            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
-            {
-                _ = derivedSpec.Int["second"];
-            });
+            Assert.Equal(22, derivedSpec.Int["second"]);
             Assert.Equal(13, derivedSpec.Int["third"]);
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
                 _ = derivedSpec.Int["fourth"];
             });
             Assert.Equal(31, derivedSpec.Int["first", 31]);
-            Assert.Equal(32, derivedSpec.Int["second", 32]);
+            Assert.Equal(22, derivedSpec.Int["second", 32]);
             Assert.Equal(13, derivedSpec.Int["third", 33]);
             Assert.Equal(34, derivedSpec.Int["fourth", 34]);
 
@@ -2599,10 +2596,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
             {
                 _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["first"];
             });
-            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
-            {
-                _ = derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()["second"];
-            });
+            Assert.Equal(
+                "22",
+                derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
+                    "second"].Spawn());
             Assert.Equal(
                 "13",
                 derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
@@ -2617,7 +2614,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                 derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "first", defaultPathStr1].Spawn());
             Assert.Equal(
-                "32",
+                "22",
                 derivedSpec.Exterior<ValidSpawnerRootWithDefaultConstructor>()[
                     "second", defaultPathStr2].Spawn());
             Assert.Equal(

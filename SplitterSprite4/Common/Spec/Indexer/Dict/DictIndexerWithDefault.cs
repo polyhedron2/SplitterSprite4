@@ -66,7 +66,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                     {
                         if (this.Parent.IsMolding)
                         {
-                            this.Parent.Mold[indexKey][this.MoldingTypeIndex] =
+                            this.Parent[indexKey].Mold[this.MoldingTypeIndex] =
                                 new ScalarYAML(this.MoldingAccessCode);
                         }
 

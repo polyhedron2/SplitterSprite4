@@ -197,7 +197,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                             return lazyDefaultVal();
                         }
                     }
-                    catch (Spec.DefaultKeyException)
+                    catch (Spec.HeldKeyException)
                     {
                         return lazyDefaultVal();
                     }
@@ -235,30 +235,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
         /// <returns>The translated value.</returns>
         internal T IndexGet(string key)
         {
+            var isLooped = this.referredSpecs.Contains(
+                this.parent.ID);
+
             try
             {
                 var val = Spec.FromScalar(
                     this.parent.Properties.Scalar[key].Value);
                 return this.Getter(this.parent.Path, val);
             }
-            catch (Spec.MagicWordException ex)
-            {
-                if (ex.Word == Spec.HELD)
-                {
-                    throw new Spec.DefaultKeyException(this.parent.ID, key);
-                }
-
-                if (ex.Word == Spec.HIDDEN)
-                {
-                    throw new Spec.HiddenKeyException(this.parent.ID, key);
-                }
-
-                throw ex;
-            }
             catch (YAML.YAMLKeyUndefinedException ex)
             {
-                var isLooped = this.referredSpecs.Contains(
-                    this.parent.ID);
                 if (this.parent.Base == null || isLooped)
                 {
                     throw ex;
@@ -276,6 +263,35 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                     this.dictMode,
                     this.referredSpecs.Add(this.parent.ID))
                     .IndexGet(key);
+            }
+            catch (Spec.MagicWordException ex)
+            {
+                if (ex.Word == Spec.HELD)
+                {
+                    if (this.parent.Base == null || isLooped)
+                    {
+                        throw new Spec.HeldKeyException(this.parent.ID, key);
+                    }
+
+                    // Held value is as same as empty value.
+                    return new ScalarIndexer<T>(
+                        this.parent.Base,
+                        this.TypeGenerator,
+                        this.Getter,
+                        this.Setter,
+                        this.MoldingAccessCodeGenerator,
+                        this.moldingDefault,
+                        this.dictMode,
+                        this.referredSpecs.Add(this.parent.ID))
+                        .IndexGet(key);
+                }
+
+                if (ex.Word == Spec.HIDDEN)
+                {
+                    throw new Spec.HiddenKeyException(this.parent.ID, key);
+                }
+
+                throw ex;
             }
         }
 

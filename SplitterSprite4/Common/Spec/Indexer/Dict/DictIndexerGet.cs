@@ -105,7 +105,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                     {
                         if (this.Parent.IsMolding)
                         {
-                            this.Parent.Mold[indexKey][this.MoldingTypeIndex] =
+                            this.Parent[indexKey].Mold[this.MoldingTypeIndex] =
                                 new ScalarYAML(this.MoldingAccessCode);
                         }
 
@@ -147,6 +147,39 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             }
         }
 
+        /// <summary>
+        /// Remove key and value from the dictionary.
+        /// </summary>
+        /// <param name="dictKey">The target dictionary key.</param>
+        /// <param name="removeKey">The string key which will be removed.</param>
+        public void Remove(string dictKey, string removeKey)
+        {
+            this.ValueIndexerGetGenerator(
+                this.Parent[dictKey][this.DictBodyIndex]).Remove(removeKey);
+        }
+
+        /// <summary>
+        /// Hide key and value from the dictionary.
+        /// </summary>
+        /// <param name="dictKey">The target dictionary key.</param>
+        /// <param name="hideKey">The string key which will be hidden.</param>
+        public void Hide(string dictKey, string hideKey)
+        {
+            this.ValueIndexerGetGenerator(
+                this.Parent[dictKey][this.DictBodyIndex]).Hide(hideKey);
+        }
+
+        /// <summary>
+        /// Hold key with empty value on the dictionary.
+        /// </summary>
+        /// <param name="dictKey">The target dictionary key.</param>
+        /// <param name="holdKey">The string key which will be held.</param>
+        public void Hold(string dictKey, string holdKey)
+        {
+            this.ValueIndexerGetGenerator(
+                this.Parent[dictKey][this.DictBodyIndex]).Hold(holdKey);
+        }
+
         internal ImmutableList<string> Keys(string indexKey)
         {
             // If it is looped, stop to search keys in spec.
@@ -173,20 +206,64 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             }
 
             // Translate keys and values from spec.
-            var itsMap = this.Parent.Properties.Mapping[indexKey];
-            foreach (var yamlKeyValue in itsMap)
+            if (this.Parent.Properties.ContainsKey(indexKey))
             {
-                var yamlKey = yamlKeyValue.Key;
-                ret.Add(yamlKey);
+                var itsMap = this.Parent.Properties[indexKey].Mapping[this.DictBodyIndex];
+                foreach (var yamlKeyValue in itsMap)
+                {
+                    var yamlKey = yamlKeyValue.Key;
+                    ret = ret.Add(yamlKey);
+                }
             }
 
             return ret;
         }
 
+        internal void ValidateKeys(IEnumerable<string> keys)
+        {
+            foreach (var keyStr in keys)
+            {
+                try
+                {
+                    this.KeyGetter(this.Parent.Path, keyStr);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidKeyException(keyStr, ex);
+                }
+            }
+        }
+
+        internal void ValidateKeys(IEnumerable<T_Key> keys)
+        {
+            foreach (var key in keys)
+            {
+                try
+                {
+                    this.KeySetter(this.Parent.Path, key);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidKeyException(key.ToString(), ex);
+                }
+            }
+        }
+
         internal IOrderedEnumerable<string> SortedKeys(string indexKey)
         {
-            return this.Keys(indexKey).OrderBy(
+            var keys = this.Keys(indexKey);
+            this.ValidateKeys(keys);
+
+            return keys.OrderBy(
                 key => this.KeyOrder(this.KeyGetter(this.Parent.Path, key)));
+        }
+
+        public class InvalidKeyException : Exception
+        {
+            internal InvalidKeyException(string keyStr, Exception inner)
+                : base($"{keyStr}はマッピングのキーとして不正です。", inner)
+            {
+            }
         }
     }
 }

@@ -115,7 +115,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
                         {
                             return specChild.SpawnerType;
                         }
-                        catch (Spec.DefaultKeyException)
+                        catch (Spec.HeldKeyException)
                         {
                             return defaultType;
                         }

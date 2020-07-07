@@ -126,6 +126,16 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             }
         }
 
+        /// <summary>
+        /// Check the key is contained by this YAML.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <returns>Whether this YAML contains the key or not.</returns>
+        public bool ContainsKey(string key)
+        {
+            return this.Body.ContainsKey(key);
+        }
+
         /// <inheritdoc/>
         public override IEnumerable<string> ToStringLines(
             bool ignoreEmptyMappingChild)

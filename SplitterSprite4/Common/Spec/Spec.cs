@@ -778,10 +778,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             }
         }
 
-        internal class DefaultKeyException : Exception
+        internal class HeldKeyException : Exception
         {
-            internal DefaultKeyException(string id, string key)
-                : base($"\"{id}\"上のキー\"{key}\"は明示的にデフォルト値が指定されています。")
+            internal HeldKeyException(string id, string key)
+                : base($"\"{id}\"上のキー\"{key}\"は空の値のままキーが保持されています。")
             {
             }
         }
