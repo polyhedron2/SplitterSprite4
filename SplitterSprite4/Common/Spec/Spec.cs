@@ -631,24 +631,57 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
 
         private bool IsMagic(string key, string magicWord)
         {
-            try
+            lock (this.Properties)
             {
-                FromScalar(this.Properties.Scalar[key].Value);
-            }
-            catch (YAML.YAMLTypeSlipException<ScalarYAML>)
-            {
-                return false;
-            }
-            catch (YAML.YAMLKeyUndefinedException)
-            {
-                return false;
-            }
-            catch (MagicWordException ex)
-            {
-                return ex.Word == magicWord;
-            }
+                YAML targetYAML;
 
-            return false;
+                try
+                {
+                    targetYAML = this.Properties[key];
+                }
+                catch (YAML.YAMLKeyUndefinedException)
+                {
+                    return false;
+                }
+
+                if (targetYAML is ScalarYAML)
+                {
+                    try
+                    {
+                        FromScalar((targetYAML as ScalarYAML).Value);
+                    }
+                    catch (MagicWordException ex)
+                    {
+                        return ex.Word == magicWord;
+                    }
+                }
+                else if (targetYAML is MappingYAML)
+                {
+                    try
+                    {
+                        var targetMappingYAML = targetYAML as MappingYAML;
+
+                        // Only if targetYAML is emtpy mapping, the yaml can be magic word.
+                        if (!targetMappingYAML.IsEmptyCollection(true))
+                        {
+                            return false;
+                        }
+
+                        if (targetMappingYAML.EmptyDefaultScalarNullable == null)
+                        {
+                            return false;
+                        }
+
+                        FromScalar(targetMappingYAML.EmptyDefaultScalarNullable);
+                    }
+                    catch (MagicWordException ex)
+                    {
+                        return ex.Word == magicWord;
+                    }
+                }
+
+                return false;
+            }
         }
 
         /// <summary>

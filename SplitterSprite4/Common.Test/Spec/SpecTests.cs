@@ -2914,6 +2914,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     "  \"third\": \"__HIDDEN__\"",
                     "  \"fourth\": \"__HIDDEN__\""),
                 baseSpec.ToString());
+
+            // act
+            derivedSpec["first"].Int["inner"] = 101;
+            baseSpec["fourth"].Int["inner"] = 204;
+
+            // assert
+            Assert.Equal(101, derivedSpec["first"].Int["inner"]);
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                _ = derivedSpec["second"].Int["inner"];
+            });
+            Assert.Equal(13, derivedSpec["third"].Int["inner"]);
+            Assert.Equal(204, derivedSpec["fourth"].Int["inner"]);
+            Assert.Equal(101, derivedSpec["first"].Int["inner", 31]);
+            Assert.Equal(32, derivedSpec["second"].Int["inner", 32]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner", 33]);
+            Assert.Equal(204, derivedSpec["fourth"].Int["inner", 34]);
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\":",
+                    "    \"inner\": \"101\"",
+                    "  \"second\": \"__HIDDEN__\"",
+                    "  \"third\":",
+                    "    \"inner\": \"13\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\":",
+                    "    \"inner\": \"22\"",
+                    "  \"third\": \"__HIDDEN__\"",
+                    "  \"fourth\":",
+                    "    \"inner\": \"204\""),
+                baseSpec.ToString());
         }
 
         /// <summary>
@@ -3050,6 +3087,40 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     "    \"inner\": \"22\"",
                     "  \"third\": \"__HELD__\"",
                     "  \"fourth\": \"__HELD__\""),
+                baseSpec.ToString());
+
+            // act
+            derivedSpec["first"].Int["inner"] = 101;
+            baseSpec["fourth"].Int["inner"] = 204;
+
+            // assert
+            Assert.Equal(101, derivedSpec["first"].Int["inner"]);
+            Assert.Equal(22, derivedSpec["second"].Int["inner"]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner"]);
+            Assert.Equal(204, derivedSpec["fourth"].Int["inner"]);
+            Assert.Equal(101, derivedSpec["first"].Int["inner", 31]);
+            Assert.Equal(22, derivedSpec["second"].Int["inner", 32]);
+            Assert.Equal(13, derivedSpec["third"].Int["inner", 33]);
+            Assert.Equal(204, derivedSpec["fourth"].Int["inner", 34]);
+
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{relativePathFromDerivedToBaseStr}\"",
+                    "\"properties\":",
+                    "  \"first\":",
+                    "    \"inner\": \"101\"",
+                    "  \"second\": \"__HELD__\"",
+                    "  \"third\":",
+                    "    \"inner\": \"13\""),
+                derivedSpec.ToString());
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"properties\":",
+                    "  \"second\":",
+                    "    \"inner\": \"22\"",
+                    "  \"third\": \"__HELD__\"",
+                    "  \"fourth\":",
+                    "    \"inner\": \"204\""),
                 baseSpec.ToString());
         }
 

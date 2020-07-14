@@ -352,6 +352,67 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
         }
 
         /// <summary>
+        /// Test MappingYAML with emptyDefaultScalar.
+        /// </summary>
+        [Fact]
+        public void MappingWithEmptyDefaultScalarTest()
+        {
+            // arrange
+            var outerYaml = new MappingYAML("empty outer default");
+
+            // assert
+
+            // outerYaml is empty, then the default string is used.
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"empty outer default\""),
+                outerYaml.ToString(true));
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"empty outer default\""),
+                outerYaml.ToString(false));
+
+            // act
+            var innerYaml = new MappingYAML("empty inner default");
+            outerYaml["inner"] = innerYaml;
+
+            // assert
+
+            // innerYaml is empty but outerYaml is not empty,
+            // then only innerYaml's default string is used.
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"inner\": \"empty inner default\""),
+                outerYaml.ToString(true));
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"inner\": \"empty inner default\""),
+                outerYaml.ToString(false));
+
+            // act
+            outerYaml["inner"]["inner inner seq"] = new SequenceYAML();
+            outerYaml["inner"]["inner inner map"] = new MappingYAML();
+
+            // assert
+
+            // If ignoreEmptyMappingChild is true, the empty sequence and empty mapping is ignored.
+            // Then, innerYaml is interpreted as empty. Therefore, innerYaml's default string is used.
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"inner\": \"empty inner default\""),
+                outerYaml.ToString(true));
+
+            // If ignoreEmptyMappingChild is false, the inner-inner children is not ignored.
+            // Then, innerYaml is not empty.
+            Assert.Equal(
+                Utility.JoinLines(
+                    "\"inner\":",
+                    "  \"inner inner seq\": []",
+                    "  \"inner inner map\": {}"),
+                outerYaml.ToString(false));
+        }
+
+        /// <summary>
         /// Test the scalar getter with default value method.
         /// </summary>
         /// <param name="path">The os-agnostic path string.</param>

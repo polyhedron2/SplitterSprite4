@@ -22,9 +22,21 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
         /// Initializes a new instance of the <see cref="MappingYAML"/> class.
         /// </summary>
         public MappingYAML()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MappingYAML"/> class.
+        /// </summary>
+        /// <param name="emptyDefaultScalar">
+        /// The scalar value which will be replaced when this mapping is empty.
+        /// </param>
+        public MappingYAML(string emptyDefaultScalar)
         {
             this.Body = new Dictionary<string, YAML>();
             this.KeyOrder = new List<string>();
+            this.EmptyDefaultScalarNullable = emptyDefaultScalar;
         }
 
         /// <summary>
@@ -43,6 +55,11 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 this.Add(((YamlScalarNode)entry.Key).Value, child);
             }
         }
+
+        /// <summary>
+        /// Gets the string which is used in ToString when this mapping is empty.
+        /// </summary>
+        public string EmptyDefaultScalarNullable { get; }
 
         /// <summary>
         /// Gets the length of this mapping.
@@ -136,20 +153,100 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
             return this.Body.ContainsKey(key);
         }
 
+        /// <summary>
+        /// Check this yaml is emtpy or not.
+        /// </summary>
+        /// <param name="ignoreEmptyMappingChild">Ignore MappingYAML's child if it's empty collection.</param>
+        /// <returns>Whether this yaml is emtpy or not.</returns>
+        public bool IsEmptyCollection(bool ignoreEmptyMappingChild)
+        {
+            try
+            {
+                this.ToRawStringLines(ignoreEmptyMappingChild).First();
+                return false;
+            }
+            catch (System.InvalidOperationException)
+            {
+                return true;
+            }
+        }
+
         /// <inheritdoc/>
         public override IEnumerable<string> ToStringLines(
             bool ignoreEmptyMappingChild)
         {
+            var ret = this.ToRawStringLines(ignoreEmptyMappingChild);
+
+            try
+            {
+                ret.First();
+                return ret;
+            }
+            catch (System.InvalidOperationException)
+            {
+                if (this.EmptyDefaultScalarNullable == null)
+                {
+                    return new string[] { "{}" };
+                }
+                else
+                {
+                    return new string[] { $"\"{this.EmptyDefaultScalarNullable}\"" };
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override bool Contains(string key) => this.Body.ContainsKey(key);
+
+        /// <inheritdoc/>
+        protected override TValue InnerGetter<TValue>(string key)
+        {
+            YAML value = this.Body[key];
+            if (value is TValue)
+            {
+                return value as TValue;
+            }
+            else
+            {
+                throw new YAMLTypeSlipException<TValue>(
+                    this.ID, key.ToString(), value);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override void InnerSetter<TValue>(string key, TValue value)
+        {
+            string childID = $"{this.ID}[{key}]";
+            value.ID = childID;
+            this.Add(key, value);
+        }
+
+        private IEnumerable<string> ToRawStringLines(
+            bool ignoreEmptyMappingChild)
+        {
             IEnumerable<string> TranslateCollectionLines(string key)
             {
-                string bodyFirstLine;
-                bodyFirstLine = this.Body[key].ToStringLines(ignoreEmptyMappingChild).First();
-                var isEmptyCollection =
-                    bodyFirstLine == "{}" || bodyFirstLine == "[]";
+                string bodyFirstLine = this.Body[key].ToStringLines(ignoreEmptyMappingChild).First();
+
+                // isEmptyCollection cannot defined by "Length == 0", because children YAML can be empty.
+                var isEmptyCollection = false;
+                if (this.Body[key] is MappingYAML)
+                {
+                    isEmptyCollection = (this.Body[key] as MappingYAML).IsEmptyCollection(
+                        ignoreEmptyMappingChild);
+                }
+                else if (this.Body[key] is SequenceYAML)
+                {
+                    isEmptyCollection = bodyFirstLine == "[]";
+                }
 
                 if (isEmptyCollection)
                 {
-                    if (!ignoreEmptyMappingChild)
+                    // If the child is emptyDefaultScalar, isEmptyMappingChild is False.
+                    var isEmptyMappingChild =
+                        bodyFirstLine == "{}" || bodyFirstLine == "[]";
+
+                    if (!isEmptyMappingChild || !ignoreEmptyMappingChild)
                     {
                         var emptyValue = this.Body[key].ToString(
                             ignoreEmptyMappingChild);
@@ -201,11 +298,6 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                 }
             }
 
-            if (this.Length == 0)
-            {
-                return new string[] { "{}" };
-            }
-
             var ret = this.KeyOrder.SelectMany(
                 key =>
                     (this.Body[key] is ScalarYAML) ?
@@ -253,41 +345,7 @@ namespace MagicKitchen.SplitterSprite4.Common.YAML
                     //   valueN
                     TranslateCollectionLines(key));
 
-            try
-            {
-                ret.First();
-                return ret;
-            }
-            catch (System.InvalidOperationException)
-            {
-                return new string[] { "{}" };
-            }
-        }
-
-        /// <inheritdoc/>
-        protected override bool Contains(string key) => this.Body.ContainsKey(key);
-
-        /// <inheritdoc/>
-        protected override TValue InnerGetter<TValue>(string key)
-        {
-            YAML value = this.Body[key];
-            if (value is TValue)
-            {
-                return value as TValue;
-            }
-            else
-            {
-                throw new YAMLTypeSlipException<TValue>(
-                    this.ID, key.ToString(), value);
-            }
-        }
-
-        /// <inheritdoc/>
-        protected override void InnerSetter<TValue>(string key, TValue value)
-        {
-            string childID = $"{this.ID}[{key}]";
-            value.ID = childID;
-            this.Add(key, value);
+            return ret;
         }
     }
 }

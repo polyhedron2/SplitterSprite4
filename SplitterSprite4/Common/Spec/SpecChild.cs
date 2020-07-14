@@ -115,14 +115,22 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
             {
                 lock (this.parent.Properties)
                 {
-                    if (this.parent.IsHidden(this.accessKey) ||
-                        this.parent.IsHeld(this.accessKey))
+                    MappingYAML childYaml;
+
+                    if (this.parent.IsHidden(this.accessKey))
                     {
-                        return new MappingYAML();
+                        childYaml = new MappingYAML(ToMagicScalar(HIDDEN));
+                    }
+                    else if (this.parent.IsHeld(this.accessKey))
+                    {
+                        childYaml = new MappingYAML(ToMagicScalar(HELD));
+                    }
+                    else
+                    {
+                        childYaml = this.parent.Properties.Mapping[
+                            this.accessKey, new MappingYAML()];
                     }
 
-                    var childYaml = this.parent.Properties.Mapping[
-                        this.accessKey, new MappingYAML()];
                     childYaml.ID =
                         $"{this.parent.Properties.ID}[{this.accessKey}]";
                     this.parent.Properties.Mapping[this.accessKey] = childYaml;
