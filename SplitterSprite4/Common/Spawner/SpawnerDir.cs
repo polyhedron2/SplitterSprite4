@@ -11,14 +11,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
     using System.Collections.Generic;
     using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Proxy;
-    using MagicKitchen.SplitterSprite4.Common.Spec;
+    using MagicKitchen.SplitterSprite4.Common.Spec.Indexer;
 
     /// <summary>
     /// ISpawnerDirの実体クラス。
     /// Entity class for ISpawnerDir.
     /// </summary>
     /// <typeparam name="T_Spawner">Target SpawnerRoot class.</typeparam>
-    internal class SpawnerDir<T_Spawner> : ISpawnerDir<T_Spawner>
+    public class SpawnerDir<T_Spawner> : ISpawnerDir<T_Spawner>
         where T_Spawner : ISpawnerRoot<object>
     {
         private OutSideProxy proxy;
@@ -29,21 +29,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         /// </summary>
         /// <param name="proxy">The OutSideProxy for file or spec pool access.</param>
         /// <param name="path">The direcotry path.</param>
-        internal SpawnerDir(OutSideProxy proxy, AgnosticPath path)
+        public SpawnerDir(OutSideProxy proxy, AgnosticPath path)
         {
             this.proxy = proxy;
             this.Dir = new LayeredDir(proxy.FileIO, path);
             this.spawners = this.Dir.EnumerateFiles().Select(
                 (pth) => pth + this.Dir.Path).Select(
-                (pth) =>
-                {
-                    var spec = SpecRoot.Fetch(this.proxy, pth);
-                    var spawner = (T_Spawner)Activator.CreateInstance(
-                        spec.SpawnerType);
-                    spawner.Spec = spec;
-
-                    return spawner;
-                }).ToList();
+                (pth) => ExteriorIndexer<T_Spawner>.FetchSpawner(this.proxy, pth)).ToList();
         }
 
         /// <inheritdoc/>
@@ -59,6 +51,29 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            SpawnerDir<T_Spawner> that;
+
+            try
+            {
+                that = (SpawnerDir<T_Spawner>)obj;
+            }
+            catch (InvalidCastException)
+            {
+                return false;
+            }
+
+            return this.Dir.Path == that.Dir.Path;
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return this.Dir.Path.GetHashCode();
         }
     }
 }

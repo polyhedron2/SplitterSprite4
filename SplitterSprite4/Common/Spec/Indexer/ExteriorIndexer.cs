@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 {
     using System;
+    using MagicKitchen.SplitterSprite4.Common.Proxy;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
 
     /// <summary>
@@ -25,20 +26,28 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             : base(
                 parent,
                 () => typeof(T).Name,
-                (path) =>
-                {
-                    var spec = SpecRoot.Fetch(parent.Proxy, path);
-                    var spawner = (T)Activator.CreateInstance(
-                        spec.SpawnerType);
-                    spawner.Spec = spec;
-
-                    return spawner;
-                },
+                (path) => ExteriorIndexer<T>.FetchSpawner(parent.Proxy, path),
                 (spawner) => spawner.Spec.Path,
                 () => $"Exterior, {Spec.EncodeType(typeof(T))}",
                 CreateMoldingDefault(parent),
                 dictMode)
         {
+        }
+
+        public static T FetchSpawner(OutSideProxy proxy, AgnosticPath path)
+        {
+            return proxy.Singleton(
+                $"{typeof(ExteriorIndexer<>)}.FetchSpawner",
+                path,
+                () =>
+                {
+                    var spec = SpecRoot.Fetch(proxy, path);
+                    var spawner = (T)Activator.CreateInstance(
+                        spec.SpawnerType);
+                    spawner.Spec = spec;
+
+                    return spawner;
+                });
         }
 
         private static T CreateMoldingDefault(Spec parent)

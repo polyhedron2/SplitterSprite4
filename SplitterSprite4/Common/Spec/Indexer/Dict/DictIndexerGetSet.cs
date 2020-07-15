@@ -69,14 +69,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 {
                     try
                     {
-                        this.ValidateKeys(value.Keys);
                         this.Parent.SubSpec.Remove(indexKey);
 
                         foreach (var key in value.Keys.OrderBy(this.KeyOrder))
                         {
+                            string keyStr;
+                            try
+                            {
+                                keyStr = this.KeySetter(this.Parent.Path, key);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new InvalidKeyException(key.ToString(), ex);
+                            }
+
                             var indexer = this.ValueIndexerGetSetGenerator(
                                 this.Parent[indexKey][this.DictBodyIndex]);
-                            indexer[this.KeySetter(this.Parent.Path, key)] = value[key];
+                            indexer[keyStr] = value[key];
                         }
                     }
                     catch (Exception ex)

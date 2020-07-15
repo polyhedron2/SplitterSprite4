@@ -109,20 +109,58 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                                 new ScalarYAML(this.MoldingAccessCode);
                         }
 
-                        var ret = new Dictionary<T_Key, T_Value>();
-
-                        foreach (var key in this.SortedKeys(indexKey))
+                        // If it is looped, stop to search keys in spec.
+                        var isLooped = this.ReferredSpecs.Contains(this.Parent.ID);
+                        if (isLooped)
                         {
+                            return new Dictionary<T_Key, T_Value>();
+                        }
+
+                        Dictionary<T_Key, T_Value> ret;
+                        if (this.Parent.Base != null)
+                        {
+                            ret = new DictIndexerGet<T_Key, T_Value>(
+                                this.Parent.Base,
+                                this.KeyOrder,
+                                this.KeyScalarIndexer,
+                                this.ValueIndexerGetGenerator,
+                                this.ReferredSpecs.Add(this.Parent.ID))[indexKey];
+                        }
+                        else
+                        {
+                            ret = new Dictionary<T_Key, T_Value>();
+                        }
+
+                        if (!this.Parent.Properties.ContainsKey(indexKey))
+                        {
+                            return ret;
+                        }
+
+                        // Translate keys and values from spec.
+                        var itsMap = this.Parent.Properties[indexKey].Mapping[this.DictBodyIndex];
+                        foreach (var yamlKeyValue in itsMap)
+                        {
+                            var yamlKey = yamlKeyValue.Key;
+                            T_Key translatedKey;
+                            try
+                            {
+                                translatedKey = this.KeyGetter(this.Parent.Path, yamlKey);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new InvalidKeyException(yamlKey, ex);
+                            }
+
                             try
                             {
                                 var indexer =
                                     this.ValueIndexerGetGenerator(
                                         this.Parent[indexKey][this.DictBodyIndex]);
-                                ret[this.KeyGetter(this.Parent.Path, key)] =
-                                    indexer[key];
+                                ret[translatedKey] = indexer[yamlKey];
                             }
                             catch (Spec.HiddenKeyException)
                             {
+                                ret.Remove(translatedKey);
                                 continue;
                             }
                         }
@@ -178,84 +216,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         {
             this.ValueIndexerGetGenerator(
                 this.Parent[dictKey][this.DictBodyIndex]).Hold(holdKey);
-        }
-
-        internal ImmutableList<string> Keys(string indexKey)
-        {
-            // If it is looped, stop to search keys in spec.
-            var isLooped = this.ReferredSpecs.Contains(this.Parent.ID);
-            if (isLooped)
-            {
-                return ImmutableList<string>.Empty;
-            }
-
-            ImmutableList<string> ret;
-            if (this.Parent.Base != null)
-            {
-                ret = new DictIndexerGet<T_Key, T_Value>(
-                    this.Parent.Base,
-                    this.KeyOrder,
-                    this.KeyScalarIndexer,
-                    this.ValueIndexerGetGenerator,
-                    this.ReferredSpecs.Add(this.Parent.ID))
-                    .Keys(indexKey);
-            }
-            else
-            {
-                ret = ImmutableList<string>.Empty;
-            }
-
-            // Translate keys and values from spec.
-            if (this.Parent.Properties.ContainsKey(indexKey))
-            {
-                var itsMap = this.Parent.Properties[indexKey].Mapping[this.DictBodyIndex];
-                foreach (var yamlKeyValue in itsMap)
-                {
-                    var yamlKey = yamlKeyValue.Key;
-                    ret = ret.Add(yamlKey);
-                }
-            }
-
-            return ret;
-        }
-
-        internal void ValidateKeys(IEnumerable<string> keys)
-        {
-            foreach (var keyStr in keys)
-            {
-                try
-                {
-                    this.KeyGetter(this.Parent.Path, keyStr);
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidKeyException(keyStr, ex);
-                }
-            }
-        }
-
-        internal void ValidateKeys(IEnumerable<T_Key> keys)
-        {
-            foreach (var key in keys)
-            {
-                try
-                {
-                    this.KeySetter(this.Parent.Path, key);
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidKeyException(key.ToString(), ex);
-                }
-            }
-        }
-
-        internal IOrderedEnumerable<string> SortedKeys(string indexKey)
-        {
-            var keys = this.Keys(indexKey);
-            this.ValidateKeys(keys);
-
-            return keys.OrderBy(
-                key => this.KeyOrder(this.KeyGetter(this.Parent.Path, key)));
         }
 
         public class InvalidKeyException : Exception

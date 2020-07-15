@@ -67,6 +67,7 @@ namespace MagicKitchen.SplitterSprite4.Common
                 (layer) => this.Path + layer.Path).Where(
                 (path) => this.fileIOProxy.DirExists(path)).Select(
                 (path) => this.fileIOProxy.EnumerateFiles(path)).Aggregate(
+                Enumerable.Empty<AgnosticPath>(),
                 (files1, files2) => files1.Union(files2));
         }
     }
