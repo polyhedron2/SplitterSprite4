@@ -1,16 +1,16 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Double3KeyTests.cs" company="MagicKitchen">
+// <copyright file="Double2KeyTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Key
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class Double3KeyTests
+    public class Double2KeyTests
     {
         /// <summary>
         /// Test getter.
@@ -29,21 +29,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"0.0, 0.0, 1.1\": \"zero-zero-one\"",
-                "      \"0.0, 1.1, 0.0\": \"zero-one-zero\"",
-                "      \"1.1, 0.0, 0.0\": \"one-zero-zero\""));
+                "      \"0.0, 0.0\": \"zero-zero\"",
+                "      \"0.0, 1.1\": \"zero-one\"",
+                "      \"1.1, 0.0\": \"one-zero\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.Double3.Keyword["dict"];
+            var dict = spec.Dict.Double2.Keyword["dict"];
 
             // assert
             Assert.Equal(
-                new Dictionary<(double, double, double), string>
+                new Dictionary<(double, double), string>
                 {
-                    { (0.0, 0.0, 1.1), "zero-zero-one" },
-                    { (0.0, 1.1, 0.0), "zero-one-zero" },
-                    { (1.1, 0.0, 0.0), "one-zero-zero" },
+                    { (0.0, 0.0), "zero-zero" },
+                    { (0.0, 1.1), "zero-one" },
+                    { (1.1, 0.0), "one-zero" },
                 },
                 dict);
         }
@@ -66,7 +66,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                 "  \"dict\":",
                 "    \"DictBody\":",
                 "      \"zero\": \"invalid\"",
-                "      \"0.0, 0.0, 0.0\": \"zero-zero-zero\""));
+                "      \"0.0, 0.0\": \"zero-zero\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -74,7 +74,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.Double3.Keyword["dict"];
+                _ = spec.Dict.Double2.Keyword["dict"];
             });
         }
 
@@ -97,11 +97,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.Double3.Keyword["dict"] = new Dictionary<(double, double, double), string>
+            spec.Dict.Double2.Keyword["dict"] = new Dictionary<(double, double), string>
             {
-                { (0.0, 0.0, 1.1), "zero-zero-one" },
-                { (0.0, 1.1, 0.0), "zero-one-zero" },
-                { (1.1, 0.0, 0.0), "one-zero-zero" },
+                { (0.0, 0.0), "zero-zero" },
+                { (0.0, 1.1), "zero-one" },
+                { (1.1, 0.0), "one-zero" },
             };
 
             // assert
@@ -111,9 +111,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                     "  \"other value\": \"dummy\"",
                     "  \"dict\":",
                     "    \"DictBody\":",
-                    "      \"0, 0, 1.1\": \"zero-zero-one\"",
-                    "      \"0, 1.1, 0\": \"zero-one-zero\"",
-                    "      \"1.1, 0, 0\": \"one-zero-zero\""),
+                    "      \"0, 0\": \"zero-zero\"",
+                    "      \"0, 1.1\": \"zero-one\"",
+                    "      \"1.1, 0\": \"one-zero\""),
                 spec.ToString());
         }
     }

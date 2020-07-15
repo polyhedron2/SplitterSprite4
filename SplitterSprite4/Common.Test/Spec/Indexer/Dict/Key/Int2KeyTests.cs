@@ -1,16 +1,16 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="OnOffKeyTests.cs" company="MagicKitchen">
+// <copyright file="Int2KeyTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Key
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class OnOffKeyTests
+    public class Int2KeyTests
     {
         /// <summary>
         /// Test getter.
@@ -29,19 +29,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"off\": \"negative\"",
-                "      \"on\": \"positive\""));
+                "      \"0, 0\": \"zero-zero\"",
+                "      \"0, 1\": \"zero-one\"",
+                "      \"1, 0\": \"one-zero\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.OnOff.Keyword["dict"];
+            var dict = spec.Dict.Int2.Keyword["dict"];
 
             // assert
             Assert.Equal(
-                new Dictionary<bool, string>
+                new Dictionary<(int, int), string>
                 {
-                    { false, "negative" },
-                    { true, "positive" },
+                    { (0, 0), "zero-zero" },
+                    { (0, 1), "zero-one" },
+                    { (1, 0), "one-zero" },
                 },
                 dict);
         }
@@ -63,8 +65,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"False\": \"negative\"",
-                "      \"yes\": \"positive\""));
+                "      \"zero\": \"invalid\"",
+                "      \"0, 0\": \"zero-zero\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -72,7 +74,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.OnOff.Keyword["dict"];
+                _ = spec.Dict.Int2.Keyword["dict"];
             });
         }
 
@@ -95,10 +97,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.OnOff.Keyword["dict"] = new Dictionary<bool, string>
+            spec.Dict.Int2.Keyword["dict"] = new Dictionary<(int, int), string>
             {
-                { false, "negative" },
-                { true, "positive" },
+                { (0, 0), "zero-zero" },
+                { (0, 1), "zero-one" },
+                { (1, 0), "one-zero" },
             };
 
             // assert
@@ -108,8 +111,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                     "  \"other value\": \"dummy\"",
                     "  \"dict\":",
                     "    \"DictBody\":",
-                    "      \"off\": \"negative\"",
-                    "      \"on\": \"positive\""),
+                    "      \"0, 0\": \"zero-zero\"",
+                    "      \"0, 1\": \"zero-one\"",
+                    "      \"1, 0\": \"one-zero\""),
                 spec.ToString());
         }
     }

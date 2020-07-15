@@ -1,16 +1,16 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LimitedKeywordKeyTests.cs" company="MagicKitchen">
+// <copyright file="Int3KeyTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Key
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class LimitedKeywordKeyTests
+    public class Int3KeyTests
     {
         /// <summary>
         /// Test getter.
@@ -29,21 +29,21 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"a\": \"1 char\"",
-                "      \"abc\": \"3 chars\"",
-                "      \"abcde\": \"5 chars\""));
+                "      \"0, 0, 1\": \"zero-zero-one\"",
+                "      \"0, 1, 0\": \"zero-one-zero\"",
+                "      \"1, 0, 0\": \"one-zero-zero\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.LimitedKeyword(5).Keyword["dict"];
+            var dict = spec.Dict.Int3.Keyword["dict"];
 
             // assert
             Assert.Equal(
-                new Dictionary<string, string>
+                new Dictionary<(int, int, int), string>
                 {
-                    { "a", "1 char" },
-                    { "abc", "3 chars" },
-                    { "abcde", "5 chars" },
+                    { (0, 0, 1), "zero-zero-one" },
+                    { (0, 1, 0), "zero-one-zero" },
+                    { (1, 0, 0), "one-zero-zero" },
                 },
                 dict);
         }
@@ -65,9 +65,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"a\": \"1 char\"",
-                "      \"abc\": \"3 chars\"",
-                "      \"abcdefgh\": \"8 chars\""));
+                "      \"zero\": \"invalid\"",
+                "      \"0, 0, 0\": \"zero-zero-zero\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -75,7 +74,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.LimitedKeyword(5).Keyword["dict"];
+                _ = spec.Dict.Int3.Keyword["dict"];
             });
         }
 
@@ -98,11 +97,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.LimitedKeyword(5).Keyword["dict"] = new Dictionary<string, string>
+            spec.Dict.Int3.Keyword["dict"] = new Dictionary<(int, int, int), string>
             {
-                { "a", "1 char" },
-                { "abc", "3 chars" },
-                { "abcde", "5 chars" },
+                { (0, 0, 1), "zero-zero-one" },
+                { (0, 1, 0), "zero-one-zero" },
+                { (1, 0, 0), "one-zero-zero" },
             };
 
             // assert
@@ -112,42 +111,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                     "  \"other value\": \"dummy\"",
                     "  \"dict\":",
                     "    \"DictBody\":",
-                    "      \"a\": \"1 char\"",
-                    "      \"abc\": \"3 chars\"",
-                    "      \"abcde\": \"5 chars\""),
+                    "      \"0, 0, 1\": \"zero-zero-one\"",
+                    "      \"0, 1, 0\": \"zero-one-zero\"",
+                    "      \"1, 0, 0\": \"one-zero-zero\""),
                 spec.ToString());
-        }
-
-        /// <summary>
-        /// Test setter with invalid key.
-        /// </summary>
-        /// <param name="path">The os-agnostic path of the spec file.</param>
-        [Theory]
-        [InlineData("foo.spec")]
-        [InlineData("dir/bar.spec")]
-        [InlineData("dir1/dir2/baz.spec")]
-        public void InvalidKeySetterTest(string path)
-        {
-            // arrange
-            var proxy = Utility.TestOutSideProxy();
-            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
-            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
-                "\"properties\":",
-                "  \"other value\": \"dummy\""));
-
-            // act
-            var spec = SpecRoot.Fetch(proxy, agnosticPath);
-
-            // assert
-            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
-            {
-                spec.Dict.LimitedKeyword(5).Keyword["dict"] = new Dictionary<string, string>
-                {
-                    { "a", "1 char" },
-                    { "abc", "3 chars" },
-                    { "abcdefgh", "8 chars" },
-                };
-            });
         }
     }
 }

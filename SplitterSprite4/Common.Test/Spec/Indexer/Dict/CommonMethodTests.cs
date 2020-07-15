@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LimitedKeywordToRangeTests.cs" company="MagicKitchen">
+// <copyright file="CommonMethodTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -16,7 +16,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
     /// Test DictIndexer with LimitedKeyword key and Range value.
     /// This class tests common methods among several type definitions.
     /// </summary>
-    public class LimitedKeywordToRangeTests
+    public class CommonMethodTests
     {
         /// <summary>
         /// Test getter.

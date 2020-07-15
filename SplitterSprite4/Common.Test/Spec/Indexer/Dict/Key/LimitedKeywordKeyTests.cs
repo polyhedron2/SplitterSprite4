@@ -1,16 +1,16 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IntervalKeyTests.cs" company="MagicKitchen">
+// <copyright file="LimitedKeywordKeyTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Key
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class IntervalKeyTests
+    public class LimitedKeywordKeyTests
     {
         /// <summary>
         /// Test getter.
@@ -22,28 +22,28 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
         [InlineData("dir1/dir2/baz.spec")]
         public void GetterTest(string path)
         {
-            // arInterval
+            // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"0\": \"zero\"",
-                "      \"2\": \"two\"",
-                "      \"4\": \"four\""));
+                "      \"a\": \"1 char\"",
+                "      \"abc\": \"3 chars\"",
+                "      \"abcde\": \"5 chars\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.Interval('[', 0.0, 5.0, ')').Keyword["dict"];
+            var dict = spec.Dict.LimitedKeyword(5).Keyword["dict"];
 
             // assert
             Assert.Equal(
-                new Dictionary<double, string>
+                new Dictionary<string, string>
                 {
-                    { 0, "zero" },
-                    { 2, "two" },
-                    { 4, "four" },
+                    { "a", "1 char" },
+                    { "abc", "3 chars" },
+                    { "abcde", "5 chars" },
                 },
                 dict);
         }
@@ -58,16 +58,16 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
         [InlineData("dir1/dir2/baz.spec")]
         public void InvalidKeyGetterTest(string path)
         {
-            // arInterval
+            // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
                 "  \"dict\":",
                 "    \"DictBody\":",
-                "      \"0\": \"zero\"",
-                "      \"2\": \"two\"",
-                "      \"5\": \"five\""));
+                "      \"a\": \"1 char\"",
+                "      \"abc\": \"3 chars\"",
+                "      \"abcdefgh\": \"8 chars\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -75,7 +75,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.Interval('[', 0.0, 5.0, ')').Keyword["dict"];
+                _ = spec.Dict.LimitedKeyword(5).Keyword["dict"];
             });
         }
 
@@ -89,7 +89,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
         [InlineData("dir1/dir2/baz.spec")]
         public void SetterTest(string path)
         {
-            // arInterval
+            // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
@@ -98,11 +98,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.Interval('[', 0.0, 5.0, ')').Keyword["dict"] = new Dictionary<double, string>
+            spec.Dict.LimitedKeyword(5).Keyword["dict"] = new Dictionary<string, string>
             {
-                { 0, "zero" },
-                { 2, "two" },
-                { 4, "four" },
+                { "a", "1 char" },
+                { "abc", "3 chars" },
+                { "abcde", "5 chars" },
             };
 
             // assert
@@ -112,9 +112,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
                     "  \"other value\": \"dummy\"",
                     "  \"dict\":",
                     "    \"DictBody\":",
-                    "      \"0\": \"zero\"",
-                    "      \"2\": \"two\"",
-                    "      \"4\": \"four\""),
+                    "      \"a\": \"1 char\"",
+                    "      \"abc\": \"3 chars\"",
+                    "      \"abcde\": \"5 chars\""),
                 spec.ToString());
         }
 
@@ -128,7 +128,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
         [InlineData("dir1/dir2/baz.spec")]
         public void InvalidKeySetterTest(string path)
         {
-            // arInterval
+            // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
@@ -141,11 +141,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                spec.Dict.Interval('[', 0.0, 5.0, ')').Keyword["dict"] = new Dictionary<double, string>
+                spec.Dict.LimitedKeyword(5).Keyword["dict"] = new Dictionary<string, string>
                 {
-                    { 0, "zero" },
-                    { 2, "two" },
-                    { 5, "five" },
+                    { "a", "1 char" },
+                    { "abc", "3 chars" },
+                    { "abcdefgh", "8 chars" },
                 };
             });
         }
