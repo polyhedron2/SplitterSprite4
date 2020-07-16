@@ -284,6 +284,67 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
         }
 
         /// <summary>
+        /// Test setter with base spec.
+        /// </summary>
+        /// <param name="derivedPath">The os-agnostic path of the derived spec file.</param>
+        /// <param name="basePath">The os-agnostic path of the base spec file.</param>
+        [Theory]
+        [InlineData("derived.spec", "base.spec")]
+        [InlineData("dir/derived.spec", "base.spec")]
+        [InlineData("derived.spec", "dir/base.spec")]
+        [InlineData("dir1/derived.spec", "dir2/base.spec")]
+        public void SetterWithBaseTest(string derivedPath, string basePath)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var derivedAgnosticPath = AgnosticPath.FromAgnosticPathString(derivedPath);
+            var baseAgnosticPath = AgnosticPath.FromAgnosticPathString(basePath);
+            Utility.SetupSpecFile(proxy, derivedPath, Utility.JoinLines(
+                $"\"base\": \"{(baseAgnosticPath - derivedAgnosticPath.Parent).ToAgnosticPathString()}\"",
+                "\"properties\":",
+                "  \"other value\": \"dummy\""));
+            Utility.SetupSpecFile(proxy, basePath, Utility.JoinLines(
+                "\"properties\":",
+                "  \"other value\": \"dummy\"",
+                "  \"dict\":",
+                "    \"DictBody\":",
+                "      \"aaaaa\": \"3\"",
+                "      \"abc\": \"1\"",
+                "      \"abcde\": \"9\""));
+
+            // act
+            var spec = SpecRoot.Fetch(proxy, derivedAgnosticPath);
+            spec.Dict.LimitedKeyword(5).Range(10)["dict"] = new Dictionary<string, int>
+            {
+                { "a", 0 },
+                { "abc", 5 },
+                { "abcde", 9 },
+            };
+
+            // assert
+            Assert.Equal(
+                Utility.JoinLines(
+                    $"\"base\": \"{(baseAgnosticPath - derivedAgnosticPath.Parent).ToAgnosticPathString()}\"",
+                    "\"properties\":",
+                    "  \"other value\": \"dummy\"",
+                    "  \"dict\":",
+                    "    \"DictBody\":",
+                    "      \"a\": \"0\"",
+                    "      \"aaaaa\": \"__HIDDEN__\"",
+                    "      \"abc\": \"5\"",
+                    "      \"abcde\": \"9\""),
+                spec.ToString());
+            Assert.Equal(
+                new Dictionary<string, int>
+                {
+                    { "a", 0 },
+                    { "abc", 5 },
+                    { "abcde", 9 },
+                },
+                spec.Dict.LimitedKeyword(5).Range(10)["dict"]);
+        }
+
+        /// <summary>
         /// Test setter to sub spec.
         /// </summary>
         /// <param name="path">The os-agnostic path of the spec file.</param>

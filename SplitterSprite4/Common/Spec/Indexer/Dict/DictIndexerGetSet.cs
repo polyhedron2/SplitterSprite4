@@ -71,7 +71,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                     {
                         this.Parent.SubSpec.Remove(indexKey);
 
-                        foreach (var key in value.Keys.OrderBy(this.KeyOrder))
+                        var baseKeys = this[indexKey].Keys;
+                        var hideKeys = baseKeys.Except(value.Keys);
+                        var updateKeys = baseKeys.Union(value.Keys);
+
+                        foreach (var key in updateKeys.OrderBy(this.KeyOrder))
                         {
                             string keyStr;
                             try
@@ -85,7 +89,15 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 
                             var indexer = this.ValueIndexerGetSetGenerator(
                                 this.Parent[indexKey][this.DictBodyIndex]);
-                            indexer[keyStr] = value[key];
+
+                            if (hideKeys.Contains(key))
+                            {
+                                indexer.Hide(keyStr);
+                            }
+                            else
+                            {
+                                indexer[keyStr] = value[key];
+                            }
                         }
                     }
                     catch (Exception ex)
