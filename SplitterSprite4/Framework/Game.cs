@@ -6,6 +6,8 @@
 
 namespace MagicKitchen.SplitterSprite4.Framework
 {
+    using System;
+    using MagicKitchen.SplitterSprite4.Common.Cycle;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using Microsoft.Xna.Framework.Input;
@@ -15,6 +17,7 @@ namespace MagicKitchen.SplitterSprite4.Framework
     /// </summary>
     public class Game : Microsoft.Xna.Framework.Game
     {
+        private Cycle cycle;
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
@@ -22,6 +25,13 @@ namespace MagicKitchen.SplitterSprite4.Framework
         {
             this.graphics = new GraphicsDeviceManager(this);
             this.Content.RootDirectory = "Content";
+
+            // TODO: Cycle should be spawned from CycleSpawner.
+            this.cycle = null;
+
+            this.Window.Title = this.cycle.Title;
+            var frameSpanNanoSec = 1_000_000_000L / this.cycle.FPS;
+            this.TargetElapsedTime = new TimeSpan(frameSpanNanoSec);
         }
 
         /// <summary>
@@ -70,6 +80,7 @@ namespace MagicKitchen.SplitterSprite4.Framework
             }
 
             // TODO: Add your update logic here
+            this.cycle.Update();
             base.Update(gameTime);
         }
 
@@ -82,6 +93,7 @@ namespace MagicKitchen.SplitterSprite4.Framework
             this.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            this.cycle.Draw();
             base.Draw(gameTime);
         }
     }
