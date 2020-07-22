@@ -9,7 +9,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
