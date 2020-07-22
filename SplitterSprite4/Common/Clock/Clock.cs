@@ -16,22 +16,32 @@ namespace MagicKitchen.SplitterSprite4.Common.Clock
     /// IStatus objects will be updated once a frame.
     /// </summary>
     /// <typeparam name="T_RESULT">The enumaration type for update result.</typeparam>
-    public abstract class Clock<T_RESULT> : TypeErasuredClock
+    public abstract class Clock<T_RESULT> : IClock
         where T_RESULT : Enum
     {
         /// <inheritdoc/>
-        public override string TickWithName()
+        public string TickWithName()
         {
             return this.ResultToName(this.Tick());
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<string> ResultCandidates()
+        public IEnumerable<string> ResultCandidates()
         {
             foreach (var enumValue in Enum.GetValues(typeof(T_RESULT)))
             {
                 yield return this.ResultToName((T_RESULT)enumValue);
             }
+        }
+
+        /// <inheritdoc/>
+        public virtual void Enter()
+        {
+        }
+
+        /// <inheritdoc/>
+        public virtual void Exit()
+        {
         }
 
         /// <summary>

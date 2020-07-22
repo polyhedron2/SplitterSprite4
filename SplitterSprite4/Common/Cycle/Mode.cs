@@ -25,7 +25,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
         /// <param name="effects">The Efecct insances for showing status of IStatus instances.</param>
         /// <param name="resultToNextMode">Mapping from name of Clock's result enum to next mode name.</param>
         public Mode(
-            TypeErasuredClock clock,
+            IClock clock,
             List<Effect> effects,
             IDictionary<string, string> resultToNextMode)
         {
@@ -37,7 +37,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
         /// <summary>
         /// Gets the IClock instance for updating IStatus instances.
         /// </summary>
-        public TypeErasuredClock Clock { get; }
+        public IClock Clock { get; }
 
         /// <summary>
         /// Gets the IEffect instances for showing status of IStatus instances.
