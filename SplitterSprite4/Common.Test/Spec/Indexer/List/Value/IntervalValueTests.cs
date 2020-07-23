@@ -1,16 +1,16 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="OnOffValueTests.cs" company="MagicKitchen">
+// <copyright file="IntervalValueTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.List.Value
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class OnOffValueTests
+    public class IntervalValueTests
     {
         /// <summary>
         /// Test getter.
@@ -22,28 +22,30 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
         [InlineData("dir1/dir2/baz.spec")]
         public void GetterTest(string path)
         {
-            // arrange
+            // arInterval
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"dict\":",
+                "  \"list\":",
                 "    \"DictBody\":",
-                "      \"negative\": \"off\"",
-                "      \"positive\": \"on\""));
+                "      \"0\": \"0\"",
+                "      \"1\": \"2\"",
+                "      \"2\": \"4\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.Keyword.OnOff["dict"];
+            var list = spec.List.Interval('[', 0.0, 5.0, ')')["list"];
 
             // assert
             Assert.Equal(
-                new Dictionary<string, bool>
+                new List<double>
                 {
-                    { "negative", false },
-                    { "positive", true },
+                    0,
+                    2,
+                    4,
                 },
-                dict);
+                list);
         }
 
         /// <summary>
@@ -54,17 +56,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void InvalidKeyGetterTest(string path)
+        public void InvalidValueGetterTest(string path)
         {
-            // arrange
+            // arInterval
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"dict\":",
+                "  \"list\":",
                 "    \"DictBody\":",
-                "      \"negative\": \"off!!!\"",
-                "      \"positive\": \"on\""));
+                "      \"0\": \"0\"",
+                "      \"1\": \"2\"",
+                "      \"2\": \"5\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -72,7 +75,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.Keyword.OnOff["dict"];
+                _ = spec.List.Interval('[', 0.0, 5.0, ')')["list"];
             });
         }
 
@@ -86,7 +89,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
         [InlineData("dir1/dir2/baz.spec")]
         public void SetterTest(string path)
         {
-            // arrange
+            // arInterval
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
@@ -95,10 +98,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.Keyword.OnOff["dict"] = new Dictionary<string, bool>
+            spec.List.Interval('[', 0.0, 5.0, ')')["list"] = new List<double>
             {
-                { "negative", false },
-                { "positive", true },
+                0,
+                2,
+                4,
             };
 
             // assert
@@ -106,11 +110,44 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
                 Utility.JoinLines(
                     "\"properties\":",
                     "  \"other value\": \"dummy\"",
-                    "  \"dict\":",
+                    "  \"list\":",
                     "    \"DictBody\":",
-                    "      \"negative\": \"off\"",
-                    "      \"positive\": \"on\""),
+                    "      \"0\": \"0\"",
+                    "      \"1\": \"2\"",
+                    "      \"2\": \"4\""),
                 spec.ToString());
+        }
+
+        /// <summary>
+        /// Test setter with invalid value.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void InvalidValueSetterTest(string path)
+        {
+            // arInterval
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"other value\": \"dummy\""));
+
+            // act
+            var spec = SpecRoot.Fetch(proxy, agnosticPath);
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                spec.List.Interval('[', 0.0, 5.0, ')')["list"] = new List<double>
+                {
+                    0,
+                    2,
+                    5,
+                };
+            });
         }
     }
 }

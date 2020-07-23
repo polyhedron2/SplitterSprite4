@@ -72,7 +72,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.YesNo.Keyword["dict"];
+                _ = spec.Dict.Keyword.YesNo["dict"];
             });
         }
 

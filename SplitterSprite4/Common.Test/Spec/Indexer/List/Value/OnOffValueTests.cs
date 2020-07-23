@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.List.Value
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
@@ -27,23 +27,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"dict\":",
+                "  \"list\":",
                 "    \"DictBody\":",
-                "      \"negative\": \"off\"",
-                "      \"positive\": \"on\""));
+                "      \"0\": \"off\"",
+                "      \"1\": \"on\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.Keyword.OnOff["dict"];
+            var list = spec.List.OnOff["list"];
 
             // assert
             Assert.Equal(
-                new Dictionary<string, bool>
+                new List<bool>
                 {
-                    { "negative", false },
-                    { "positive", true },
+                    false,
+                    true,
                 },
-                dict);
+                list);
         }
 
         /// <summary>
@@ -61,10 +61,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"dict\":",
+                "  \"list\":",
                 "    \"DictBody\":",
-                "      \"negative\": \"off!!!\"",
-                "      \"positive\": \"on\""));
+                "      \"0\": \"off!!!\"",
+                "      \"1\": \"on\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -72,7 +72,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.Keyword.OnOff["dict"];
+                _ = spec.List.OnOff["list"];
             });
         }
 
@@ -95,10 +95,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.Keyword.OnOff["dict"] = new Dictionary<string, bool>
+            spec.List.OnOff["list"] = new List<bool>
             {
-                { "negative", false },
-                { "positive", true },
+                false,
+                true,
             };
 
             // assert
@@ -106,10 +106,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
                 Utility.JoinLines(
                     "\"properties\":",
                     "  \"other value\": \"dummy\"",
-                    "  \"dict\":",
+                    "  \"list\":",
                     "    \"DictBody\":",
-                    "      \"negative\": \"off\"",
-                    "      \"positive\": \"on\""),
+                    "      \"0\": \"off\"",
+                    "      \"1\": \"on\""),
                 spec.ToString());
         }
     }

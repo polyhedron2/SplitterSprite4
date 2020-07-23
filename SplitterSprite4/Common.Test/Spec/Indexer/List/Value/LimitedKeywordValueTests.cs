@@ -1,16 +1,16 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="OnOffValueTests.cs" company="MagicKitchen">
+// <copyright file="LimitedKeywordValueTests.cs" company="MagicKitchen">
 // Copyright (c) MagicKitchen. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
+namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.List.Value
 {
     using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class OnOffValueTests
+    public class LimitedKeywordValueTests
     {
         /// <summary>
         /// Test getter.
@@ -27,23 +27,25 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"dict\":",
+                "  \"list\":",
                 "    \"DictBody\":",
-                "      \"negative\": \"off\"",
-                "      \"positive\": \"on\""));
+                "      \"0\": \"a\"",
+                "      \"1\": \"abc\"",
+                "      \"2\": \"abcde\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            var dict = spec.Dict.Keyword.OnOff["dict"];
+            var list = spec.List.LimitedKeyword(5)["list"];
 
             // assert
             Assert.Equal(
-                new Dictionary<string, bool>
+                new List<string>
                 {
-                    { "negative", false },
-                    { "positive", true },
+                    "a",
+                    "abc",
+                    "abcde",
                 },
-                dict);
+                list);
         }
 
         /// <summary>
@@ -54,17 +56,18 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void InvalidKeyGetterTest(string path)
+        public void InvalidValueGetterTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
             var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
             Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
                 "\"properties\":",
-                "  \"dict\":",
+                "  \"list\":",
                 "    \"DictBody\":",
-                "      \"negative\": \"off!!!\"",
-                "      \"positive\": \"on\""));
+                "      \"0\": \"a\"",
+                "      \"1\": \"abc\"",
+                "      \"2\": \"abcdefgh\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
@@ -72,7 +75,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
             // assert
             Assert.Throws<Spec.InvalidSpecAccessException>(() =>
             {
-                _ = spec.Dict.Keyword.OnOff["dict"];
+                _ = spec.List.LimitedKeyword(5)["list"];
             });
         }
 
@@ -95,10 +98,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
 
             // act
             var spec = SpecRoot.Fetch(proxy, agnosticPath);
-            spec.Dict.Keyword.OnOff["dict"] = new Dictionary<string, bool>
+            spec.List.LimitedKeyword(5)["list"] = new List<string>
             {
-                { "negative", false },
-                { "positive", true },
+                    "a",
+                    "abc",
+                    "abcde",
             };
 
             // assert
@@ -106,11 +110,44 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict.Value
                 Utility.JoinLines(
                     "\"properties\":",
                     "  \"other value\": \"dummy\"",
-                    "  \"dict\":",
+                    "  \"list\":",
                     "    \"DictBody\":",
-                    "      \"negative\": \"off\"",
-                    "      \"positive\": \"on\""),
+                    "      \"0\": \"a\"",
+                    "      \"1\": \"abc\"",
+                    "      \"2\": \"abcde\""),
                 spec.ToString());
+        }
+
+        /// <summary>
+        /// Test setter with invalid value.
+        /// </summary>
+        /// <param name="path">The os-agnostic path of the spec file.</param>
+        [Theory]
+        [InlineData("foo.spec")]
+        [InlineData("dir/bar.spec")]
+        [InlineData("dir1/dir2/baz.spec")]
+        public void InvalidValueSetterTest(string path)
+        {
+            // arrange
+            var proxy = Utility.TestOutSideProxy();
+            var agnosticPath = AgnosticPath.FromAgnosticPathString(path);
+            Utility.SetupSpecFile(proxy, path, Utility.JoinLines(
+                "\"properties\":",
+                "  \"other value\": \"dummy\""));
+
+            // act
+            var spec = SpecRoot.Fetch(proxy, agnosticPath);
+
+            // assert
+            Assert.Throws<Spec.InvalidSpecAccessException>(() =>
+            {
+                spec.List.LimitedKeyword(5)["list"] = new List<string>
+                {
+                    "a",
+                    "abc",
+                    "abcdefgh",
+                };
+            });
         }
     }
 }
