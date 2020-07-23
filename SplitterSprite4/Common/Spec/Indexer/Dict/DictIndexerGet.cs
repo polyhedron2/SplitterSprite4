@@ -188,33 +188,36 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// Remove key and value from the dictionary.
         /// </summary>
         /// <param name="dictKey">The target dictionary key.</param>
-        /// <param name="removeKey">The string key which will be removed.</param>
-        public void Remove(string dictKey, string removeKey)
+        /// <param name="removeKey">The key which will be removed.</param>
+        public void Remove(string dictKey, T_Key removeKey)
         {
             this.ValueIndexerGetGenerator(
-                this.Parent[dictKey][this.DictBodyIndex]).Remove(removeKey);
+                this.Parent[dictKey][this.DictBodyIndex]).Remove(
+                this.KeySetter(this.Parent.Path, removeKey));
         }
 
         /// <summary>
         /// Hide key and value from the dictionary.
         /// </summary>
         /// <param name="dictKey">The target dictionary key.</param>
-        /// <param name="hideKey">The string key which will be hidden.</param>
-        public void Hide(string dictKey, string hideKey)
+        /// <param name="hideKey">The key which will be hidden.</param>
+        public void Hide(string dictKey, T_Key hideKey)
         {
             this.ValueIndexerGetGenerator(
-                this.Parent[dictKey][this.DictBodyIndex]).Hide(hideKey);
+                this.Parent[dictKey][this.DictBodyIndex]).Hide(
+                this.KeySetter(this.Parent.Path, hideKey));
         }
 
         /// <summary>
         /// Hold key with empty value on the dictionary.
         /// </summary>
         /// <param name="dictKey">The target dictionary key.</param>
-        /// <param name="holdKey">The string key which will be held.</param>
-        public void Hold(string dictKey, string holdKey)
+        /// <param name="holdKey">The key which will be held.</param>
+        public void Hold(string dictKey, T_Key holdKey)
         {
             this.ValueIndexerGetGenerator(
-                this.Parent[dictKey][this.DictBodyIndex]).Hold(holdKey);
+                this.Parent[dictKey][this.DictBodyIndex]).Hold(
+                this.KeySetter(this.Parent.Path, holdKey));
         }
 
         public class InvalidKeyException : Exception

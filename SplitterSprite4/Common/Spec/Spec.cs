@@ -14,6 +14,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec.Indexer;
     using MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict;
+    using MagicKitchen.SplitterSprite4.Common.Spec.Indexer.List;
     using MagicKitchen.SplitterSprite4.Common.YAML;
 
     /// <summary>
@@ -177,6 +178,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public KeyDefiner Dict
         {
             get => new KeyDefiner(this);
+        }
+
+        /// <summary>
+        /// Gets ValueDefiner for starting point of ListIndexer.
+        /// </summary>
+        public ValueDefiner List
+        {
+            get => new ValueDefiner(this);
         }
 
         /// <summary>
