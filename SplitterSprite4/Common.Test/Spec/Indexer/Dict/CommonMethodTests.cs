@@ -839,7 +839,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
 
         /// <summary>
         /// MoldSpecメソッドによる、アクセスキーと型の取得をテスト。
-        /// ただし、SpecファイルはDictのキーをいくつか含んている。
+        /// ただし、SpecファイルはDictのキーをいくつか含んでいる。
         /// Test the MoldSpec method.
         /// The spec contains several keys for the dictionary.
         /// </summary>
@@ -848,7 +848,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.Dict
         [InlineData("foo.spec")]
         [InlineData("dir/bar.spec")]
         [InlineData("dir1/dir2/baz.spec")]
-        public void MoldSpecWithDynamicDefaultTest(string path)
+        public void MoldSpecWithKeysTest(string path)
         {
             // arrange
             var proxy = Utility.TestOutSideProxy();
