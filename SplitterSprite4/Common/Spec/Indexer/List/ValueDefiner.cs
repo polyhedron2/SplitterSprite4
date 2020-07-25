@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.List
 {
     using System;
+    using System.Collections.Generic;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
 
     /// <summary>
@@ -225,6 +226,50 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.List
         {
             return new ListIndexerWithDefault<double, double>(
                 this.DefineDecimalKey().Interval(parenthesisOpen, leftBound, rightBound, parenthesisClose));
+        }
+
+        /// <summary>
+        /// Gets ListIndexer whose value-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T_Value">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <param name="choiceToSpecStr">The function from choice to string on spec.</param>
+        /// <returns>ListIndexer whose value-indexer is Choice.</returns>
+        public ListIndexerWithDefault<T_Value, T_Value> Choice<T_Value>(
+            IEnumerable<T_Value> choices,
+            Func<T_Value, string> choiceToSpecStr)
+        {
+            return new ListIndexerWithDefault<T_Value, T_Value>(
+                this.DefineDecimalKey().Choice(choices, choiceToSpecStr));
+        }
+
+        /// <summary>
+        /// Gets ListIndexer whose value-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T_Value">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <returns>ListIndexer whose value-indexer is Choice.</returns>
+        public ListIndexerWithDefault<T_Value, T_Value> Choice<T_Value>(
+            IEnumerable<T_Value> choices)
+        {
+            return new ListIndexerWithDefault<T_Value, T_Value>(
+                this.DefineDecimalKey().Choice(choices));
+        }
+
+        /// <summary>
+        /// Gets ListIndexer whose value-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T_Value">The type of choice.</typeparam>
+        /// <param name="choiceToSpecStr">
+        /// The mapping from choice to string on spec.
+        /// Note: If the type T's Equals method is not implemented well, this mapping may not work well.
+        /// </param>
+        /// <returns>ListIndexer whose value-indexer is Choice.</returns>
+        public ListIndexerWithDefault<T_Value, T_Value> Choice<T_Value>(
+            IEnumerable<KeyValuePair<T_Value, string>> choiceToSpecStr)
+        {
+            return new ListIndexerWithDefault<T_Value, T_Value>(
+                this.DefineDecimalKey().Choice(choiceToSpecStr));
         }
 
         /// <summary>

@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
@@ -471,6 +472,47 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
         public LimitedKeywordIndexer LimitedKeyword(int limit)
         {
             return new LimitedKeywordIndexer(this, limit, false);
+        }
+
+        /// <summary>
+        /// Gets indexer for choose a choice from finited choices.
+        /// </summary>
+        /// <typeparam name="T">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <param name="choiceToSpecStr">The function from choice to string on spec.</param>
+        /// <returns>Indexer for choose a choice from finited choices.</returns>
+        public ChoiceIndexer<T> Choice<T>(
+            IEnumerable<T> choices,
+            Func<T, string> choiceToSpecStr)
+        {
+            return new ChoiceIndexer<T>(this, choices, choiceToSpecStr, false);
+        }
+
+        /// <summary>
+        /// Gets indexer for choose a choice from finited choices.
+        /// </summary>
+        /// <typeparam name="T">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <returns>Indexer for choose a choice from finited choices.</returns>
+        public ChoiceIndexer<T> Choice<T>(
+            IEnumerable<T> choices)
+        {
+            return new ChoiceIndexer<T>(this, choices, false);
+        }
+
+        /// <summary>
+        /// Gets indexer for choose a choice from finited choices.
+        /// </summary>
+        /// <typeparam name="T">The type of choice.</typeparam>
+        /// <param name="choiceToSpecStr">
+        /// The mapping from choice to string on spec.
+        /// Note: If the type T's Equals method is not implemented well, this mapping may not work well.
+        /// </param>
+        /// <returns>Indexer for choose a choice from finited choices.</returns>
+        public ChoiceIndexer<T> Choice<T>(
+            IEnumerable<KeyValuePair<T, string>> choiceToSpecStr)
+        {
+            return new ChoiceIndexer<T>(this, choiceToSpecStr, false);
         }
 
         /// <summary>

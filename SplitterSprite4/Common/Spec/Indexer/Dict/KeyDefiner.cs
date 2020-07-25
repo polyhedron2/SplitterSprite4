@@ -6,6 +6,9 @@
 
 namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
 
     /// <summary>
@@ -235,6 +238,56 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 
             return new ValueDefiner<double>(
                 this.parent, x => x, keyScalarIndexer);
+        }
+
+        /// <summary>
+        /// Gets ValueDefiner whose key-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <param name="choiceToSpecStr">The function from choice to string on spec.</param>
+        /// <returns>ValueDefiner whose key-indexer is Choice.</returns>
+        public ValueDefiner<T> Choice<T>(
+            IEnumerable<T> choices,
+            Func<T, string> choiceToSpecStr)
+        {
+            return new ValueDefiner<T>(
+                this.parent,
+                x => choices.ToList().IndexOf(x),
+                new ChoiceIndexer<T>(this.parent, choices, choiceToSpecStr, false).InternalIndexer);
+        }
+
+        /// <summary>
+        /// Gets ValueDefiner whose key-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <returns>ValueDefiner whose key-indexer is Choice.</returns>
+        public ValueDefiner<T> Choice<T>(
+            IEnumerable<T> choices)
+        {
+            return new ValueDefiner<T>(
+                this.parent,
+                x => choices.ToList().IndexOf(x),
+                new ChoiceIndexer<T>(this.parent, choices, false).InternalIndexer);
+        }
+
+        /// <summary>
+        /// Gets ValueDefiner whose key-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T">The type of choice.</typeparam>
+        /// <param name="choiceToSpecStr">
+        /// The mapping from choice to string on spec.
+        /// Note: If the type T's Equals method is not implemented well, this mapping may not work well.
+        /// </param>
+        /// <returns>ValueDefiner whose key-indexer is Choice.</returns>
+        public ValueDefiner<T> Choice<T>(
+            IEnumerable<KeyValuePair<T, string>> choiceToSpecStr)
+        {
+            return new ValueDefiner<T>(
+                this.parent,
+                x => choiceToSpecStr.Select(kv => kv.Key).ToList().IndexOf(x),
+                new ChoiceIndexer<T>(this.parent, choiceToSpecStr, false).InternalIndexer);
         }
 
         /// <summary>

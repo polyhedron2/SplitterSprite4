@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Immutable;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
 
@@ -269,6 +270,50 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                     rightBound,
                     parenthesisClose,
                     true));
+        }
+
+        /// <summary>
+        /// Gets DictIndexer whose value-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T_Value">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <param name="choiceToSpecStr">The function from choice to string on spec.</param>
+        /// <returns>DictIndexer whose value-indexer is Choice.</returns>
+        public DictIndexerWithDefault<T_Key, T_Value, T_Value> Choice<T_Value>(
+            IEnumerable<T_Value> choices,
+            Func<T_Value, string> choiceToSpecStr)
+        {
+            return this.GenerateDictIndexerWithIndexerWithDefault(
+                spec => new ChoiceIndexer<T_Value>(spec, choices, choiceToSpecStr, true));
+        }
+
+        /// <summary>
+        /// Gets DictIndexer whose value-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T_Value">The type of choice.</typeparam>
+        /// <param name="choices">The choices.</param>
+        /// <returns>DictIndexer whose value-indexer is Choice.</returns>
+        public DictIndexerWithDefault<T_Key, T_Value, T_Value> Choice<T_Value>(
+            IEnumerable<T_Value> choices)
+        {
+            return this.GenerateDictIndexerWithIndexerWithDefault(
+                spec => new ChoiceIndexer<T_Value>(spec, choices, true));
+        }
+
+        /// <summary>
+        /// Gets DictIndexer whose value-indexer is Choice.
+        /// </summary>
+        /// <typeparam name="T_Value">The type of choice.</typeparam>
+        /// <param name="choiceToSpecStr">
+        /// The mapping from choice to string on spec.
+        /// Note: If the type T's Equals method is not implemented well, this mapping may not work well.
+        /// </param>
+        /// <returns>DictIndexer whose value-indexer is Choice.</returns>
+        public DictIndexerWithDefault<T_Key, T_Value, T_Value> Choice<T_Value>(
+            IEnumerable<KeyValuePair<T_Value, string>> choiceToSpecStr)
+        {
+            return this.GenerateDictIndexerWithIndexerWithDefault(
+                spec => new ChoiceIndexer<T_Value>(spec, choiceToSpecStr, true));
         }
 
         /// <summary>
