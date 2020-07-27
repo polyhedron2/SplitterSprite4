@@ -92,7 +92,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
             bool dictMode)
             : this(
                   parent,
-                  choiceToSpecStr.Select(kv => kv.Key),
+                  choiceToSpecStr?.Select(kv => kv.Key),
                   (choice) => choiceToSpecStr.Where(kv => kv.Key.Equals(choice)).First().Value,
                   dictMode)
         {

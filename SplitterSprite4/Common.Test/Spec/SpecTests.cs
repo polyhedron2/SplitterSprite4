@@ -7,6 +7,8 @@
 namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
@@ -3167,6 +3169,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     "fooqux"];
                 var interior = sp.Interior<ValidSpawnerChildWithDefaultConstructor>()[
                     "fooquux"];
+                _ = sp.Choice(
+                    new List<Indexer.ChoiceIndexerTests.Color>
+                    {
+                        Indexer.ChoiceIndexerTests.Color.RED,
+                        Indexer.ChoiceIndexerTests.Color.GREEN,
+                        Indexer.ChoiceIndexerTests.Color.BLUE,
+                    },
+                    (Indexer.ChoiceIndexerTests.Color color) =>
+                    {
+                        switch (color.Name)
+                        {
+                            case "RED":
+                                return "赤";
+                            case "GREEN":
+                                return "緑";
+                            case "BLUE":
+                                return "青";
+                            default:
+                                // YELLOW is not supported.
+                                throw new Exception($"{color.Name} is not supported.");
+                        }
+                    })["foocorge"];
+                _ = sp.Choice(
+                    new List<Indexer.ChoiceIndexerTests.Color>
+                    {
+                        Indexer.ChoiceIndexerTests.Color.RED,
+                        Indexer.ChoiceIndexerTests.Color.GREEN,
+                        Indexer.ChoiceIndexerTests.Color.BLUE,
+                    })["foograult"];
+                _ = sp.Choice(
+                    new Dictionary<Indexer.ChoiceIndexerTests.Color, string>
+                    {
+                        { Indexer.ChoiceIndexerTests.Color.RED, "ROSSO" },
+                        { Indexer.ChoiceIndexerTests.Color.GREEN, "VERDE" },
+                        { Indexer.ChoiceIndexerTests.Color.BLUE, "AZZURRO" },
+                    }.OrderBy(kv => kv.Value))["foogarply"];
                 _ = sp["inner"].Int["inner int"];
                 _ = sp.Int["after inner"];
                 _ = sp["inner"].Double["inner double"];
@@ -3204,6 +3242,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     $"  \"fooqux\": \"ExteriorDir, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}\"",
                     "  \"fooquux\":",
                     $"    \"spawner\": \"Spawner, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
+                    "  \"foocorge\": \"Choice, 赤, 緑, 青\"",
+                    "  \"foograult\": \"Choice, RED, GREEN, BLUE\"",
+                    "  \"foogarply\": \"Choice, AZZURRO, ROSSO, VERDE\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int\"",
                     "    \"inner double\": \"Double\"",
@@ -3260,6 +3301,42 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     "fooqux", "default/dir"];
                 var interior = sp.Interior<ValidSpawnerChildWithDefaultConstructor>()[
                     "fooquux", typeof(ValidSpawnerChildWithDefaultConstructor)];
+                _ = sp.Choice(
+                    new List<Indexer.ChoiceIndexerTests.Color>
+                    {
+                        Indexer.ChoiceIndexerTests.Color.RED,
+                        Indexer.ChoiceIndexerTests.Color.GREEN,
+                        Indexer.ChoiceIndexerTests.Color.BLUE,
+                    },
+                    (Indexer.ChoiceIndexerTests.Color color) =>
+                    {
+                        switch (color.Name)
+                        {
+                            case "RED":
+                                return "赤";
+                            case "GREEN":
+                                return "緑";
+                            case "BLUE":
+                                return "青";
+                            default:
+                                // YELLOW is not supported.
+                                throw new Exception($"{color.Name} is not supported.");
+                        }
+                    })["foocorge", Indexer.ChoiceIndexerTests.Color.RED];
+                _ = sp.Choice(
+                    new List<Indexer.ChoiceIndexerTests.Color>
+                    {
+                        Indexer.ChoiceIndexerTests.Color.RED,
+                        Indexer.ChoiceIndexerTests.Color.GREEN,
+                        Indexer.ChoiceIndexerTests.Color.BLUE,
+                    })["foograult", Indexer.ChoiceIndexerTests.Color.RED];
+                _ = sp.Choice(
+                    new Dictionary<Indexer.ChoiceIndexerTests.Color, string>
+                    {
+                        { Indexer.ChoiceIndexerTests.Color.RED, "ROSSO" },
+                        { Indexer.ChoiceIndexerTests.Color.GREEN, "VERDE" },
+                        { Indexer.ChoiceIndexerTests.Color.BLUE, "AZZURRO" },
+                    }.OrderBy(kv => kv.Value))["foogarply", Indexer.ChoiceIndexerTests.Color.RED];
                 _ = sp["inner"].Int["inner int", 100];
                 _ = sp.Int["after inner", 1024];
                 _ = sp["inner"].Double["inner double", 2.71];
@@ -3302,6 +3379,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     $"    \"spawner\": \"Spawner, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
                     "    \"properties\":",
                     "      \"return value\": \"Text\"",
+                    "  \"foocorge\": \"Choice, 赤, 緑, 青, 赤\"",
+                    "  \"foograult\": \"Choice, RED, GREEN, BLUE, RED\"",
+                    "  \"foogarply\": \"Choice, AZZURRO, ROSSO, VERDE, ROSSO\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int, 100\"",
                     "    \"inner double\": \"Double, 2.71\"",
