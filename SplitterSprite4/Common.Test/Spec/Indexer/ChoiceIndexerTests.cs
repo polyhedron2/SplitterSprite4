@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
@@ -16,6 +17,53 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
     /// </summary>
     public class ChoiceIndexerTests
     {
+        /// <summary>
+        /// Gets choices list for testing.
+        /// </summary>
+        public static List<Color> ListChoices
+        {
+            get => new List<Color>
+            {
+                Color.RED,
+                Color.GREEN,
+                Color.BLUE,
+            };
+        }
+
+        /// <summary>
+        /// Gets choices dictionary for testing.
+        /// </summary>
+        public static IEnumerable<KeyValuePair<Color, string>> DictChoices
+        {
+            get => new Dictionary<Color, string>
+            {
+                { Color.RED, "ROSSO" },
+                { Color.GREEN, "VERDE" },
+                { Color.BLUE, "AZZURRO" },
+            }.OrderBy(kv => kv.Value);
+        }
+
+        /// <summary>
+        /// Func for testing ChoiceIndexer.
+        /// </summary>
+        /// <param name="color">Choice color.</param>
+        /// <returns>String value for spec.</returns>
+        public static string ChoiceToSpecStr(Color color)
+        {
+            switch (color.Name)
+            {
+                case "RED":
+                    return "赤";
+                case "GREEN":
+                    return "緑";
+                case "BLUE":
+                    return "青";
+                default:
+                    // YELLOW is not supported.
+                    throw new Exception($"{color.Name} is not supported.");
+            }
+        }
+
         /// <summary>
         /// Test ChoiceIndexer class with list and func definition.
         /// </summary>
@@ -39,27 +87,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
 
                 // act
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
-                Func<Color, string> func = (Color color) =>
-                {
-                    switch (color.Name)
-                    {
-                        case "RED":
-                            return "赤";
-                        case "GREEN":
-                            return "緑";
-                        case "BLUE":
-                            return "青";
-                        default:
-                            // YELLOW is not supported.
-                            throw new Exception($"{color.Name} is not supported.");
-                    }
-                };
-                var choices = new List<Color>
-                {
-                    Color.RED,
-                    Color.GREEN,
-                    Color.BLUE,
-                };
 
                 // assert
                 // get value without default value.
@@ -75,61 +102,61 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                             Color.GREEN,
                             Color.BLUE,
                         },
-                        func);
+                        ChoiceToSpecStr);
                 });
 
                 // null choices.
                 Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
                 {
-                    _ = spec.Choice(null, func);
+                    _ = spec.Choice<Color>(null, ChoiceToSpecStr);
                 });
 
                 // empty choices.
                 Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
                 {
-                    _ = spec.Choice(new List<Color>(), func);
+                    _ = spec.Choice(new List<Color>(), ChoiceToSpecStr);
                 });
 
                 // invalid choice.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    _ = spec.Choice(choices, func)["invalid"];
+                    _ = spec.Choice(ListChoices, ChoiceToSpecStr)["invalid"];
                 });
 
-                Assert.Equal(Color.RED, spec.Choice(choices, func)["あか"]);
-                Assert.Equal(Color.GREEN, spec.Choice(choices, func)["みどり"]);
-                Assert.Equal(Color.BLUE, spec.Choice(choices, func)["あお"]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices, ChoiceToSpecStr)["あか"]);
+                Assert.Equal(Color.GREEN, spec.Choice(ListChoices, ChoiceToSpecStr)["みどり"]);
+                Assert.Equal(Color.BLUE, spec.Choice(ListChoices, ChoiceToSpecStr)["あお"]);
 
                 // get value with default value.
                 // invalid choice.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    _ = spec.Choice(choices, func)["invalid", Color.RED];
+                    _ = spec.Choice(ListChoices, ChoiceToSpecStr)["invalid", Color.RED];
                 });
 
                 // Default value which is not contained in the choices.
                 Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
                 {
-                    _ = spec.Choice(choices, func)["なし", Color.YELLOW];
+                    _ = spec.Choice(ListChoices, ChoiceToSpecStr)["なし", Color.YELLOW];
                 });
 
-                Assert.Equal(Color.RED, spec.Choice(choices, func)["なし", Color.RED]);
-                Assert.Equal(Color.RED, spec.Choice(choices, func)["あか", Color.RED]);
-                Assert.Equal(Color.GREEN, spec.Choice(choices, func)["みどり", Color.RED]);
-                Assert.Equal(Color.BLUE, spec.Choice(choices, func)["あお", Color.RED]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices, ChoiceToSpecStr)["なし", Color.RED]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices, ChoiceToSpecStr)["あか", Color.RED]);
+                Assert.Equal(Color.GREEN, spec.Choice(ListChoices, ChoiceToSpecStr)["みどり", Color.RED]);
+                Assert.Equal(Color.BLUE, spec.Choice(ListChoices, ChoiceToSpecStr)["あお", Color.RED]);
 
                 // act
                 // Valid setter access.
-                spec.Choice(choices, func)["べつのあか"] = Color.RED;
+                spec.Choice(ListChoices, ChoiceToSpecStr)["べつのあか"] = Color.RED;
 
                 // Set value which is not contained in the choices.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    spec.Choice(choices, func)["きいろ"] = Color.YELLOW;
+                    spec.Choice(ListChoices, ChoiceToSpecStr)["きいろ"] = Color.YELLOW;
                 });
 
                 // assert
-                Assert.Equal(Color.RED, spec.Choice(choices, func)["べつのあか"]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices, ChoiceToSpecStr)["べつのあか"]);
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"properties\":",
@@ -181,12 +208,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
 
                 // act
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
-                var choices = new List<Color>
-                {
-                    Color.RED,
-                    Color.GREEN,
-                    Color.BLUE,
-                };
 
                 // assert
                 // get value without default value.
@@ -219,43 +240,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                 // invalid choice.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    _ = spec.Choice(choices)["invalid"];
+                    _ = spec.Choice(ListChoices)["invalid"];
                 });
 
-                Assert.Equal(Color.RED, spec.Choice(choices)["あか"]);
-                Assert.Equal(Color.GREEN, spec.Choice(choices)["みどり"]);
-                Assert.Equal(Color.BLUE, spec.Choice(choices)["あお"]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices)["あか"]);
+                Assert.Equal(Color.GREEN, spec.Choice(ListChoices)["みどり"]);
+                Assert.Equal(Color.BLUE, spec.Choice(ListChoices)["あお"]);
 
                 // get value with default value.
                 // invalid choice.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    _ = spec.Choice(choices)["invalid", Color.RED];
+                    _ = spec.Choice(ListChoices)["invalid", Color.RED];
                 });
 
                 // Default value which is not contained in the choices.
                 Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
                 {
-                    _ = spec.Choice(choices)["なし", Color.YELLOW];
+                    _ = spec.Choice(ListChoices)["なし", Color.YELLOW];
                 });
 
-                Assert.Equal(Color.RED, spec.Choice(choices)["なし", Color.RED]);
-                Assert.Equal(Color.RED, spec.Choice(choices)["あか", Color.RED]);
-                Assert.Equal(Color.GREEN, spec.Choice(choices)["みどり", Color.RED]);
-                Assert.Equal(Color.BLUE, spec.Choice(choices)["あお", Color.RED]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices)["なし", Color.RED]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices)["あか", Color.RED]);
+                Assert.Equal(Color.GREEN, spec.Choice(ListChoices)["みどり", Color.RED]);
+                Assert.Equal(Color.BLUE, spec.Choice(ListChoices)["あお", Color.RED]);
 
                 // act
                 // Valid setter access.
-                spec.Choice(choices)["べつのあか"] = Color.RED;
+                spec.Choice(ListChoices)["べつのあか"] = Color.RED;
 
                 // Set value which is not contained in the choices.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    spec.Choice(choices)["きいろ"] = Color.YELLOW;
+                    spec.Choice(ListChoices)["きいろ"] = Color.YELLOW;
                 });
 
                 // assert
-                Assert.Equal(Color.RED, spec.Choice(choices)["べつのあか"]);
+                Assert.Equal(Color.RED, spec.Choice(ListChoices)["べつのあか"]);
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"properties\":",
@@ -307,12 +328,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
 
                 // act
                 var spec = SpecRoot.Fetch(proxy, agnosticPath);
-                var choices = new Dictionary<Color, string>
-                {
-                    { Color.RED, "ROSSO" },
-                    { Color.GREEN, "VERDE" },
-                    { Color.BLUE, "AZZURRO" },
-                };
 
                 // assert
                 // get value without default value.
@@ -345,43 +360,43 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer
                 // invalid choice.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    _ = spec.Choice(choices)["invalid"];
+                    _ = spec.Choice(DictChoices)["invalid"];
                 });
 
-                Assert.Equal(Color.RED, spec.Choice(choices)["あか"]);
-                Assert.Equal(Color.GREEN, spec.Choice(choices)["みどり"]);
-                Assert.Equal(Color.BLUE, spec.Choice(choices)["あお"]);
+                Assert.Equal(Color.RED, spec.Choice(DictChoices)["あか"]);
+                Assert.Equal(Color.GREEN, spec.Choice(DictChoices)["みどり"]);
+                Assert.Equal(Color.BLUE, spec.Choice(DictChoices)["あお"]);
 
                 // get value with default value.
                 // invalid choice.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    _ = spec.Choice(choices)["invalid", Color.RED];
+                    _ = spec.Choice(DictChoices)["invalid", Color.RED];
                 });
 
                 // Default value which is not contained in the choices.
                 Assert.Throws<Spec.InvalidSpecDefinitionException>(() =>
                 {
-                    _ = spec.Choice(choices)["なし", Color.YELLOW];
+                    _ = spec.Choice(DictChoices)["なし", Color.YELLOW];
                 });
 
-                Assert.Equal(Color.RED, spec.Choice(choices)["なし", Color.RED]);
-                Assert.Equal(Color.RED, spec.Choice(choices)["あか", Color.RED]);
-                Assert.Equal(Color.GREEN, spec.Choice(choices)["みどり", Color.RED]);
-                Assert.Equal(Color.BLUE, spec.Choice(choices)["あお", Color.RED]);
+                Assert.Equal(Color.RED, spec.Choice(DictChoices)["なし", Color.RED]);
+                Assert.Equal(Color.RED, spec.Choice(DictChoices)["あか", Color.RED]);
+                Assert.Equal(Color.GREEN, spec.Choice(DictChoices)["みどり", Color.RED]);
+                Assert.Equal(Color.BLUE, spec.Choice(DictChoices)["あお", Color.RED]);
 
                 // act
                 // Valid setter access.
-                spec.Choice(choices)["べつのあか"] = Color.RED;
+                spec.Choice(DictChoices)["べつのあか"] = Color.RED;
 
                 // Set value which is not contained in the choices.
                 Assert.Throws<Spec.InvalidSpecAccessException>(() =>
                 {
-                    spec.Choice(choices)["きいろ"] = Color.YELLOW;
+                    spec.Choice(DictChoices)["きいろ"] = Color.YELLOW;
                 });
 
                 // assert
-                Assert.Equal(Color.RED, spec.Choice(choices)["べつのあか"]);
+                Assert.Equal(Color.RED, spec.Choice(DictChoices)["べつのあか"]);
                 Assert.Equal(
                     Utility.JoinLines(
                         "\"properties\":",
