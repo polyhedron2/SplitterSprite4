@@ -44,7 +44,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer
 
                       return key;
                   },
-                  () => $"Choice, {string.Join(", ", choices.Select(choiceToSpecStr))}",
+                  () => $"Choice, {Spec.EncodeCommas(string.Join(", ", choices.Select(choiceToSpecStr).Select(Spec.EncodeCommas)))}",
                   MoldingDefault(choices),
                   dictMode)
         {

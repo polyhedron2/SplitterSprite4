@@ -3181,7 +3181,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                         switch (color.Name)
                         {
                             case "RED":
-                                return "赤";
+                                return "赤,朱";
                             case "GREEN":
                                 return "緑";
                             case "BLUE":
@@ -3242,9 +3242,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     $"  \"fooqux\": \"ExteriorDir, {Spec.EncodeType(typeof(ValidSpawnerRootWithDefaultConstructor))}\"",
                     "  \"fooquux\":",
                     $"    \"spawner\": \"Spawner, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
-                    "  \"foocorge\": \"Choice, 赤, 緑, 青\"",
-                    "  \"foograult\": \"Choice, RED, GREEN, BLUE\"",
-                    "  \"foogarply\": \"Choice, AZZURRO, ROSSO, VERDE\"",
+                    "  \"foocorge\": \"Choice, 赤\\\\\\\\c朱\\\\c 緑\\\\c 青\"",
+                    "  \"foograult\": \"Choice, RED\\\\c GREEN\\\\c BLUE\"",
+                    "  \"foogarply\": \"Choice, AZZURRO\\\\c ROSSO\\\\c VERDE\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int\"",
                     "    \"inner double\": \"Double\"",
@@ -3313,7 +3313,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                         switch (color.Name)
                         {
                             case "RED":
-                                return "赤";
+                                return "赤,朱";
                             case "GREEN":
                                 return "緑";
                             case "BLUE":
@@ -3379,9 +3379,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
                     $"    \"spawner\": \"Spawner, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}, {Spec.EncodeType(typeof(ValidSpawnerChildWithDefaultConstructor))}\"",
                     "    \"properties\":",
                     "      \"return value\": \"Text\"",
-                    "  \"foocorge\": \"Choice, 赤, 緑, 青, 赤\"",
-                    "  \"foograult\": \"Choice, RED, GREEN, BLUE, RED\"",
-                    "  \"foogarply\": \"Choice, AZZURRO, ROSSO, VERDE, ROSSO\"",
+                    "  \"foocorge\": \"Choice, 赤\\\\\\\\c朱\\\\c 緑\\\\c 青, 赤\\\\c朱\"",
+                    "  \"foograult\": \"Choice, RED\\\\c GREEN\\\\c BLUE, RED\"",
+                    "  \"foogarply\": \"Choice, AZZURRO\\\\c ROSSO\\\\c VERDE, ROSSO\"",
                     "  \"inner\":",
                     "    \"inner int\": \"Int, 100\"",
                     "    \"inner double\": \"Double, 2.71\"",
