@@ -172,10 +172,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
                 if (def == typeof(ISpawnerRootWithArgs<,>) ||
                     def == typeof(ISpawnerChildWithArgs<,>))
                 {
-                    var dummy_args_property =
-                        spawnerType.GetProperty("DummyArgs");
+                    var dummy_args_method =
+                        spawnerType.GetMethod("DummyArgs");
                     object dummy_args_tuple =
-                        dummy_args_property.GetValue(spawner, null);
+                        dummy_args_method.Invoke(spawner, null);
                     object[] dummy_args = { dummy_args_tuple };
 
                     Type[] argsType = { interf.GetGenericArguments()[1] };

@@ -29,6 +29,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// <param name="keyScalarIndexer">
         /// ScalarIndexer object for key access.
         /// </param>
+        /// <param name="ensuredKeys">
+        /// Keys which must be contained.
+        /// </param>
         /// <param name="valueIndexerGenerator">
         /// The value indexer generator.
         /// </param>
@@ -39,6 +42,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             Spec parent,
             Func<T_Key, IComparable> keyOrder,
             ScalarIndexer<T_Key> keyScalarIndexer,
+            ImmutableList<T_Key> ensuredKeys,
             Func<Spec, IIndexerGet<T_Value>> valueIndexerGenerator,
             ImmutableList<string> referredSpecs)
         {
@@ -46,6 +50,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 
             this.KeyOrder = keyOrder;
             this.KeyScalarIndexer = keyScalarIndexer;
+            this.EnsuredKeys = ensuredKeys;
             this.KeyTypeGenerator = keyScalarIndexer.TypeGenerator;
             this.KeyGetter = keyScalarIndexer.Getter;
             this.KeySetter = keyScalarIndexer.Setter;
@@ -70,6 +75,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         protected Func<T_Key, IComparable> KeyOrder { get; }
 
         protected ScalarIndexer<T_Key> KeyScalarIndexer { get; }
+
+        protected ImmutableList<T_Key> EnsuredKeys { get; }
 
         protected Func<string> KeyTypeGenerator { get; }
 
@@ -122,6 +129,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                                 this.Parent.Base,
                                 this.KeyOrder,
                                 this.KeyScalarIndexer,
+                                ImmutableList<T_Key>.Empty,
                                 this.ValueIndexerGetGenerator,
                                 this.ReferredSpecs.Add(this.Parent.ID))[indexKey];
                         }
@@ -130,37 +138,47 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                             ret = new Dictionary<T_Key, T_Value>();
                         }
 
-                        if (!this.Parent.Properties.ContainsKey(indexKey))
+                        if (this.Parent.Properties.ContainsKey(indexKey))
                         {
-                            return ret;
+                            // Translate keys and values from spec.
+                            var itsMap = this.Parent.Properties[indexKey].Mapping[this.DictBodyIndex];
+                            foreach (var yamlKeyValue in itsMap)
+                            {
+                                var yamlKey = yamlKeyValue.Key;
+                                T_Key translatedKey;
+                                try
+                                {
+                                    translatedKey = this.KeyGetter(this.Parent.Path, yamlKey);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new InvalidKeyException(yamlKey, ex);
+                                }
+
+                                try
+                                {
+                                    var indexer =
+                                        this.ValueIndexerGetGenerator(
+                                            this.Parent[indexKey][this.DictBodyIndex]);
+                                    ret[translatedKey] = indexer[yamlKey];
+                                }
+                                catch (Spec.HiddenKeyException)
+                                {
+                                    ret.Remove(translatedKey);
+                                    continue;
+                                }
+                            }
                         }
 
-                        // Translate keys and values from spec.
-                        var itsMap = this.Parent.Properties[indexKey].Mapping[this.DictBodyIndex];
-                        foreach (var yamlKeyValue in itsMap)
+                        foreach (var ensuredKey in this.EnsuredKeys)
                         {
-                            var yamlKey = yamlKeyValue.Key;
-                            T_Key translatedKey;
-                            try
+                            if (!ret.ContainsKey(ensuredKey))
                             {
-                                translatedKey = this.KeyGetter(this.Parent.Path, yamlKey);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new InvalidKeyException(yamlKey, ex);
-                            }
-
-                            try
-                            {
+                                var yamlKey = this.KeySetter(this.Parent.Path, ensuredKey);
                                 var indexer =
                                     this.ValueIndexerGetGenerator(
                                         this.Parent[indexKey][this.DictBodyIndex]);
-                                ret[translatedKey] = indexer[yamlKey];
-                            }
-                            catch (Spec.HiddenKeyException)
-                            {
-                                ret.Remove(translatedKey);
-                                continue;
+                                ret[ensuredKey] = indexer[yamlKey];
                             }
                         }
 

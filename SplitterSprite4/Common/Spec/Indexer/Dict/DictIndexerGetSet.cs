@@ -29,6 +29,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// <param name="keyScalarIndexer">
         /// ScalarIndexer object for key access.
         /// </param>
+        /// <param name="ensuredKeys">
+        /// Keys which must be contained.
+        /// </param>
         /// <param name="valueIndexerGenerator">
         /// The value indexer generator.
         /// </param>
@@ -39,12 +42,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             Spec parent,
             Func<T_Key, IComparable> keyOrder,
             ScalarIndexer<T_Key> keyScalarIndexer,
+            ImmutableList<T_Key> ensuredKeys,
             Func<Spec, IIndexerGetSet<T_Value>> valueIndexerGenerator,
             ImmutableList<string> referredSpecs)
             : base(
                   parent,
                   keyOrder,
                   keyScalarIndexer,
+                  ensuredKeys,
                   valueIndexerGenerator,
                   referredSpecs)
         {

@@ -30,7 +30,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec
         public string Note { get; } = "正しく実装されたSpawner";
 
         /// <inheritdoc/>
-        public bool DummyArgs { get => true; }
+        public bool DummyArgs()
+        {
+            return true;
+        }
 
         /// <inheritdoc/>
         public string Spawn(bool arg1)

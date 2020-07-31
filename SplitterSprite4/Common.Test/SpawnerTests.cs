@@ -121,7 +121,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             public string Note { get => "SpawnerRoot with 1 args."; }
 
             /// <inheritdoc/>
-            public (int, double) DummyArgs { get => (50, 2.71); }
+            public (int, double) DummyArgs()
+            {
+                return (50, 2.71);
+            }
 
             /// <inheritdoc/>
             public string Spawn((int, double) args) =>
@@ -151,7 +154,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Test
             public string Note { get => "SpawnerChild with 1 args."; }
 
             /// <inheritdoc/>
-            public (int, double) DummyArgs { get => (100, 3.14); }
+            public (int, double) DummyArgs()
+            {
+                return (100, 3.14);
+            }
 
             /// <inheritdoc/>
             public string Spawn((int, double) args) =>

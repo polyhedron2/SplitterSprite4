@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
 
@@ -33,7 +34,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<bool> Bool
         {
             get => new ValueDefiner<bool>(
-                this.parent, x => x, new BoolIndexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new BoolIndexer(this.parent, false).InternalIndexer,
+                ImmutableList<bool>.Empty);
         }
 
         /// <summary>
@@ -42,7 +46,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<bool> YesNo
         {
             get => new ValueDefiner<bool>(
-                this.parent, x => x, new YesNoIndexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new YesNoIndexer(this.parent, false).InternalIndexer,
+                ImmutableList<bool>.Empty);
         }
 
         /// <summary>
@@ -51,7 +58,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<bool> OnOff
         {
             get => new ValueDefiner<bool>(
-                this.parent, x => x, new OnOffIndexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new OnOffIndexer(this.parent, false).InternalIndexer,
+                ImmutableList<bool>.Empty);
         }
 
         /// <summary>
@@ -60,7 +70,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<int> Int
         {
             get => new ValueDefiner<int>(
-                this.parent, x => x, new IntIndexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new IntIndexer(this.parent, false).InternalIndexer,
+                ImmutableList<int>.Empty);
         }
 
         /// <summary>
@@ -69,7 +82,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<(int, int)> Int2
         {
             get => new ValueDefiner<(int, int)>(
-                this.parent, x => x, new Int2Indexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new Int2Indexer(this.parent, false).InternalIndexer,
+                ImmutableList<(int, int)>.Empty);
         }
 
         /// <summary>
@@ -78,7 +94,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<(int, int, int)> Int3
         {
             get => new ValueDefiner<(int, int, int)>(
-                this.parent, x => x, new Int3Indexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new Int3Indexer(this.parent, false).InternalIndexer,
+                ImmutableList<(int, int, int)>.Empty);
         }
 
         /// <summary>
@@ -87,7 +106,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<double> Double
         {
             get => new ValueDefiner<double>(
-                this.parent, x => x, new DoubleIndexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new DoubleIndexer(this.parent, false).InternalIndexer,
+                ImmutableList<double>.Empty);
         }
 
         /// <summary>
@@ -96,7 +118,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<(double, double)> Double2
         {
             get => new ValueDefiner<(double, double)>(
-                this.parent, x => x, new Double2Indexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new Double2Indexer(this.parent, false).InternalIndexer,
+                ImmutableList<(double, double)>.Empty);
         }
 
         /// <summary>
@@ -105,7 +130,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<(double, double, double)> Double3
         {
             get => new ValueDefiner<(double, double, double)>(
-                this.parent, x => x, new Double3Indexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new Double3Indexer(this.parent, false).InternalIndexer,
+                ImmutableList<(double, double, double)>.Empty);
         }
 
         /// <summary>
@@ -114,7 +142,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<string> Keyword
         {
             get => new ValueDefiner<string>(
-                this.parent, x => x, new KeywordIndexer(this.parent, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new KeywordIndexer(this.parent, false).InternalIndexer,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -125,7 +156,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         public ValueDefiner<string> LimitedKeyword(int limit)
         {
             return new ValueDefiner<string>(
-                this.parent, x => x, new LimitedKeywordIndexer(this.parent, limit, false).InternalIndexer);
+                this.parent,
+                x => x,
+                new LimitedKeywordIndexer(this.parent, limit, false).InternalIndexer,
+                ImmutableList<string>.Empty);
         }
 
         /// <summary>
@@ -165,7 +199,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 false).InternalIndexer;
 
             return new ValueDefiner<int>(
-                this.parent, x => x, keyScalarIndexer);
+                this.parent, x => x, keyScalarIndexer, ImmutableList<int>.Empty);
         }
 
         /// <summary>
@@ -237,7 +271,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 false).InternalIndexer;
 
             return new ValueDefiner<double>(
-                this.parent, x => x, keyScalarIndexer);
+                this.parent, x => x, keyScalarIndexer, ImmutableList<double>.Empty);
         }
 
         /// <summary>
@@ -254,7 +288,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             return new ValueDefiner<T>(
                 this.parent,
                 x => choices.ToList().IndexOf(x),
-                new ChoiceIndexer<T>(this.parent, choices, choiceToSpecStr, false).InternalIndexer);
+                new ChoiceIndexer<T>(this.parent, choices, choiceToSpecStr, false).InternalIndexer,
+                ImmutableList<T>.Empty);
         }
 
         /// <summary>
@@ -269,7 +304,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             return new ValueDefiner<T>(
                 this.parent,
                 x => choices.ToList().IndexOf(x),
-                new ChoiceIndexer<T>(this.parent, choices, false).InternalIndexer);
+                new ChoiceIndexer<T>(this.parent, choices, false).InternalIndexer,
+                ImmutableList<T>.Empty);
         }
 
         /// <summary>
@@ -287,7 +323,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             return new ValueDefiner<T>(
                 this.parent,
                 x => choiceToSpecStr.Select(kv => kv.Key).ToList().IndexOf(x),
-                new ChoiceIndexer<T>(this.parent, choiceToSpecStr, false).InternalIndexer);
+                new ChoiceIndexer<T>(this.parent, choiceToSpecStr, false).InternalIndexer,
+                ImmutableList<T>.Empty);
         }
 
         /// <summary>
@@ -301,7 +338,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             return new ValueDefiner<T_Spawner>(
                 this.parent,
                 x => x.Spec.ID,
-                new ExteriorIndexer<T_Spawner>(this.parent, false).InternalIndexer);
+                new ExteriorIndexer<T_Spawner>(this.parent, false).InternalIndexer,
+                ImmutableList<T_Spawner>.Empty);
         }
 
         /// <summary>
@@ -315,7 +353,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
             return new ValueDefiner<ISpawnerDir<T_Spawner>>(
                 this.parent,
                 x => x.Dir.Path.ToAgnosticPathString(),
-                new ExteriorDirIndexer<T_Spawner>(this.parent, false).InternalIndexer);
+                new ExteriorDirIndexer<T_Spawner>(this.parent, false).InternalIndexer,
+                ImmutableList<ISpawnerDir<T_Spawner>>.Empty);
         }
     }
 }

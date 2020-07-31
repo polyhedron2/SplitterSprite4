@@ -21,7 +21,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Spawner
         /// <summary>
         /// Gets dummy arguments for molding.
         /// </summary>
-        T_Args DummyArgs { get; }
+        /// <returns>Dummy arguments.</returns>
+        T_Args DummyArgs();
 
         /// <summary>
         /// Spawn target instance with SpecChild instance.

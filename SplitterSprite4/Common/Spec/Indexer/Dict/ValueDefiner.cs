@@ -21,6 +21,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
 
         private Func<T_Key, IComparable> keyOrder;
         private ScalarIndexer<T_Key> keyScalarIndexer;
+        private ImmutableList<T_Key> ensuredKeys;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueDefiner{T_Key}"/> class.
@@ -33,15 +34,20 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
         /// <param name="keyScalarIndexer">
         /// ScalarIndexer object for key access.
         /// </param>
+        /// <param name="ensuredKeys">
+        /// Keys which must be contained.
+        /// </param>
         internal ValueDefiner(
             Spec parent,
             Func<T_Key, IComparable> keyOrder,
-            ScalarIndexer<T_Key> keyScalarIndexer)
+            ScalarIndexer<T_Key> keyScalarIndexer,
+            ImmutableList<T_Key> ensuredKeys)
         {
             this.parent = parent;
 
             this.keyOrder = keyOrder;
             this.keyScalarIndexer = keyScalarIndexer;
+            this.ensuredKeys = ensuredKeys;
         }
 
         /// <summary>
@@ -353,6 +359,33 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 spec => new InteriorIndexer<T_Spawner>(spec, true));
         }
 
+        /// <summary>
+        /// Ensure several keys in dictionary.
+        /// </summary>
+        /// <param name="keys">Keys which must be contained.</param>
+        /// <returns>ValueDefiner with the ensured keys.</returns>
+        public ValueDefiner<T_Key> EnsureKeys(params T_Key[] keys)
+        {
+            foreach (var key in keys)
+            {
+                try
+                {
+                    this.keyScalarIndexer.Setter(this.parent.Path, key);
+                }
+                catch (Exception ex)
+                {
+                    throw new Spec.InvalidSpecDefinitionException(
+                        "EnsureKeysの要素が不正です。", ex);
+                }
+            }
+
+            return new ValueDefiner<T_Key>(
+                this.parent,
+                this.keyOrder,
+                this.keyScalarIndexer,
+                this.ensuredKeys.AddRange(keys));
+        }
+
         private DictIndexerGet<T_Key, T_Value>
             GenerateDictIndexerWithIndexerGet<T_Value>(
             Func<Spec, IIndexerGet<T_Value>> valueIndexerGenerator)
@@ -361,6 +394,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 this.parent,
                 this.keyOrder,
                 this.keyScalarIndexer,
+                this.ensuredKeys,
                 valueIndexerGenerator,
                 ImmutableList<string>.Empty);
         }
@@ -373,6 +407,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.Dict
                 this.parent,
                 this.keyOrder,
                 this.keyScalarIndexer,
+                this.ensuredKeys,
                 valueIndexerGenerator,
                 ImmutableList<string>.Empty);
         }

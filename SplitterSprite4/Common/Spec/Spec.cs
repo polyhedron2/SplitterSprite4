@@ -581,9 +581,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec
                 }
             }
 
-            throw new Spec.InvalidSpecDefinitionException(
+            throw new InvalidSpecDefinitionException(
                 $"正当なサブクラスを持たないSpawnerクラス" +
-                $"\"{spawnerType.Name}\"が使用されています。");
+                $"\"{EncodeType(spawnerType)}\"が使用されています。");
         }
 
         public void SetMagicWord(string key, string word)

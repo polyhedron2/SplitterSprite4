@@ -10,7 +10,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Spec.Indexer.List.Value
     using MagicKitchen.SplitterSprite4.Common.Spec;
     using Xunit;
 
-    public class ChoceValueTests
+    public class ChoiceValueTests
     {
         public class ChoiceValueWithListAndFuncTest
         {

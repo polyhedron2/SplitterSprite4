@@ -22,7 +22,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Status
         public abstract string Note { get; }
 
         /// <inheritdoc/>
-        T_Status ISpawnerRootWithoutArgs<T_Status>.Spawn()
+        public T_Status Spawn()
         {
             return this.Spec.Proxy.Singleton(
                 $"{this.GetType()}.Spawn",

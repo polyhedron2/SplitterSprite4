@@ -8,6 +8,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.List
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
 
     /// <summary>
@@ -312,7 +313,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Spec.Indexer.List
         private Dict.ValueDefiner<decimal> DefineDecimalKey()
         {
             return new Dict.ValueDefiner<decimal>(
-                this.parent, x => x, new ListKeyIndexer(this.parent).InternalIndexer);
+                this.parent,
+                x => x,
+                new ListKeyIndexer(this.parent).InternalIndexer,
+                ImmutableList<decimal>.Empty);
         }
     }
 }
