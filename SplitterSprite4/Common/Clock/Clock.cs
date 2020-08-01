@@ -9,6 +9,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Clock
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using MagicKitchen.SplitterSprite4.Common.Effect;
 
     /// <summary>
     /// １フレームに１度、ゲームの変数状態を表現するIStatusオブジェクトを更新するクラス。
@@ -19,6 +20,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Clock
     public abstract class Clock<T_RESULT> : IClock
         where T_RESULT : Enum
     {
+        /// <inheritdoc/>
+        public abstract List<Effect> Effects { get; }
+
         /// <inheritdoc/>
         public string TickWithName()
         {

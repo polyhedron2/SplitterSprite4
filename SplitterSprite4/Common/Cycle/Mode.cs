@@ -22,15 +22,12 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
         /// Initializes a new instance of the <see cref="Mode"/> class.
         /// </summary>
         /// <param name="clock">The Clock instance for updating IStatus instances.</param>
-        /// <param name="effects">The Efecct insances for showing status of IStatus instances.</param>
         /// <param name="resultToNextMode">Mapping from name of Clock's result enum to next mode name.</param>
         public Mode(
             IClock clock,
-            List<Effect> effects,
             IDictionary<string, string> resultToNextMode)
         {
             this.Clock = clock;
-            this.Effects = effects;
             this.ResultToNextMode = resultToNextMode;
         }
 
@@ -38,11 +35,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
         /// Gets the IClock instance for updating IStatus instances.
         /// </summary>
         public IClock Clock { get; }
-
-        /// <summary>
-        /// Gets the IEffect instances for showing status of IStatus instances.
-        /// </summary>
-        public List<Effect> Effects { get; }
 
         /// <summary>
         /// Gets the mapping from name of IClock's result enum to next mode name.
@@ -67,7 +59,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
         /// </summary>
         public void Draw()
         {
-            this.Effects.ForEach(effect => effect.Apply());
+            this.Clock.Effects.ForEach(effect => effect.Apply());
         }
 
         /// <summary>

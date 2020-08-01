@@ -9,7 +9,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
     using System.Collections.Generic;
     using System.Linq;
     using MagicKitchen.SplitterSprite4.Common.Clock;
-    using MagicKitchen.SplitterSprite4.Common.Effect;
     using MagicKitchen.SplitterSprite4.Common.Spawner;
     using MagicKitchen.SplitterSprite4.Common.Spec;
 
@@ -37,12 +36,10 @@ namespace MagicKitchen.SplitterSprite4.Common.Cycle
         private Mode SpawnMode(Spec spec, IEnumerable<string> modeNames)
         {
             var clock = spec.Exterior<ISpawnerRootWithoutArgs<IClock>>()["状態更新"].Spawn();
-            var effects = spec.List.Exterior<ISpawnerRootWithoutArgs<Effect>>()["状態描画"].Select(
-                x => x.Spawn()).ToList();
             var resultToNextMode = clock.ResultCandidates().ToDictionary(
                 result => result, result => spec["遷移先"].Choice(modeNames)[result]);
 
-            return new Mode(clock, effects, resultToNextMode);
+            return new Mode(clock, resultToNextMode);
         }
     }
 }

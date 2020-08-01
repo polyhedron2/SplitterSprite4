@@ -72,9 +72,9 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
         {
             // arrange
             var status = new Status(0, 100);
-            var questClock = new QuestClock(status, 5);
-            var battleClock = new BattleClock(status, 10);
-            var gameOverClock = new GameOverClock();
+            var questClock = new QuestClock(status, new List<Effect>(), 5);
+            var battleClock = new BattleClock(status, new List<Effect>(), 10);
+            var gameOverClock = new GameOverClock(new List<Effect>());
 
             // act
             var questCandidates = questClock.ResultCandidates().ToHashSet();
@@ -129,23 +129,27 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
              *
              */
             var questMode = new Mode(
-                new QuestClock(status, enemyInterval: 3),
-                new List<Effect>
-                {
-                    new XEffect(status),
-                },
+                new QuestClock(
+                    status,
+                    new List<Effect>
+                    {
+                        new XEffect(status),
+                    },
+                    enemyInterval: 3),
                 new Dictionary<string, string>
                 {
                     { "Continue", "探索" },
                     { "EncounterEnemy", "戦闘" },
                 });
             var battleMode = new Mode(
-                new BattleClock(status, damage: 10),
-                new List<Effect>
-                {
-                    new HPEffect(status),
-                    new EnemyHPEffect(status),
-                },
+                new BattleClock(
+                    status,
+                    new List<Effect>
+                    {
+                        new HPEffect(status),
+                        new EnemyHPEffect(status),
+                    },
+                    damage: 10),
                 new Dictionary<string, string>
                 {
                     { "Continue", "戦闘" },
@@ -153,11 +157,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                     { "敗北時", "ゲームオーバー" },
                 });
             var gameOverMode = new Mode(
-                new GameOverClock(),
-                new List<Effect>
-                {
-                    new GameOverEffect(status),
-                },
+                new GameOverClock(
+                    new List<Effect>
+                    {
+                        new GameOverEffect(status),
+                    }),
                 new Dictionary<string, string>
                 {
                     { "Continue", "ゲームオーバー" },
@@ -252,14 +256,25 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                 $"\"spawner\": \"{Spec.EncodeType(typeof(QuestClockSpawner))}\"",
                 "\"properties\":",
                 "  \"状態管理\": \"status.spec\"",
+                "  \"状態描画\":",
+                "    \"DictBody\":",
+                "      \"0\": \"x_effect.spec\"",
                 "  \"敵の出現間隔\": \"3\""));
             Utility.SetupSpecFile(proxy, "battle_clock.spec", Utility.JoinLines(
                 $"\"spawner\": \"{Spec.EncodeType(typeof(BattleClockSpawner))}\"",
                 "\"properties\":",
                 "  \"状態管理\": \"status.spec\"",
+                "  \"状態描画\":",
+                "    \"DictBody\":",
+                "      \"0\": \"hp_effect.spec\"",
+                "      \"1\": \"enemy_hp_effect.spec\"",
                 "  \"ダメージ量\": \"10\""));
             Utility.SetupSpecFile(proxy, "game_over_clock.spec", Utility.JoinLines(
-                $"\"spawner\": \"{Spec.EncodeType(typeof(GameOverClockSpawner))}\""));
+                $"\"spawner\": \"{Spec.EncodeType(typeof(GameOverClockSpawner))}\"",
+                "\"properties\":",
+                "  \"状態描画\":",
+                "    \"DictBody\":",
+                "      \"0\": \"game_over_effect.spec\""));
             Utility.SetupSpecFile(proxy, "x_effect.spec", Utility.JoinLines(
                 $"\"spawner\": \"{Spec.EncodeType(typeof(XEffectSpawner))}\"",
                 "\"properties\":",
@@ -286,27 +301,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                 "    \"DictBody\":",
                 "      \"探索\":",
                 "        \"状態更新\": \"quest_clock.spec\"",
-                "        \"状態描画\":",
-                "          \"DictBody\":",
-                "            \"0\": \"x_effect.spec\"",
                 "        \"遷移先\":",
                 "          \"Continue\": \"探索\"",
                 "          \"EncounterEnemy\": \"戦闘\"",
                 "      \"戦闘\":",
                 "        \"状態更新\": \"battle_clock.spec\"",
-                "        \"状態描画\":",
-                "          \"DictBody\":",
-                "            \"0\": \"hp_effect.spec\"",
-                "            \"1\": \"enemy_hp_effect.spec\"",
                 "        \"遷移先\":",
                 "          \"Continue\": \"戦闘\"",
                 "          \"勝利時\": \"探索\"",
                 "          \"敗北時\": \"ゲームオーバー\"",
                 "      \"ゲームオーバー\":",
                 "        \"状態更新\": \"game_over_clock.spec\"",
-                "        \"状態描画\":",
-                "          \"DictBody\":",
-                "            \"0\": \"game_over_effect.spec\"",
                 "        \"遷移先\":",
                 "          \"Continue\": \"ゲームオーバー\""));
             Utility.SetupSpecFile(proxy, "entry_point.spec", Utility.JoinLines(
@@ -405,8 +410,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                     "    \"DictBody\":",
                     "      \"\":",
                     $"        \"状態更新\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<IClock>))}\"",
-                    "        \"状態描画\":",
-                    "          \"MoldingType\": \"Dict, ListKey\"",
                     "        \"遷移先\":",
                     "          \"Continue\": \"Choice, \"",
                     "          \"EncounterEnemy\": \"Choice, \""),
@@ -455,8 +458,6 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                     "    \"DictBody\":",
                     "      \"INIT\":",
                     $"        \"状態更新\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<IClock>))}\"",
-                    "        \"状態描画\":",
-                    "          \"MoldingType\": \"Dict, ListKey\"",
                     "        \"遷移先\":",
                     "          \"Continue\": \"Choice, INIT\"",
                     "          \"EncounterEnemy\": \"Choice, INIT\""),
@@ -481,14 +482,25 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                 $"\"spawner\": \"{Spec.EncodeType(typeof(QuestClockSpawner))}\"",
                 "\"properties\":",
                 "  \"状態管理\": \"status.spec\"",
+                "  \"状態描画\":",
+                "    \"DictBody\":",
+                "      \"0\": \"x_effect.spec\"",
                 "  \"敵の出現間隔\": \"3\""));
             Utility.SetupSpecFile(proxy, "battle_clock.spec", Utility.JoinLines(
                 $"\"spawner\": \"{Spec.EncodeType(typeof(BattleClockSpawner))}\"",
                 "\"properties\":",
                 "  \"状態管理\": \"status.spec\"",
+                "  \"状態描画\":",
+                "    \"DictBody\":",
+                "      \"0\": \"hp_effect.spec\"",
+                "      \"1\": \"enemy_hp_effect.spec\"",
                 "  \"ダメージ量\": \"10\""));
             Utility.SetupSpecFile(proxy, "game_over_clock.spec", Utility.JoinLines(
-                $"\"spawner\": \"{Spec.EncodeType(typeof(GameOverClockSpawner))}\""));
+                $"\"spawner\": \"{Spec.EncodeType(typeof(GameOverClockSpawner))}\"",
+                "\"properties\":",
+                "  \"状態描画\":",
+                "    \"DictBody\":",
+                "      \"0\": \"game_over_effect.spec\""));
             Utility.SetupSpecFile(proxy, "x_effect.spec", Utility.JoinLines(
                 $"\"spawner\": \"{Spec.EncodeType(typeof(XEffectSpawner))}\"",
                 "\"properties\":",
@@ -515,29 +527,23 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                 "    \"DictBody\":",
                 "      \"探索\":",
                 "        \"状態更新\": \"quest_clock.spec\"",
-                "        \"状態描画\":",
-                "          \"DictBody\":",
-                "            \"0\": \"x_effect.spec\"",
                 "        \"遷移先\":",
                 "          \"Continue\": \"探索\"",
                 "          \"EncounterEnemy\": \"戦闘\"",
                 "      \"戦闘\":",
                 "        \"状態更新\": \"battle_clock.spec\"",
-                "        \"状態描画\":",
-                "          \"DictBody\":",
-                "            \"0\": \"hp_effect.spec\"",
-                "            \"1\": \"enemy_hp_effect.spec\"",
                 "        \"遷移先\":",
                 "          \"Continue\": \"戦闘\"",
                 "          \"勝利時\": \"探索\"",
                 "          \"敗北時\": \"ゲームオーバー\"",
                 "      \"ゲームオーバー\":",
                 "        \"状態更新\": \"game_over_clock.spec\"",
-                "        \"状態描画\":",
-                "          \"DictBody\":",
-                "            \"0\": \"game_over_effect.spec\"",
                 "        \"遷移先\":",
                 "          \"Continue\": \"ゲームオーバー\""));
+            Utility.SetupSpecFile(proxy, "entry_point.spec", Utility.JoinLines(
+                "\"properties\":",
+                "  \"ゲームサイクル\": \"cycle.spec\"",
+                "  \"ステータス\": \"status.spec\""));
 
             // act
             var spec = SpecRoot.Fetch(proxy, AgnosticPath.FromAgnosticPathString("cycle.spec"), true);
@@ -563,30 +569,17 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
                     "    \"DictBody\":",
                     "      \"探索\":",
                     $"        \"状態更新\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<IClock>))}\"",
-                    "        \"状態描画\":",
-                    "          \"MoldingType\": \"Dict, ListKey\"",
-                    "          \"DictBody\":",
-                    $"            \"0\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<Effect>))}\"",
                     "        \"遷移先\":",
                     "          \"Continue\": \"Choice, 探索\\\\c 戦闘\\\\c ゲームオーバー\"",
                     "          \"EncounterEnemy\": \"Choice, 探索\\\\c 戦闘\\\\c ゲームオーバー\"",
                     "      \"戦闘\":",
                     $"        \"状態更新\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<IClock>))}\"",
-                    "        \"状態描画\":",
-                    "          \"MoldingType\": \"Dict, ListKey\"",
-                    "          \"DictBody\":",
-                    $"            \"0\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<Effect>))}\"",
-                    $"            \"1\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<Effect>))}\"",
                     "        \"遷移先\":",
                     "          \"Continue\": \"Choice, 探索\\\\c 戦闘\\\\c ゲームオーバー\"",
                     "          \"勝利時\": \"Choice, 探索\\\\c 戦闘\\\\c ゲームオーバー\"",
                     "          \"敗北時\": \"Choice, 探索\\\\c 戦闘\\\\c ゲームオーバー\"",
                     "      \"ゲームオーバー\":",
                     $"        \"状態更新\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<IClock>))}\"",
-                    "        \"状態描画\":",
-                    "          \"MoldingType\": \"Dict, ListKey\"",
-                    "          \"DictBody\":",
-                    $"            \"0\": \"Exterior, {Spec.EncodeType(typeof(ISpawnerRootWithoutArgs<Effect>))}\"",
                     "        \"遷移先\":",
                     "          \"Continue\": \"Choice, 探索\\\\c 戦闘\\\\c ゲームオーバー\""),
                 mold.ToString(true));
@@ -688,11 +681,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
             private Status status;
             private int enemyInterval;
 
-            public QuestClock(Status status, int enemyInterval)
+            public QuestClock(Status status, List<Effect> effects, int enemyInterval)
             {
                 this.status = status;
+                this.Effects = effects;
                 this.enemyInterval = enemyInterval;
             }
+
+            public override List<Effect> Effects { get; }
 
             public override void Enter()
             {
@@ -718,11 +714,14 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
             private Status status;
             private int damage;
 
-            public BattleClock(Status status, int damage)
+            public BattleClock(Status status, List<Effect> effects, int damage)
             {
                 this.status = status;
+                this.Effects = effects;
                 this.damage = damage;
             }
+
+            public override List<Effect> Effects { get; }
 
             public override void Enter()
             {
@@ -751,6 +750,13 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
 
         public class GameOverClock : Clock<GameOverResultEnum>
         {
+            public GameOverClock(List<Effect> effects)
+            {
+                this.Effects = effects;
+            }
+
+            public override List<Effect> Effects { get; }
+
             protected override GameOverResultEnum Tick()
             {
                 return GameOverResultEnum.Continue;
@@ -846,6 +852,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
             {
                 return new QuestClock(
                     this.Spec.Exterior<StatusSpawner<Status>>()["状態管理"].Spawn(),
+                    this.Spec.List.Exterior<ISpawnerRootWithoutArgs<Effect>>()["状態描画"].Select(x => x.Spawn()).ToList(),
                     this.Spec.Int["敵の出現間隔"]);
             }
         }
@@ -863,6 +870,7 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
             {
                 return new BattleClock(
                     this.Spec.Exterior<StatusSpawner<Status>>()["状態管理"].Spawn(),
+                    this.Spec.List.Exterior<ISpawnerRootWithoutArgs<Effect>>()["状態描画"].Select(x => x.Spawn()).ToList(),
                     this.Spec.Int["ダメージ量"]);
             }
         }
@@ -878,7 +886,8 @@ namespace MagicKitchen.SplitterSprite4.Common.Test.Cycle
             /// <inheritdoc/>
             public GameOverClock Spawn()
             {
-                return new GameOverClock();
+                return new GameOverClock(
+                    this.Spec.List.Exterior<ISpawnerRootWithoutArgs<Effect>>()["状態描画"].Select(x => x.Spawn()).ToList());
             }
         }
     }

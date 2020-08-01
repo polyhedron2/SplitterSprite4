@@ -7,6 +7,7 @@
 namespace MagicKitchen.SplitterSprite4.Common.Clock
 {
     using System.Collections.Generic;
+    using MagicKitchen.SplitterSprite4.Common.Effect;
 
     /// <summary>
     /// １フレームに１度、ゲームの変数状態を表現するIStatusオブジェクトを更新するクラス。
@@ -15,6 +16,11 @@ namespace MagicKitchen.SplitterSprite4.Common.Clock
     /// </summary>
     public interface IClock
     {
+        /// <summary>
+        /// Gets Effect instances which draw the IStatus objects.
+        /// </summary>
+        List<Effect> Effects { get; }
+
         /// <summary>
         /// Preprocess IStatus instances.
         /// </summary>
